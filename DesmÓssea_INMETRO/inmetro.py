@@ -10,13 +10,13 @@ import numpy as np
 import os
 
 # Lista de arquivos osso original (sem desmineralização)
-lista_arq_osso=os.listdir('CNN_osso/original/')
+lista_arq_osso=os.listdir('Dados/original/')
 # Lista de arquivos osso desmineralização 1
-lista_arq_desm1=os.listdir('CNN_osso/desm1/')
+lista_arq_desm1=os.listdir('Dados/desm1/')
 # Lista de arquivos osso desmineralização 2
-lista_arq_desm2=os.listdir('CNN_osso/desm2/')
+lista_arq_desm2=os.listdir('Dados/desm2/')
 # Lista de arquivos osso desmineralização 3
-lista_arq_desm3=os.listdir('CNN_osso/e/')
+lista_arq_desm3=os.listdir('Dados/e/')
 
 # Quantidade total de sinais
 total_signal = len(lista_arq_osso)+len(lista_arq_desm1)+len(lista_arq_desm2)+len(lista_arq_desm3)+1
@@ -32,7 +32,7 @@ data_len = 15999
 # Lendo os sinais de osso sem desmineralização
 i=0
 #for nome1 in lista_arq_osso:
-#	arq = open('CNN_osso/original/'+nome1,'r')
+#	arq = open('Dados/original/'+nome1,'r')
 #	data = arq.readlines()
 #	data = [float(x) for x in data]
 #	data = data [2:data_len]
@@ -44,7 +44,7 @@ i=0
 
 # Lendo os sinais de osso desmineralização 1
 for nome2 in lista_arq_desm1:
-	arq = open('CNN_osso/desm1/'+nome2,'r')
+	arq = open('Dados/desm1/'+nome2,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
@@ -57,7 +57,7 @@ for nome2 in lista_arq_desm1:
 
 # Lendo os sinais de osso desmineralização 2
 for nome3 in lista_arq_desm2:
-	arq = open('CNN_osso/desm2/'+nome3,'r')
+	arq = open('Dados/desm2/'+nome3,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
@@ -70,7 +70,7 @@ for nome3 in lista_arq_desm2:
 
 # Lendo os sinais de osso desmineralização 3
 for nome4 in lista_arq_desm3:
-	arq = open('CNN_osso/desm3/'+nome4,'r')
+	arq = open('Dados/desm3/'+nome4,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
