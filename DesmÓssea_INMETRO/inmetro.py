@@ -8,98 +8,144 @@ from keras.utils import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import pandas as pd
+import scipy as sp
+from scipy.signal import butter, lfilter
+from scipy.signal import freqs
 
-# Lista de arquivos osso original (sem desmineralização)
-lista_arq_osso=os.listdir('Dados/original/')
-# Lista de arquivos osso desmineralização 1
+
+# Lista de arquivos ossos original (sem desmineralização)
+lista_arq_ossos=os.listdir('Dados/original/')
+# Lista de arquivos ossos desmineralização 1
 lista_arq_desm1=os.listdir('Dados/desm1/')
-# Lista de arquivos osso desmineralização 2
+# Lista de arquivos ossos desmineralização 2
 lista_arq_desm2=os.listdir('Dados/desm2/')
-# Lista de arquivos osso desmineralização 3
-lista_arq_desm3=os.listdir('Dados/e/')
+# Lista de arquivos ossos desmineralização 3
+lista_arq_desm3=os.listdir('Dados/desm3/')
+
 
 # Quantidade total de sinais
-total_signal = len(lista_arq_osso)+len(lista_arq_desm1)+len(lista_arq_desm2)+len(lista_arq_desm3)+1
+total_signal = len(lista_arq_ossos)+len(lista_arq_desm1)+len(lista_arq_desm2)+len(lista_arq_desm3)+1
 
 # Matriz zerada para comportar todos os sinais
-osso = np.zeros((total_signal,15997))
-# Matriz zerada para comportar todas as classes
-#classe = np.zeros((total_signal,4))
-classe = np.zeros((total_signal,3))
+ossos = np.zeros((total_signal,15997))
+# Matriz zerada para comportar todas as classess
+#classes = np.zeros((total_signal,4))
+classes = np.zeros((total_signal,3))
 
 data_len = 15999
 
-# Lendo os sinais de osso sem desmineralização
+# Lendo os sinais de ossos sem desmineralização
 i=0
-#for nome1 in lista_arq_osso:
+#for nome1 in lista_arq_ossos:
 #	arq = open('Dados/original/'+nome1,'r')
 #	data = arq.readlines()
 #	data = [float(x) for x in data]
 #	data = data [2:data_len]
-#	osso[i,:]=data
-#	classe[i,:] = [1., 0., 0., 0.]
+#	ossos[i,:]=data
+#	classes[i,:] = [1., 0., 0., 0.]
 #	i = i+1
 #	data=0
 #	arq.close()
 
-# Lendo os sinais de osso desmineralização 1
+# Lendo os sinais de ossos desmineralização 1
 for nome2 in lista_arq_desm1:
 	arq = open('Dados/desm1/'+nome2,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
-	osso[i,:]=data
-#	classe[i,:] = [0., 1., 0., 0.]
-	classe[i,:] = [1, 0, 0]
+	ossos[i,:]=data
+#	classes[i,:] = [0., 1., 0., 0.]
+	classes[i,:] = [1, 0, 0]
 	i = i+1
 	data=0
 	arq.close()
 
-# Lendo os sinais de osso desmineralização 2
+# Lendo os sinais de ossos desmineralização 2
 for nome3 in lista_arq_desm2:
 	arq = open('Dados/desm2/'+nome3,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
-	osso[i,:]=data
-#	classe[i,:] = [0., 0., 1., 0.]
-	classe[i,:] = [0, 1, 0]
+	ossos[i,:]=data
+#	classes[i,:] = [0., 0., 1., 0.]
+	classes[i,:] = [0, 1, 0]
 	i = i+1
 	data=0
 	arq.close()
 
-# Lendo os sinais de osso desmineralização 3
+# Lendo os sinais de ossos desmineralização 3
 for nome4 in lista_arq_desm3:
 	arq = open('Dados/desm3/'+nome4,'r')
 	data = arq.readlines()
 	data = [float(x) for x in data]
 	data = data [2:data_len]
-	osso[i,:]=data
-#	classe[i,:] = [0., 0., 0., 1.]
-	classe[i,:] = [0, 0, 1]
+	ossos[i,:]=data
+#	classes[i,:] = [0., 0., 0., 1.]
+	classes[i,:] = [0, 0, 1]
 	i = i+1
 	data=0
 	arq.close()
 
-osso = osso[0:i,:]
-classe = classe[0:i,:]
+ossos = ossos[0:i,:]
+classes = classes[0:i,:]
 
-# Para plotar o sinal de osso
-#plt.plot(osso[0,:])
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
+# Filter requirements.
+order = 6
+fs = 2000    # sample rate, Hz
+cutoff =3 # desired cutoff frequency of the filter, Hz
+
+# Get the filter coefficients so we can check its frequency response.
+b, a = butter_lowpass(cutoff, fs, order)
+
+# Demonstrate the use of the filter.
+# First make some data to be filtered.
+n = 15997 # total number of samples
+T = int(n/fs)        # seconds
+t = np.linspace(0, T, n, endpoint=False)
+
+ossos_filtered = np.zeros((total_signal,15997))
+
+def filterData(data,cutoff,fs,order):
+    # Filter the data, and plot both the original and filtered signals.
+    y = butter_lowpass_filter(data, cutoff, fs, order)
+    return y
+
+for i in range(len(ossos)):
+    # "Noisy" data. 
+    data = ossos[i,:]
+    y = filterData(data,cutoff,fs,order)
+    ossos_filtered[i,:] = y
+
+
+# Para plotar o sinal de ossos
+#plt.plot(ossos[0,:])
 #plt.ylabel('Bone signal')
 #plt.show()
 
 #########################################
 
 num_samples=total_signal-1
-samples_len=osso[0,:].size
+samples_len=ossos[0,:].size
 len_smp=129 # 2666; 1333; 129
 split=124 # 6; 12; 124
 #num_class=4
 num_class=3
 
-X = osso[:,0:15996]
-Y = classe
+X = ossos_filtered
+Y = classes
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, shuffle=True)
 
@@ -172,14 +218,14 @@ plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
 # Criando modelo para predição
-ynew = model.predict_classes(X_test)
+ynew = model.predict_classess(X_test)
 # ynew = model.predict_proba(Xnew)
 # show the inputs and predicted outputs
 for i in range(len(X_test)):
 	z = np.nonzero(y_test[i])
 	#print("result=%s, Predicted=%s" % (z[0], ynew[i]))
 	print(z[0], ynew[i])
-print('A média é %f' %(float(sum(history.history['val_categorical_accuracy'])/len(history.history['val_categorical_accuracy']))))
+print('A média é %f' %(float(sum(history.history.keys)/len(history.history.keys))))
 # plotando uma senoide
 #Fs = 8000
 #f = 5
