@@ -1,0 +1,6 @@
+#Dados
+Extrair features do sinal: picos na FFT, atenuação, componentes da FFT, etc
+
+#NN
+Analisar a função de erro, para ajustar os parametros
+Analisar os hiperparametros, escolhendo os menores
