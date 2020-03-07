@@ -1,0 +1,23 @@
+File name: osso23_p1_intacto_1MHz_rep1_med2.txt
+Dia: quinta-feira, 13 de fevereiro de 2020
+Hora: 11:22
+
+Frequency (min) -6dB: 1,10MHz
+Frequency (central): 1,25MHz
+Frequency (max) -6dB: 1,48MHz
+FSAB:   9,22 dB/MHz
+AIB: -53,95 dB
+IRC:  -8,16 dB
+Frequency (superior limit): 5,00MHz
+Reflection duration: 6,7us
+Backscatter duration: 2,0us
+Sample (initial): 36,2us
+Reference (initial): 47,9us
+dF (PDS): 78,1kHz
+
+ABTF	Linear regression
+-66,951493	-8,919000
+-66,230933	-8,966860
+-65,510374	-9,874017
+-64,789814	-10,848140
+-64,069254	-11,402445
