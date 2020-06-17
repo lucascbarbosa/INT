@@ -89,7 +89,7 @@ for nome4 in lista_arq_desm3:
 
 ossos = ossos[0:i,:]
 classes = classes[0:i,:]
-
+"""
 def butter_lowpass(cutoff, fs, order=5):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
@@ -129,7 +129,7 @@ for i in range(len(ossos)):
     y = filterData(data,cutoff,fs,order)
     ossos_filtered[i,:] = y
 
-
+"""
 # Para plotar o sinal de ossos
 #plt.plot(ossos[0,:])
 #plt.ylabel('Bone signal')
@@ -144,15 +144,18 @@ split=124 # 6; 12; 124
 #num_class=4
 num_class=3
 
-X = ossos_filtered
+X = ossos
 Y = classes
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, shuffle=True)
 
 # Reshape signal to matrix signal_length
+print(X_train)
 X_train = X_train.reshape(X_train.shape[0], len_smp, split).astype('float32')
 X_test = X_test.reshape(X_test.shape[0], len_smp, split).astype('float32') 
+print(X_train)
 
+"""
 # Modelando a rede
 model = Sequential()
 # MODELO USADO PARA SEPARAR NORMAL X DESMINERALIZADO
@@ -236,3 +239,4 @@ print('A média é %f' %(float(sum(history.history.keys)/len(history.history.key
 #plt.xlabel('sample(n)')
 #plt.ylabel('voltage(V)')
 #plt.show()
+"""
