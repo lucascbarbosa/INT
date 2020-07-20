@@ -1,0 +1,3 @@
+Primeiro Ensaio: 5mm/min
+Segundo Ensaio: 50mm/min
+Demais Ensaios: 25 mm/min
