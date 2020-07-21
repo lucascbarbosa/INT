@@ -1,0 +1,11 @@
+Análise:
+- Devo diminuir # parâmetros tirando os redundantes?
+- Quais parâmetros utilizar?
+-SMOTE
+
+
+ML:
+
+
+
+DL:
