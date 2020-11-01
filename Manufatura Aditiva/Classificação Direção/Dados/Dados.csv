@@ -1,4 +1,4 @@
-Área S0,Modulus (Automatic Young's),Load at Fy ( 0.2 %) - LE,Tensao em Fy ( 0.2 %) - LE,Deformacao em  Fy ( 0.2 %) - LE,Forca Max,Tensao na Forca Max - LR,Deformacao na Forca Max - LR,Forca na Forca na Quebra - LQ,Deformacao na Forca na Quebra - LQ,Plano,Plano ID
+Área Inicial,Módulo elástico,Carga no escoamento,Tensão de escoamento,Dedformação no escoamento,Força máxima,Tensão na força máxima,Deformação na força máxima,Força de ruptura,Deformação na ruptura,Plano,Plano ID
 21.8066,1378,0.405,18.572358827144075,1.536,0.864,39.62103216457403,22.976,0.733,40.176,deitado,0
 22.223777777777777,1383,0.397,17.863749537532374,1.521,0.864,38.87727859049867,23.239,0.675,42.073,deitado,0
 21.242266666666666,1362,0.392,18.453774550110786,1.585,0.836,39.35549878544035,25.215,0.766,35.382,deitado,0
