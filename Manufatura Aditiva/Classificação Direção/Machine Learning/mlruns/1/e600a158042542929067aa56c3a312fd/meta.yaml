@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/lucas/Documents/GitHub/INT/Manufatura%20Aditiva/Classifica%C3%A7%C3%A3o%20Dire%C3%A7%C3%A3o/Machine%20Learning/Frente%201-%20Par%C3%A2metros%20ML/mlruns/1/e600a158042542929067aa56c3a312fd/artifacts
+end_time: 1605388883263
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: deleted
+name: ''
+run_id: e600a158042542929067aa56c3a312fd
+run_uuid: e600a158042542929067aa56c3a312fd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1605388882700
+status: 3
+tags: []
+user_id: lucas
