@@ -1,0 +1,35 @@
+[1mdiff --cc IA-QUS-MEC/Ensaio Ultrassom/Dados/desm2/osso1_p2_5MHz_Rep1_Med.txt[m
+[1mindex 3dc3881,b94fdcd..0000000[m
+[1m--- a/IA-QUS-MEC/Ensaio Ultrassom/Dados/desm2/osso1_p2_5MHz_Rep1_Med.txt[m
+[1m+++ b/IA-QUS-MEC/Ensaio Ultrassom/Dados/desm2/osso1_p2_5MHz_Rep1_Med.txt[m
+[36m@@@ -1,5 -1,5 +1,9 @@@[m
+  0.0000000006[m
+[32m++<<<<<<< HEAD[m
+[32m +15999.0000000000[m
+[32m++=======[m
+[32m+ 16000.0000000000[m
+[32m++>>>>>>> origin[m
+  -0.0004905778[m
+  -0.0004905778[m
+  -0.0004905778[m
+[1mdiff --cc IA-QUS-MEC/Ensaio Ultrassom/Dados/desm3/osso1_p2_5MHz_Rep1_Med.txt[m
+[1mindex 1a36c3d,64626c9..0000000[m
+[1m--- a/IA-QUS-MEC/Ensaio Ultrassom/Dados/desm3/osso1_p2_5MHz_Rep1_Med.txt[m
+[1m+++ b/IA-QUS-MEC/Ensaio Ultrassom/Dados/desm3/osso1_p2_5MHz_Rep1_Med.txt[m
+[36m@@@ -1,5 -1,5 +1,9 @@@[m
+  0.0000000006[m
+[32m++<<<<<<< HEAD[m
+[32m +15999.0000000000[m
+[32m++=======[m
+[32m+ 16000.0000000000[m
+[32m++>>>>>>> origin[m
+  -0.0001160800[m
+  -0.0001160800[m
+  -0.0001160800[m
+[1mdiff --git a/IA-QUS-MEC/Ensaio Ultrassom/B-mode-Ultrasound b/IA-QUS-MEC/Ensaio Ultrassom/B-mode-Ultrasound[m
+[1mdeleted file mode 160000[m
+[1mindex 8999b79..0000000[m
+[1m--- a/IA-QUS-MEC/Ensaio Ultrassom/B-mode-Ultrasound[m	
+[1m+++ /dev/null[m
+[36m@@ -1 +0,0 @@[m
+[31m-Subproject commit 8999b793614901e502a38de780b15f904abc8406[m
