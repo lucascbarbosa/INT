@@ -140,7 +140,6 @@ class Generator(object):
         for k in range(rows):
           for l in range(cols):
             arch[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
-        print(i+k*self.size,j+l*self.size)
         
     if show:
       self.show_img(arch)
