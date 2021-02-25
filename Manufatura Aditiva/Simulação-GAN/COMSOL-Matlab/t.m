@@ -1,2 +1,3 @@
-width = 0.1;
-a = num2str(width,'%.2f')
+a = 1;
+b = 2;
+disp(a,b);
