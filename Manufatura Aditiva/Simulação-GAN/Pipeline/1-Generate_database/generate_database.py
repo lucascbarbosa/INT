@@ -47,6 +47,6 @@ for i in range(10):
   if show:
     gen.show_img(arch)
   if save_img:
-    gen.save_img(arch,images_dir+'porosity_%.1f_%05d.png'%(porosity,i+1),size)
+    gen.save_img(arch,images_dir+'porosity_%.2f_%05d.png'%(porosity,i+1),size)
   if save_array:
-    gen.save_array(arch,arrays_dir+'porosity_%.1f_%05d.txt'%(porosity,i+1),' ')
+    gen.save_array(arch,arrays_dir+'porosity_%.2f_%05d.txt'%(porosity,i+1),' ')

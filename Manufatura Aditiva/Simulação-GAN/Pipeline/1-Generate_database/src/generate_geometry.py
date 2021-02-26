@@ -23,9 +23,13 @@ class Generator(object):
     plt.show()
 
   def save_img(self,imgdata,img_path,size):
-    im = Image.fromarray(imgdata.astype('uint8')*255)
-    im = im.resize(size)
-    im.save(img_path)
+    fig = plt.figure(frameon=False)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    ax.imshow(imgdata,cmap='Greys')
+    fig.savefig(img_path)
+    plt.close(fig)
 
   def save_array(self,array,array_path, delimiter):
     np.savetxt(array_path, array.ravel(), delimiter=delimiter)
