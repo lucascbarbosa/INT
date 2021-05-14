@@ -1,7 +1,7 @@
 function [Es,model,approved] = main(iso_cutoff)
 
-    arrays_dir = 'C:/Users/lucas/Documents/Github/INT/Manufatura Aditiva/Simulação-GAN/Dados/Geometries/Arrays/';
-    young_dir = 'C:/Users/lucas/Documents/Github/INT/Manufatura Aditiva/Simulação-GAN/Dados/Mechanical_properties/E/';
+    arrays_dir = 'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\1- Arranged_geometries\Arrays\';
+    young_dir = 'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\3- Mechanical_properties\E\';
 
     datadirs = dir(arrays_dir); 
     dircell = struct2cell(datadirs)' ;   
@@ -33,15 +33,15 @@ function [Es,model,approved] = main(iso_cutoff)
             disp(theta);
             E = 0;
             try
-                [model,E] = simulate(array,theta);
+                [model,E] = simulation(array,theta);
             catch
                 try
-                    disp(theta+0.1);
-                    [model,E] = simulate(array,theta+1);
+                    disp(theta+1);
+                    [model,E] = simulation(array,theta);
                 catch
                     try
-                        disp(theta-0.1);
-                    	[model,E] = simulate(array,theta-1);
+                        disp(theta-1);
+                    	[model,E] = simulation(array,theta-1);
                     catch
                         approved(fid) = false;
                     end
