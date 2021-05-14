@@ -17,19 +17,17 @@ H = 129.24;
 sigmars = 715;
 ys0 = 15.0;
 epe = 0.0;
-dispmax = 0.0001;
-ds = 0.00002;
-young = 15.0;
+dispmax = 0.000005;
+ds = 0.000001;
+young = 100.0;
 poisson = 0.3;
 C_k = 129.24;
 gamma_k = 100.0;
 arrange_size = 0.048;
 unit_size = arrange_size/6;
-width = 0.048;
-height = 0.048;
 thickness = 0.00025;
 resolution = length(array);
-void_size = width/(6*resolution);
+void_size = arrange_size/(6*resolution);
 
 model.param.set('disp', [num2str(disp,'%.2f') '' '[m]'], 'prescribed displacement');
 model.param.set('zeta', num2str(zeta,'%.2f'), 'hardening law parameter');
@@ -37,15 +35,13 @@ model.param.set('H', [num2str(H,'%.2f') '' '[MPa]'], 'hardening law parameter');
 model.param.set('sigmars', [num2str(sigmars,'%.2f') '' '[MPa]'], 'hardening law parameter');
 model.param.set('ys0', [num2str(ys0,'%.2f') '' '[MPa]'], 'Initial yield stress');
 model.param.set('epe', [num2str(epe,'%.2f') '' '[m]'], 'strain');
-model.param.set('dispmax', [num2str(dispmax,'%.4f') '' '[m]'], 'maximum displacement');
-model.param.set('ds', [num2str(ds,'%.5f') '' '[m]'], 'prescribed displacement step');
+model.param.set('dispmax', [num2str(dispmax,'%.6f') '' '[m]'], 'maximum displacement');
+model.param.set('ds', [num2str(ds,'%.6f') '' '[m]'], 'prescribed displacement step');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
 model.param.set('poisson', num2str(poisson,'%.2f'), 'poisson''s modulus');
 model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');
 model.param.set('arrange_size', [num2str(arrange_size,'%.4f') '' '[m]'], 'arrange size');
-model.param.set('width', [num2str(width,'%.2f') '' '[m]'], 'specimen width');
-model.param.set('height',  [num2str(height,'%.2f') '' '[m]'], 'speciment hieght');
 model.param.set('thickness', [num2str(thickness,'%.5f') '' '[m]'], 'specimen thickness');
 model.param.set('C_k', [num2str(C_k,'%.2f') '' '[MPa]']);
 model.param.set('gamma_k', num2str(gamma_k,'%.2f'));
@@ -403,7 +399,7 @@ model.result.numerical('pev1').setResult;
 % model.result('pgss').feature('ptgrec1').set('unit', 'N/m^2');
 % model.result('pgss').feature('ptgrec1').set('descr', 'Stress');
 % model.result('pgss').feature('ptgrec1').set('xdata', 'expr');
-% model.result('pgss').feature('ptgrec1').set('xdataexpr', 'solid.disp/height');
+% model.result('pgss').feature('ptgrec1').set('xdataexpr', 'solid.disp/arrange_size');
 % model.result('pgss').feature('ptgrec1').set('xdatadescractive', false);
 % model.result('pgss').feature('ptgrec1').set('xdatadescr', 'Strain');
 % model.result('pgss').feature('ptgrec1').set('titletype', 'manual');
@@ -419,19 +415,14 @@ model.sol('sol1').runAll;
 
 out = model;
 
-% strain = [0:dispmax/ds]*((2*ds)/(3*arrange_size));
-% stress = mphtable(model,'tbl1').data(1:3,2);
-%   
+strain = [ds:ds:dispmax]*(2/(3*arrange_size));
+stress = mphtable(model,'tbl1').data(2:uint8(dispmax/ds)+1,2);
+
 simulation_name = 'simulation_test';
 mphsave(model,simulation_name);
 
-% disp(stress);
-% disp(strain);
+p = polyfit(strain,stress,1);
+E = p(1);
 
-% p = polyfit(strain,stress,1);
-% E = p(1);
-
-p = 0;
-E = 0;
 end
 
