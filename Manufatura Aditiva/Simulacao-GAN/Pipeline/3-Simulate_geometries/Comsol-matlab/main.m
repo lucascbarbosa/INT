@@ -13,7 +13,7 @@ function [Es,model,approved] = main(iso_cutoff)
     dtheta = 5;
     theta_max = 45;
     
-    for fid = (2:2)
+    for fid = (1:1)
         datafilename =strcat(arrays_dir,filenames{fid+2}); 
         f  = fopen(datafilename,'r');
         data = textscan(f,'%s');
