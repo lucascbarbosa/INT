@@ -13,7 +13,7 @@ function [Es,model,approved] = main(iso_cutoff)
     dtheta = 5;
     theta_max = 45;
     
-    for fid = (1:1)
+    for fid = (1:10)
         datafilename =strcat(arrays_dir,filenames{fid+2}); 
         f  = fopen(datafilename,'r');
         data = textscan(f,'%s');
@@ -22,7 +22,9 @@ function [Es,model,approved] = main(iso_cutoff)
         fclose(f);
         array = zeros(size);
         row = [];
-
+        
+        disp(datafilename);
+        
         for i = (1:size)
             for j = (1:size)
                 array(i,j) = str2double(data{(i-1)*size+j});
@@ -47,7 +49,7 @@ function [Es,model,approved] = main(iso_cutoff)
                     end
                 end
             end
-            Es(int8(theta/dtheta)+1) = E;
+            Es(fid,int8(theta/dtheta)+1) = E;
         end
         disp(Es);
         m = min(Es);
