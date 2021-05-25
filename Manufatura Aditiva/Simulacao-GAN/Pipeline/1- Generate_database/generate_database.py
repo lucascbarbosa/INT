@@ -48,7 +48,7 @@ except:
 
 gen = Generator(units, simmetry, size, porosity, num_seeds)
 
-for i in range(samples):
+for i in range(1000,samples+1000):
   element = gen.create_element()
   porosity = np.float32(gen.get_porosity(element)).round(4)
   if show:

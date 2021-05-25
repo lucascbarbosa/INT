@@ -117,18 +117,12 @@ class Generator(object):
     element[:,0] = 1.
     element[:,element.shape[0]-1] = 1.
     
-    print(element)
-
     # remove isolated 0s
     void_phases = measurements.label(1-element)[0]
-
-    print(void_phases)
     
     for phase in np.unique(void_phases):
       if np.where(void_phases==phase)[0].shape[0] == 1:
         element[np.where(void_phases==phase)[0]] = 1.0
-    
-    print(element)
     
     return element
 

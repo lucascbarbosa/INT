@@ -17,8 +17,8 @@ H = 129.24;
 sigmars = 715;
 ys0 = 15.0;
 epe = 0.0;
-dispmax = 0.000005;
-ds = 0.000001;
+dispmax = 0.000003;
+ds = 0.000003;
 young = 100.0;
 poisson = 0.3;
 C_k = 129.24;
@@ -422,15 +422,14 @@ model.result.numerical('pev1').setResult;
 model.sol('sol1').runAll;
 
 out = model;
+ 
+% simulation_name = 'simulation_test';
+% mphsave(model,simulation_name);
 
 strain = [ds:ds:dispmax]*(2/(3*arrange_size));
 stress = mphtable(model,'tbl1').data(2:uint8(dispmax/ds)+1,2);
 
-simulation_name = 'simulation_test';
-mphsave(model,simulation_name);
-
-p = polyfit(strain,stress,1);
-E = p(1);
+E = stress/strain;
 
 end
 

@@ -11,7 +11,7 @@ if __name__ == '__main__':
     stl_dir = r'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\2- 3D_models\stl'
     vtk_dir = r'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\2- 3D_models\vtk'
 
-    max_idx = 2
+    max_idx = 5
 
     start = time.time()
 
