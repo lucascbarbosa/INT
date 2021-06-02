@@ -1,7 +1,7 @@
 function [Es,model] = main()
 
     arrays_dir = 'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\1- Arranged_geometries\Arrays\';
-    young_dir = 'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\3- Mechanical_properties\E\';
+    young_dir = 'C:\Users\lucas\Documents\GitHub\INT\Manufatura Aditiva\Simulacao-GAN\Dados\3- Mechanical_properties\young\';
 
     datadirs = dir(arrays_dir); 
     dircell = struct2cell(datadirs)' ;   
@@ -12,7 +12,7 @@ function [Es,model] = main()
     dtheta = 15;
     theta_max = 45;
     
-    for fid = (741:1200)
+    for fid = (1000:1000)
         datafilename = strcat(arrays_dir,filenames{fid+2})
         f  = fopen(datafilename,'r');
         f_e = fopen(strcat(young_dir,filenames{fid+2}),'wt');

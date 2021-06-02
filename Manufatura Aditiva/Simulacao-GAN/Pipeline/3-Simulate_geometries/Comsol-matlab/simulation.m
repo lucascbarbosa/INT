@@ -12,17 +12,10 @@ model = ModelUtil.create('Model');
 model.modelPath(['C:\Users\lucas\Documents\Github\INT\Manufatura Aditiva\Simula' native2unicode(hex2dec({'00' 'e7'}), 'unicode')  native2unicode(hex2dec({'00' 'e3'}), 'unicode') 'o-GAN\COMSOL-Matlab']);
 
 disp = 0.0;
-zeta = 16.93;
-H = 129.24;
-sigmars = 715;
-ys0 = 15.0;
-epe = 0.0;
 dispmax = 0.000003;
 ds = 0.000003;
 young = 100.0;
 poisson = 0.3;
-C_k = 129.24;
-gamma_k = 100.0;
 arrange_size = 0.048;
 unit_size = arrange_size/6;
 thickness = 0.00025;
@@ -30,11 +23,6 @@ resolution = length(array);
 void_size = arrange_size/(6*resolution);
 
 model.param.set('disp', [num2str(disp,'%.2f') '' '[m]'], 'prescribed displacement');
-model.param.set('zeta', num2str(zeta,'%.2f'), 'hardening law parameter');
-model.param.set('H', [num2str(H,'%.2f') '' '[MPa]'], 'hardening law parameter');
-model.param.set('sigmars', [num2str(sigmars,'%.2f') '' '[MPa]'], 'hardening law parameter');
-model.param.set('ys0', [num2str(ys0,'%.2f') '' '[MPa]'], 'Initial yield stress');
-model.param.set('epe', [num2str(epe,'%.2f') '' '[m]'], 'strain');
 model.param.set('dispmax', [num2str(dispmax,'%.6f') '' '[m]'], 'maximum displacement');
 model.param.set('ds', [num2str(ds,'%.6f') '' '[m]'], 'prescribed displacement step');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
@@ -43,8 +31,6 @@ model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');
 model.param.set('arrange_size', [num2str(arrange_size,'%.4f') '' '[m]'], 'arrange size');
 model.param.set('thickness', [num2str(thickness,'%.5f') '' '[m]'], 'specimen thickness');
-model.param.set('C_k', [num2str(C_k,'%.2f') '' '[MPa]']);
-model.param.set('gamma_k', num2str(gamma_k,'%.2f'));
 model.param.set('theta', [num2str(theta,'%d') '' '[deg]']);
 
 model.component.create('comp1', true);
@@ -262,16 +248,7 @@ model.component('comp1').material('mat1').set('noise', 'on');
 model.component('comp1').material('mat1').set('alpha', 1);
 model.component('comp1').material('mat1').propertyGroup('Enu').set('youngsmodulus', {'young'});
 model.component('comp1').material('mat1').propertyGroup('Enu').set('poissonsratio', {'poisson'});
-model.component('comp1').material('mat1').propertyGroup.create('ArmstrongFrederick', 'Armstrong-Frederick');
-model.component('comp1').material('mat1').propertyGroup.create('ElastoplasticModel', 'Elastoplastic material model');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func.create('an1', 'Analytic');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func('an1').set('funcname', 'sig_h');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func('an1').set('expr', 'H*epe+(sigmars-ys0)*(1-exp(-zeta*epe))');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func('an1').set('args', 'epe');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func('an1').set('argunit', '1');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').func('an1').set('fununit', 'Pa');
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').set('sigmags', {'ys0'});
-model.component('comp1').material('mat1').propertyGroup('ElastoplasticModel').set('sigmagh', {'sig_h(epe)'});
+
 
 model.component('comp1').physics.create('solid', 'SolidMechanics', 'geom1');
 
@@ -288,15 +265,6 @@ model.component('comp1').physics('solid').feature('disp2').selection.set([2]);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 1);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 0);
 
-model.component('comp1').physics('solid').feature('lemm1').create('plsty1', 'Plasticity', 2);
-model.component('comp1').physics('solid').feature('lemm1').feature('plsty1').set('IsotropicHardeningModel', 'UserDefinedIsotropicHardening');
-model.component('comp1').physics('solid').feature('lemm1').feature('plsty1').set('KinematicHardeningModel', 'Chaboche');
-
-model.component('comp1').material('mat1').propertyGroup('ArmstrongFrederick').set('Ck', {'Ck'});
-model.component('comp1').material('mat1').propertyGroup('ArmstrongFrederick').set('Ck', {'C_k'});
-model.component('comp1').material('mat1').propertyGroup('ArmstrongFrederick').set('gammak', {'gamma_k'});
-
-model.component('comp1').physics('solid').feature('lemm1').feature('plsty1').set('KinematicHardeningModel', 'ArmstrongFrederick');
 
 model.component('comp1').mesh('mesh1').create('ftri1', 'FreeTri');
 model.component('comp1').mesh('mesh1').feature('ftri1').selection.geom('geom1');
