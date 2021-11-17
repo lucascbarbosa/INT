@@ -10,7 +10,7 @@ def preproc(array_dir, stl_dir, vtk_dir, idx_array,idx_stl,simmetry,origin,dimen
         
     except:
         if dimension == 2:
-            command_stl = "blender -b -P src/generate_arrange_2d.py %s %s %s %i %i"%(dimension,origin,simmetry,idx_array,angle)
+            command_stl = "blender src/generate_arrange_2d.py %s %s %s %i %i"%(dimension,origin,simmetry,idx_array,angle)
             os.system(command_stl)
         if dimension == 3:
             command_stl = "blender -b -P src/generate_arrange_3d.py %s %s %s %i %i"%(dimension,origin,simmetry,idx_array,angle)
