@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura%20Aditiva/Simulacao-GAN/Pipeline/4-%20Machine_learning/GAN/mlruns/3/49def5f77fdf44a9b5ec34a4cf0b9ec0/artifacts
+end_time: 1626187492293
+entry_point_name: ''
+experiment_id: '3'
+lifecycle_stage: active
+name: ''
+run_id: 49def5f77fdf44a9b5ec34a4cf0b9ec0
+run_uuid: 49def5f77fdf44a9b5ec34a4cf0b9ec0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1626187492223
+status: 3
+tags: []
+user_id: lucas.barbosa

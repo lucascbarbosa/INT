@@ -1,0 +1,4 @@
+artifact_location: file:///C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura%20Aditiva/Simulacao-GAN/Pipeline/4-%20Machine_learning/GAN/mlruns/4
+experiment_id: '4'
+lifecycle_stage: active
+name: GAN_isotropy
