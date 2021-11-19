@@ -1,7 +1,59 @@
 import numpy as np
 import os
 import sys
+import pygalmesh as pgm
+from math import radians, cos, sin, log
+import matplotlib.pyplot as plt
 
+def export_vtk(points,constraints):
+    
+    mesh = pgm.generate_2d(
+        points,
+        constraints,
+        max_edge_size=1e-2,
+        num_lloyd_steps=10,
+    )
+    
+    mesh.write("test.vtk")
+
+
+def get_points_constraints(array):
+    points = []
+    constraints = []
+    cells = 0
+    locs_solid = []
+    # for i in range(array.shape[0]):
+    for i in range(2):
+        loc_y = np.round(arrange_size/2.0 - (i+0.5)*pixel_size,5)
+        # for j in range(array.shape[1]):
+        for j in range(2):
+            loc_x = np.round((j+0.5)*pixel_size - arrange_size/2.0,5)
+            points.append([loc_x-pixel_size/2.,loc_y-pixel_size/2.])
+            points.append([loc_x-pixel_size/2.,loc_y+pixel_size/2.])
+            points.append([loc_x+pixel_size/2.,loc_y-pixel_size/2.])
+            points.append([loc_x+pixel_size/2.,loc_y+pixel_size/2.])
+            if array[i,j] == 1:
+                locs_solid.append([loc_x,loc_y])
+    
+    # print(array[:2,:2])
+
+    points = np.array(points).reshape(len(points),2).round(4)
+    points = np.unique(points,axis=0)
+    # print(points)
+
+    for i in range(len(points)-1):
+        for j in range(1,len(points)):
+            vector = points[i] - points[j]
+            vector = vector.round(4)
+            vector = vector.tolist()
+            position = (points[i] + points[j])/2.
+            position = position.tolist()
+            if position[0] > 
+            
+    # print(constraints)
+    export_vtk(points,constraints)
+
+# //////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
 simmetry = sys.argv[2]
@@ -15,4 +67,26 @@ else:
     arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
     stls_dir = r"E:/Lucas GAN/Dados/2- 3D_models/stl/RTGA/"+simmetry+'/'
 
+
 arrays_filename = os.listdir(arrays_dir)
+
+elements_per_arrange = 3.
+units_per_element = 2.
+resolution = 16.
+thickness =  2.5e-3 # m
+
+arrange_size = 48e-3 # m
+element_size = float(arrange_size/elements_per_arrange) # m
+unit_size = float(element_size/units_per_element) # m
+pixel_size = float(unit_size/resolution)
+mag = int(log(len(arrays_filename),10)+3)
+for array_filename in arrays_filename[idx:idx+1]:
+    with open(os.path.join(arrays_dir,array_filename),'r') as f:
+        array_dir = array_filename.split('_')[0]
+        try:
+            os.mkdir(stls_dir+array_dir)
+        except:
+            pass
+        array = np.array(f.readlines()).astype(float)
+        array = array.reshape((int(resolution),int(resolution)))
+        get_points_constraints(array)
