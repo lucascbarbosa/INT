@@ -10,7 +10,7 @@ def export_vtk(points,constraints):
     mesh = pgm.generate_2d(
         points,
         constraints,
-        max_edge_size=1e-2,
+        max_edge_size=1e-5,
         num_lloyd_steps=10,
     )
     
@@ -35,11 +35,8 @@ def get_points_constraints(array):
             if array[i,j] == 1:
                 locs_solid.append([loc_x,loc_y])
     
-    # print(array[:2,:2])
-
     points = np.array(points).reshape(len(points),2).round(4)
     points = np.unique(points,axis=0)
-    # print(points)
 
     for i in range(len(points)-1):
         for j in range(1,len(points)):
@@ -48,9 +45,12 @@ def get_points_constraints(array):
             vector = vector.tolist()
             position = (points[i] + points[j])/2.
             position = position.tolist()
-            if position[0] > 
+            if vector == [0,-pixel_size] or vector == [-pixel_size,0] or vector == [-pixel_size,-pixel_size]:
+                for loc_solid in locs_solid:
+                    if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
+                        constraints.append([i,j])
+                        break
             
-    # print(constraints)
     export_vtk(points,constraints)
 
 # //////////////////////////////////////////////////////////////
