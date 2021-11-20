@@ -24,17 +24,21 @@ def get_points_constraints(array):
     locs_solid = []
     for i in range(array.shape[0]):
     # for i in range(10):
-        loc_y = np.round(arrange_size/2.0 - (i+0.5)*pixel_size,5)
+        loc_y = np.round(unit_size/2.0 - (i+0.5)*pixel_size,5)
         for j in range(array.shape[1]):
         # for j in range(10):
-            loc_x = np.round((j+0.5)*pixel_size - arrange_size/2.0,5)
-            points.append([loc_x-pixel_size/2.,loc_y-pixel_size/2.])
-            points.append([loc_x-pixel_size/2.,loc_y+pixel_size/2.])
-            points.append([loc_x+pixel_size/2.,loc_y-pixel_size/2.])
-            points.append([loc_x+pixel_size/2.,loc_y+pixel_size/2.])
-            if array[i,j] == 1:
-                locs_solid.append([loc_x,loc_y])
+            loc_x = np.round((j+0.5)*pixel_size - unit_size/2.0,5)
+            locs_x = [loc_x,loc_y,-loc_x,-loc_y]
+            locs_y = [loc_y,-loc_x,-loc_y,loc_x]
+            for loc_x,loc_y in list(zip(locs_x,locs_y)):
+                points.append([loc_x-pixel_size/2.,loc_y-pixel_size/2.])
+                points.append([loc_x-pixel_size/2.,loc_y+pixel_size/2.])
+                points.append([loc_x+pixel_size/2.,loc_y-pixel_size/2.])
+                points.append([loc_x+pixel_size/2.,loc_y+pixel_size/2.])
+                if array[i,j] == 1:
+                    locs_solid.append([loc_x,loc_y])
     
+    print(array)
     points = np.array(points).reshape(len(points),2).round(4)
     points = np.unique(points,axis=0)
 
@@ -70,16 +74,17 @@ else:
 
 arrays_filename = os.listdir(arrays_dir)
 
-elements_per_arrange = 3.
-units_per_element = 2.
+units_per_arrange = 3.
+elements_per_element = 2.
 resolution = 16.
 thickness =  2.5e-3 # m
 
 arrange_size = 48e-3 # m
-element_size = float(arrange_size/elements_per_arrange) # m
-unit_size = float(element_size/units_per_element) # m
-pixel_size = float(unit_size/resolution)
+unit_size = float(arrange_size/units_per_arrange) # m
+element_size = float(unit_size/elements_per_element) # m
+pixel_size = float(element_size/resolution)
 mag = int(log(len(arrays_filename),10)+3)
+
 for array_filename in arrays_filename[idx:idx+1]:
     with open(os.path.join(arrays_dir,array_filename),'r') as f:
         array_dir = array_filename.split('_')[0]
