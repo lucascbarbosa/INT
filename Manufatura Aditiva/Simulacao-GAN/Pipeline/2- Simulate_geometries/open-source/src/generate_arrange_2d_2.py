@@ -23,11 +23,11 @@ def get_points_constraints(array):
     cells = 0
     locs_solid = []
     for i in range(array.shape[0]):
-    # for i in range(10):
-        loc_y = np.round(unit_size/2.0 - (i+0.5)*pixel_size,5)
+    # for i in range(5):
         for j in range(array.shape[1]):
-        # for j in range(10):
-            loc_x = np.round((j+0.5)*pixel_size - unit_size/2.0,5)
+        # for j in range(5):
+            loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
+            loc_x = np.round((j+0.5)*pixel_size - element_size,5)
             locs_x = [loc_x,loc_y,-loc_x,-loc_y]
             locs_y = [loc_y,-loc_x,-loc_y,loc_x]
             for loc_x,loc_y in list(zip(locs_x,locs_y)):
@@ -38,7 +38,6 @@ def get_points_constraints(array):
                 if array[i,j] == 1:
                     locs_solid.append([loc_x,loc_y])
     
-    print(array)
     points = np.array(points).reshape(len(points),2).round(4)
     points = np.unique(points,axis=0)
 
@@ -54,7 +53,7 @@ def get_points_constraints(array):
                     if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
                         constraints.append([i,j])
                         break
-            
+    
     export_vtk(points,constraints)
 
 # //////////////////////////////////////////////////////////////
