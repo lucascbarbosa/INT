@@ -39,22 +39,24 @@ def get_points_constraints(array):
             loc_x,loc_y = idx2coord(i,j)
             locs_element_x = [loc_x,loc_y,-loc_x,-loc_y]
             locs_element_y = [loc_y,-loc_x,-loc_y,loc_x]
-            for loc_pixel_x,loc_pixel_y in list(zip(locs_element_x,locs_element_y)):
+            for k in range(2):
+                for l in range(2):
+                    for loc_pixel_x,loc_pixel_y in list(zip(locs_element_x,locs_element_y)):
+                        if array[i,j] == 1:
+                            if [np.round(loc_pixel_x-pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y+pixel_size/2.+k*unit_size,4)] not in points:
+                                points.append([np.round(loc_pixel_x-pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y+pixel_size/2.+k*unit_size,4)])
 
-                if [np.round(loc_pixel_x-pixel_size/2.,4),np.round(loc_pixel_y+pixel_size/2.,4)] not in points:
-                    points.append([np.round(loc_pixel_x-pixel_size/2.,4),np.round(loc_pixel_y+pixel_size/2.,4)])
+                            if [np.round(loc_pixel_x-pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y-pixel_size/2.+k*unit_size,4)] not in points:
+                                points.append([np.round(loc_pixel_x-pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y-pixel_size/2.+k*unit_size,4)])
 
-                if [np.round(loc_pixel_x-pixel_size/2.,4),np.round(loc_pixel_y-pixel_size/2.,4)] not in points:
-                    points.append([np.round(loc_pixel_x-pixel_size/2.,4),np.round(loc_pixel_y-pixel_size/2.,4)])
+                            if [np.round(loc_pixel_x+pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y+pixel_size/2.+k*unit_size,4)] not in points:
+                                points.append([np.round(loc_pixel_x+pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y+pixel_size/2.+k*unit_size,4)])
 
-                if [np.round(loc_pixel_x+pixel_size/2.,4),np.round(loc_pixel_y+pixel_size/2.,4)] not in points:
-                    points.append([np.round(loc_pixel_x+pixel_size/2.,4),np.round(loc_pixel_y+pixel_size/2.,4)])
+                            if [np.round(loc_pixel_x+pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y-pixel_size/2.+k*unit_size,4)] not in points:
+                                points.append([np.round(loc_pixel_x+pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y-pixel_size/2.+k*unit_size,4)])
 
-                if [np.round(loc_pixel_x+pixel_size/2.,4),np.round(loc_pixel_y-pixel_size/2.,4)] not in points:
-                    points.append([np.round(loc_pixel_x+pixel_size/2.,4),np.round(loc_pixel_y-pixel_size/2.,4)])
+                            locs_solid.append([loc_pixel_x+l*unit_size,loc_pixel_y+k*unit_size])
 
-                if array[i,j] == 1:
-                    locs_solid.append([loc_pixel_x,loc_pixel_y])
     points = np.array(points).reshape(len(points),2)
     ind = np.lexsort((points[:,1],points[:,0]))
     # points = points[np.argsort(points,axis=0)[:,0]]
@@ -66,19 +68,21 @@ def get_points_constraints(array):
     #     points_position[i,j] = p
         # print(point[0],point[1],i,j)
 
-    for i in range(len(points)-1):
-        for j in range(1,len(points)):
-            vector = points[i] - points[j]
-            vector = vector.round(4)
-            vector = vector.tolist()
-            position = (points[i] + points[j])/2.
-            position = position.tolist()
-            if vector == [0,-pixel_size] or vector == [-pixel_size,0]:
-                for loc_solid in locs_solid:
-                    if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
-                        constraints.append([i,j])
-                        break
-    export_vtk(points,constraints)
+    print(points)
+    
+    # for i in range(len(points)-1):
+    #     for j in range(1,len(points)):
+    #         vector = points[i] - points[j]
+    #         vector = vector.round(4)
+    #         vector = vector.tolist()
+    #         position = (points[i] + points[j])/2.
+    #         position = position.tolist()
+    #         if vector == [0,-pixel_size] or vector == [-pixel_size,0]:
+    #             for loc_solid in locs_solid:
+    #                 if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
+    #                     constraints.append([i,j])
+    #                     break
+    # export_vtk(points,constraints)
 
 # //////////////////////////////////////////////////////////////
 
@@ -97,8 +101,8 @@ else:
 
 arrays_filename = os.listdir(arrays_dir)
 
-units_per_arrange = 3.
-elements_per_unit = 2.
+units_per_arrange = 3
+elements_per_unit = 2
 resolution = 16.
 thickness =  2.5e-3 # m
 
