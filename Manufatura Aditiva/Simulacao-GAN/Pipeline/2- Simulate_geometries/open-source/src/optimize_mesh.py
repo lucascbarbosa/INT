@@ -2,7 +2,7 @@ import meshio
 import numpy as np
 import optimesh
 
-path = 'C:/Users/lucas/OneDrive/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/2- Simulate_geometries/open-source/src/porosity_0.5273_theta_0.vtk'
+path = 'C:/Users/lucas/OneDrive/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/2- Simulate_geometries/open-source/src/test.vtk'
 
 mesh = meshio.read(path)
 
