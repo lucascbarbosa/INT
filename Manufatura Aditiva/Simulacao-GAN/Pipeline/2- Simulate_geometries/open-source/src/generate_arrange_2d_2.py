@@ -14,8 +14,10 @@ def export_vtk(points,constraints):
         max_edge_size=2e-4,
         num_lloyd_steps=10,
     )
+    print(np.array(mesh.points).shape[0])
+    print(np.array(mesh.cells))
     
-    mesh.write("test.vtk")
+    mesh.write("test2.vtk")
 
 def idx2coord(i,j):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
@@ -32,15 +34,15 @@ def get_points_constraints(array):
     points_position = np.zeros((int(array.shape[0]*elements_per_unit*units_per_arrange+1),int(array.shape[1]*elements_per_unit*units_per_arrange+1)))
     constraints = []
     locs_solid = []
-    for i in range(array.shape[0]):
-    # for i in range(2):
-        for j in range(array.shape[1]):
-        # for j in range(2):
+    # for i in range(array.shape[0]):
+    for i in range(2):
+        # for j in range(array.shape[1]):
+        for j in range(2):
             loc_x,loc_y = idx2coord(i,j)
             locs_element_x = [loc_x,loc_y,-loc_x,-loc_y]
             locs_element_y = [loc_y,-loc_x,-loc_y,loc_x]
-            for k in range(2):
-                for l in range(2):
+            for k in range(1):
+                for l in range(1):
                     for loc_pixel_x,loc_pixel_y in list(zip(locs_element_x,locs_element_y)):
                         if array[i,j] == 1:
                             if [np.round(loc_pixel_x-pixel_size/2.+l*unit_size,4),np.round(loc_pixel_y+pixel_size/2.+k*unit_size,4)] not in points:
@@ -59,30 +61,44 @@ def get_points_constraints(array):
 
     points = np.array(points).reshape(len(points),2)
     ind = np.lexsort((points[:,1],points[:,0]))
-    # points = points[np.argsort(points,axis=0)[:,0]]
-    points = points[ind]
-
+    points = points[ind]    
     # for p in range(len(points)):
     #     point = points[p]
     #     i,j = coord2idx(point[0],point[1])
     #     points_position[i,j] = p
-        # print(point[0],point[1],i,j)
-
-    print(points)
+        # print(point[0],point[1],i,j  )
+    # for val in np.unique(points[:,0])[:1]:
+    #     points_val = points[np.unique(np.where(((points[:,0] <= val+pixel_size) & (points[:,0] >= val-pixel_size)) | ((points[:,1] <= val+pixel_size) & (points[:,1] >= val-pixel_size)))),:]
+    #     print(points_val)
+    for i in range(len(points)):
+        point_1 = points[i]
+        possible_points = points[np.unique(np.where(((points[:,0] <= point_1[0] + pixel_size) & (points[:,0] >= point_1[0] - pixel_size)) & ((points[:,1] <= point_1[1] + pixel_size) & (points[:,1] >= point_1[1] - pixel_size)))),:]
+        for j in range(len(possible_points)):
+            point_2 = possible_points[j]
+            if point_1.tolist() != point_2.tolist():
+                vector = point_1 - point_2
+                vector = vector.round(4)
+                vector = vector.tolist()
+                position = (point_1 + point_2)/2.
+                position = position.tolist()
+                if vector == [0,-pixel_size] or vector == [-pixel_size,0]:
+                    for loc_solid in locs_solid:
+                        if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
+                            constraints.append([i,np.where((points[:,0] == point_2[0]) & (points[:,1] == point_2[1]))[0][0]])
+                            break
     
-    # for i in range(len(points)-1):
-    #     for j in range(1,len(points)):
-    #         vector = points[i] - points[j]
-    #         vector = vector.round(4)
-    #         vector = vector.tolist()
-    #         position = (points[i] + points[j])/2.
-    #         position = position.tolist()
-    #         if vector == [0,-pixel_size] or vector == [-pixel_size,0]:
-    #             for loc_solid in locs_solid:
-    #                 if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
-    #                     constraints.append([i,j])
-    #                     break
-    # export_vtk(points,constraints)
+# for j in range(1,len(points)):
+#             vector = points[i] - points[j]
+#             vector = vector.round(4)
+#             vector = vector.tolist()
+#             position = (points[i] + points[j])/2.
+#             position = position.tolist()
+#             if vector == [0,-pixel_size] or vector == [-pixel_size,0]:
+#                 for loc_solid in locs_solid:
+#                     if (position[0] <= loc_solid[0] + pixel_size/2. and position[0] >= loc_solid[0] - pixel_size/2.) and (position[1] <= loc_solid[1] + pixel_size/2. and position[1] >= loc_solid[1] - pixel_size/2.):
+#                         constraints.append([i,j])
+#                         break
+    export_vtk(points,constraints)
 
 # //////////////////////////////////////////////////////////////
 
