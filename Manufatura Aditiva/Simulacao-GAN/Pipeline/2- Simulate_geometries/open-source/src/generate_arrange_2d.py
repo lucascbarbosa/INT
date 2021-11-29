@@ -4,7 +4,7 @@ import pygmsh
 import numpy as np
 import os
 import sys
-from math import log
+from math import log, sqrt
 import matplotlib.pyplot as plt
 start = time.time()
 
@@ -53,9 +53,24 @@ def generate_mesh(filename):
                     geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
                     units.append(unit_)
         
-        print(units)
-
         arrange = geom.boolean_union(units) 
+
+        # field0 = geom.add_boundary_layer(
+        # edges_list=[arrange[0].curves[0]],
+        # distmin=0.0,
+        # distmax=pixel_size*sqrt(2),
+        # )
+        # field1 = geom.add_boundary_layer(
+        #     nodes_list=[arrange[0].points[2]],
+        #     distmin=0.0,
+        #     distmax=2*pixel_size*sqrt(2),
+        # )
+        # geom.set_background_mesh([field0, field1], operator="Min")
+
+        geom.set_mesh_size_callback(
+            lambda dim, tag, x, y, z: pixel_size
+        )
+
         mesh = geom.generate_mesh()
         mesh.write(filename)
         
