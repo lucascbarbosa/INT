@@ -53,7 +53,7 @@ if __name__ == '__main__':
     simmetry = str(sys.argv[3])
     start = int(sys.argv[4])-1
     end = int(sys.argv[5])-1
-    max_processes = 14
+    max_processes = 1
 
     if origin == "-g":
         problem = str(sys.argv[5])
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     size = end-start+1
     if origin == "-r":
         geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
-        stl_dir = 'E:/Lucas GAN/Dados/2- 3D_models/stl/RTGA/%sD/%s'%(dimension,simmetry)
-        vtk_dir = 'E:/Lucas GAN/Dados/2- 3D_models/vtk/RTGA/%sD/%s'%(dimension,simmetry)
+        stl_dir = 'E:/Lucas GAN/Dados/2- Models/stl/RTGA/%sD/%s'%(dimension,simmetry)
+        vtk_dir = 'E:/Lucas GAN/Dados/2- Models/vtk/RTGA/%sD/%s'%(dimension,simmetry)
         young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
         geometries_filename = os.listdir(geometries_dir)

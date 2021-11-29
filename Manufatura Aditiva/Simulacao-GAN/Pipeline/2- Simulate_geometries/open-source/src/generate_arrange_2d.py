@@ -1,16 +1,14 @@
-import optimesh
 import meshio
 import time
 import pygmsh
 import numpy as np
 import os
 import sys
-from numpy.core.numeric import count_nonzero
-from math import radians, cos, sin, log
+from math import log
 import matplotlib.pyplot as plt
 start = time.time()
 
-def idx2coord(i,j,k,l,m,n):
+def idx2coord(i,j,k,l):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
     loc_x = np.round((j+0.5)*pixel_size - element_size,5)
     
@@ -20,48 +18,47 @@ def idx2coord(i,j,k,l,m,n):
     loc_x = locs_element_x[element_idx]
     loc_y = locs_element_y[element_idx]
     
-    # print(loc_x,loc_y,m,n)
-
-    loc_x = np.round(loc_x + (n-1)*unit_size,5)
-    loc_y = np.round(loc_y + (1-m)*unit_size,5)
-    # print(loc_x,loc_y,m,n,'\n')
     return loc_x,loc_y
 
 def generate_mesh(filename):
     with pygmsh.occ.Geometry()  as geom:
-        arrange = geom.add_polygon(
+        unit = geom.add_polygon(
             [
-                [-arrange_size/2.+1e-5, -arrange_size/2.+1e-5],
-                [arrange_size/2.-1e-5, -arrange_size/2.+1e-5],
-                [arrange_size/2.-1e-5, arrange_size/2.-1e-5],
-                [-arrange_size/2.+1e-5, arrange_size/2.-1e-5],
+                [-unit_size/2.+1e-5, -unit_size/2.+1e-5],
+                [unit_size/2.-1e-5, -unit_size/2.+1e-5],
+                [unit_size/2.-1e-5, unit_size/2.-1e-5],
+                [-unit_size/2.+1e-5, unit_size/2.-1e-5],
             ],
-            mesh_size=2e-4,
+            mesh_size=5e-4,
         )
         void_pixels = []
-        for m in range(units_per_arrange): #row of unit
-            for n in range(units_per_arrange): #column of unit
-                for k in range(elements_per_unit): #row of element
-                    for l in range(elements_per_unit): #column of element
-                        for i in range(len(array)): #row of pixel
-                            for j in range(len(array)): #column of pixel
-                                if array[i,j] == 0:
-                                    loc_x,loc_y = idx2coord(i,j,k,l,m,n)
-                                    # if [m,n] == [2,0]:
-                                    #     print(loc_x,loc_y) 
-                                    void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=2e-4)
-                                    void_pixels.append(void_pixel)
+        for k in range(elements_per_unit): #row of element
+            for l in range(elements_per_unit): #column of element
+                for i in range(len(array)): #row of pixel
+                    for j in range(len(array)): #column of pixel
+                        if array[i,j] == 0:
+                            loc_x,loc_y = idx2coord(i,j,k,l)
+                            void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
+                            void_pixels.append(void_pixel)
 
-                            # pixels = [
-                        #     geom.add_polygon([[-0.8, -0.8],[-0.5, -0.8],[-0.5, -0.5],[-0.8, -0.5],],mesh_size=0.1,),
-                        #     geom.add_polygon([[0.8, 0.8],[0.5, 0.8],[0.5, 0.5],[0.8, 0.5],],mesh_size=0.1,),
-                        # ]
-        geom.boolean_difference(arrange, geom.boolean_union(void_pixels))
+        units = []
+                
+        unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
+        units.append(unit[0])
+        
+        for i in range(units_per_arrange):
+            for j in range(units_per_arrange):
+                if [i,j] != [int(units_per_arrange/2),int(units_per_arrange/2)]:
+                    unit_ = geom.copy(unit[0])
+                    geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
+                    units.append(unit_)
+        
+        print(units)
+
+        arrange = geom.boolean_union(units) 
         mesh = geom.generate_mesh()
-        # mesh = pygmsh.optimize(mesh, method="")
-
-        mesh.write('test2.vtk')
-
+        mesh.write(filename)
+        
         end = time.time()
         print(f'Elapsed time: {end-start} s')
 
@@ -103,4 +100,5 @@ for array_filename in arrays_filename[idx:idx+1]:
             pass
         array = np.array(f.readlines()).astype(float)
         array = array.reshape((int(resolution),int(resolution)))
-        generate_mesh('test2.vtk')
+        filename = stls_dir+array_dir+'/'+array_filename[mag-1:-4]+"_theta_%d.stl"%theta
+        generate_mesh(filename)
