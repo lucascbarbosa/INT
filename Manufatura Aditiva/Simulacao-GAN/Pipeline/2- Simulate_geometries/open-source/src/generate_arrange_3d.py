@@ -200,11 +200,11 @@ idx = int(sys.argv[6])
 theta = int(sys.argv[7])
 
 if origin == "-g":
-    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-    stls_dir = r"D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/"+simmetry+'/'
+    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/3D/"+simmetry+'/'
+    stls_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/"+simmetry+'/'
 else:
-    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-    stls_dir = r"D:/Lucas GAN/Dados/2- 3D_models/stl/RTGA/"+simmetry+'/'
+    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/3D/"+simmetry+'/'
+    stls_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
 arrays_filename = os.listdir(arrays_dir)
 
 elements_per_arrange = 3
@@ -243,6 +243,8 @@ for array_filename in arrays_filename[idx:idx+1]:
         bpy.ops.export_mesh.stl(
                 filepath=filepath,
                 use_selection=True)
+
+        print(filepath)
         
         #delete object and collection
         bpy.ops.object.delete()

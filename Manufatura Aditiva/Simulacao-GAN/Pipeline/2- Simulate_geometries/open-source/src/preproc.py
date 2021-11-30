@@ -2,24 +2,26 @@ import os
 from src.stl2vtk_2d import stl2vtk_2d
 from src.stl2vtk_3d import stl2vtk_3d
 
-def preproc(array_dir, stl_dir, vtk_dir, idx_array,idx_stl,simmetry,origin,dimension):
-    angle = [0,45][idx_stl]
-    try:
-        stl_filenames = os.listdir(stl_dir + '/' + array_dir)
-        stl_filename = stl_filenames[idx_stl]
-        
-    except:
-        if dimension == 2:
-            command_stl = "python src/generate_arrange_2d.py %s %s %i %i"%(simmetry,origin,idx_array,angle)
-            os.system(command_stl)
-        if dimension == 3:
-            command_stl = "blender -b -P src/generate_arrange_3d.py %s %s %s %i %i"%(dimension,origin,simmetry,idx_array,angle)
+def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
+    angle = [0,45][idx_file]
+    
+    if dimension == 2:
+        command_vtk = "python src/generate_arrange_2d.py %s %s %i %i"%(simmetry,origin,idx_array,angle)
+        os.system(command_vtk)
+
+    if dimension == 3:
+        try:
+            stl_filenames = os.listdir(vtk_dir + '/' + array_dir)
+            stl_filename = stl_filenames[idx_file]
+            
+        except:
+            command_stl = "blender -b -P src/generate_arrange_3d.py %s %s %i %i"%(origin,simmetry,idx_array,angle)
             os.system(command_stl)
     
-    stl_filenames = os.listdir(stl_dir + '/' + array_dir)
-    stl_filename = stl_filenames[idx_stl]
+    stl_filenames = os.listdir(vtk_dir + '/' + array_dir)
+    stl_filename = stl_filenames[idx_file]
     vtk_filename = stl_filename[:-4]+'.vtk'
-    stl_filename = stl_dir + '/' + array_dir + '/' + stl_filename
+    stl_filename = vtk_dir + '/' + array_dir + '/' + stl_filename
     vtk_filename = vtk_dir + '/' + array_dir + '/' + vtk_filename
     print('Preproc ',vtk_filename)
     

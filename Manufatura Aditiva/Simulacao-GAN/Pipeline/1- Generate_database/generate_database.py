@@ -13,8 +13,8 @@ num_seeds = int(sys.argv[5]) #3/4
 samples = int(sys.argv[6]) #10'000
 
 # Dirs paths
-images_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Images/RTGA/'
-arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
+images_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Images/RTGA/'
+arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
 
 show = False
 save_img = False

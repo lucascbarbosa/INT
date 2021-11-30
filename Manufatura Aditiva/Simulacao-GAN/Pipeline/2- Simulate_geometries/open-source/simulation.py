@@ -10,41 +10,41 @@ from multiprocessing import Process, freeze_support, Array
 import sys
 
 
-def simulation(simmetry, stl_dir, vtk_dir, array_dir, idx_array, idx_stl, Es, idx, origin,dimension):
+def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin,dimension):
 
     stl_filename, vtk_filename = preproc(
-        array_dir, stl_dir, vtk_dir, idx_array, idx_stl, simmetry, origin,dimension)
+        array_dir, vtk_dir, idx_array, idx_file, simmetry, origin,dimension)
 
     # Titanium
-    YOUNG = 100e9  # GPa
-    POISSON = 0.3
-    RHO = 4500
+    # YOUNG = 100e9  # GPa
+    # POISSON = 0.3
+    # RHO = 4500
 
-    ORDER = 1
-    STRESS = 1*(-100)
+    # ORDER = 1
+    # STRESS = 1*(-100)
     
-    if dimension == 2:
-        sim = Simulate2D()
-        plane = 'stress'
-    if dimension == 3:
-        sim = Simulate3D()
-        plane = 'strain'
+    # if dimension == 2:
+    #     sim = Simulate2D()
+    #     plane = 'stress'
+    # if dimension == 3:
+    #     sim = Simulate3D()
+    #     plane = 'strain'
 
-    mesh = sim.get_mesh(vtk_filename)
-    dimensions, omega, top, bot = sim.create_regions(mesh)
-    field, u, v = sim.create_field_variables(omega, ORDER)
-    integral = sim.define_integral(ORDER)
-    area = sim.get_area(integral, top, u)
-    solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
-    t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
-    fix_bot = sim.set_bcs(bot, top)
-    bcs = [fix_bot]
-    pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
+    # mesh = sim.get_mesh(vtk_filename)
+    # dimensions, omega, top, bot = sim.create_regions(mesh)
+    # field, u, v = sim.create_field_variables(omega, ORDER)
+    # integral = sim.define_integral(ORDER)
+    # area = sim.get_area(integral, top, u)
+    # solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
+    # t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
+    # fix_bot = sim.set_bcs(bot, top)
+    # bcs = [fix_bot]
+    # pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
 
-    Es[idx] = float(E/1e10)
+    # Es[idx] = float(E/1e10)
 
-    print('\nFor %s: E = %fe10 and u =%.4fe-10' %
-          (stl_filename, float(E/1e10), disp/1e-10))
+    # print('\nFor %s: E = %fe10 and u =%.4fe-10' %
+    #       (stl_filename, float(E/1e10), disp/1e-10))
 
 if __name__ == '__main__':
 
@@ -60,10 +60,9 @@ if __name__ == '__main__':
 
     size = end-start+1
     if origin == "-r":
-        geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
-        stl_dir = 'E:/Lucas GAN/Dados/2- Models/stl/RTGA/%sD/%s'%(dimension,simmetry)
-        vtk_dir = 'E:/Lucas GAN/Dados/2- Models/vtk/RTGA/%sD/%s'%(dimension,simmetry)
-        young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+        geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
+        vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
+        young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
         geometries_filename = os.listdir(geometries_dir)
         rounds = int(2*size/max_processes)
@@ -82,14 +81,14 @@ if __name__ == '__main__':
             for p in range(max_processes):
 
                 idx_array = int(process_count/2)
-                idx_stl = process_count % 2
+                idx_file = process_count % 2
                 try:
                     array_dir = arrays_dir[idx_array]
                 except:
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, stl_dir, vtk_dir, array_dir, start+idx_array, idx_stl, Es, p, origin,dimension,))
+                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin,dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -110,10 +109,10 @@ if __name__ == '__main__':
         print('Elapsed time = %.2f' % (end_time-start_time))
 
     if origin == "-g":
-        geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
-        stl_dir = 'E:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
-        vtk_dir = 'E:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-        young_dir = "E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
+        geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
+        stl_dir = 'D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
+        vtk_dir = 'D:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
+        young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
             simmetry, problem)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
 
@@ -135,14 +134,14 @@ if __name__ == '__main__':
             for p in range(max_processes):
 
                 idx_array = int(process_count/2)
-                idx_stl = process_count % 2
+                idx_file = process_count % 2
                 try:
                     array_dir = arrays_dir[idx_array]
                 except:
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, stl_dir, vtk_dir, array_dir, start+idx_array, idx_stl, Es, p, origin,dimension,))
+                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin,dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1
