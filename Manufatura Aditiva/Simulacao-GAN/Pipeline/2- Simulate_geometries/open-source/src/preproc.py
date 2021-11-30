@@ -23,7 +23,7 @@ def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
     vtk_filename = stl_filename[:-4]+'.vtk'
     stl_filename = vtk_dir + '/' + array_dir + '/' + stl_filename
     vtk_filename = vtk_dir + '/' + array_dir + '/' + vtk_filename
-    print('Preproc ',vtk_filename)
+    # print('Preproc ',vtk_filename)
     
     if not os.path.exists((os.path.join(vtk_dir,array_dir))):
         os.mkdir(os.path.join(vtk_dir,array_dir))
@@ -37,5 +37,6 @@ def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
             stl2vtk_3d(stl_filename,vtk_filename)
             command_convert = """python "C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3-Simulate_geometries/open-source/src/convert_mesh.py" -d 3 "%s" "%s" """ %(vtk_filename,vtk_filename)
             os.system(command_convert)
-
+            os.remove(stl_filename)
+            
     return stl_filename,vtk_filename
