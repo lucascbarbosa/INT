@@ -9,7 +9,7 @@ def stl2vtk_3d(file_in,file_out):
 
     mesh = pygalmesh.generate_volume_mesh_from_surface_mesh(
         file_in,
-        max_facet_distance=2e-4,
+        max_facet_distance=5e-5,
         seed=42,
         verbose=False
     )

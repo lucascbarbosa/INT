@@ -244,8 +244,6 @@ for array_filename in arrays_filename[idx:idx+1]:
                 filepath=filepath,
                 use_selection=True)
 
-        print(filepath)
-        
         #delete object and collection
         bpy.ops.object.delete()
         coll = bpy.data.collections.get("arrange")
