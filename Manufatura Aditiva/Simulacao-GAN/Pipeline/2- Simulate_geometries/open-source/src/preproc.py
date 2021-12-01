@@ -6,8 +6,14 @@ def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
     angle = [0,45][idx_file]
     
     if dimension == 2:
-        command_vtk = "python src/generate_arrange_2d.py %s %s %i %i"%(simmetry,origin,idx_array,angle)
+        command_vtk = "python src/generate_arrange_2d.py %s %s %i %i"%(origin,simmetry,idx_array,angle)
         os.system(command_vtk)
+        stl_filenames = os.listdir(vtk_dir + '/' + array_dir)
+        stl_filename = stl_filenames[idx_file]
+        vtk_filename = stl_filename[:-4]+'.vtk'
+        vtk_filename = vtk_dir + '/' + array_dir + '/' + vtk_filename
+        command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
+        os.system(command_convert)
 
     if dimension == 3:
         try:

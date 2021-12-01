@@ -1,12 +1,10 @@
 import meshio
-import time
 import pygmsh
 import numpy as np
 import os
 import sys
 from math import log, sqrt
 import matplotlib.pyplot as plt
-start = time.time()
 
 def idx2coord(i,j,k,l):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
@@ -75,7 +73,6 @@ def generate_mesh(filename):
         mesh.write(filename)
         
         end = time.time()
-        print(f'Elapsed time: {end-start} s')
 
 
 # //////////////////////////////////////////////////////////////
@@ -86,11 +83,11 @@ idx = int(sys.argv[3])
 theta = int(sys.argv[4])
 
 if origin == "-g":
-    arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-    stls_dir = r"E:/Lucas GAN/Dados/2- 3D_models/stl/GAN/"+simmetry+'/'
+    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
+    vtks_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/2D/"+simmetry+'/'
 else:
-    arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-    stls_dir = r"E:/Lucas GAN/Dados/2- 3D_models/stl/RTGA/"+simmetry+'/'
+    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+    vtks_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/2D/"+simmetry+'/'
 
 
 arrays_filename = os.listdir(arrays_dir)
@@ -110,10 +107,10 @@ for array_filename in arrays_filename[idx:idx+1]:
     with open(os.path.join(arrays_dir,array_filename),'r') as f:
         array_dir = array_filename.split('_')[0]
         try:
-            os.mkdir(stls_dir+array_dir)
+            os.mkdir(vtks_dir+array_dir)
         except:
             pass
         array = np.array(f.readlines()).astype(float)
         array = array.reshape((int(resolution),int(resolution)))
-        filename = stls_dir+array_dir+'/'+array_filename[mag-1:-4]+"_theta_%d.stl"%theta
+        filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
         generate_mesh(filename)
