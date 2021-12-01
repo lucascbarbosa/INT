@@ -16,35 +16,34 @@ def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origi
         array_dir, vtk_dir, idx_array, idx_file, simmetry, origin,dimension)
 
     # Titanium
-    # YOUNG = 100e9  # GPa
-    # POISSON = 0.3
-    # RHO = 4500
+    YOUNG = 100e9  # GPa
+    POISSON = 0.3
+    RHO = 4500
 
-    # ORDER = 1
-    # STRESS = 1*(-100)
+    ORDER = 1
+    STRESS = 1*(-100)
     
-    # if dimension == 2:
-    #     sim = Simulate2D()
-    #     plane = 'stress'
-    # if dimension == 3:
-    #     sim = Simulate3D()
-    #     plane = 'strain'
+    if dimension == 2:
+        sim = Simulate2D()
+        plane = 'stress'
+    if dimension == 3:
+        sim = Simulate3D()
+        plane = 'strain'
 
-    # mesh = sim.get_mesh(vtk_filename)
-    # dimensions, omega, top, bot = sim.create_regions(mesh)
-    # field, u, v = sim.create_field_variables(omega, ORDER)
-    # integral = sim.define_integral(ORDER)
-    # area = sim.get_area(integral, top, u)
-    # solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
-    # t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
-    # fix_bot = sim.set_bcs(bot, top)
-    # bcs = [fix_bot]
-    # pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
+    mesh = sim.get_mesh(vtk_filename)
+    dimensions, omega, top, bot = sim.create_regions(mesh)
+    field, u, v = sim.create_field_variables(omega, ORDER)
+    integral = sim.define_integral(ORDER)
+    area = sim.get_area(integral, top, u)
+    solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
+    t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
+    fix_bot = sim.set_bcs(bot, top)
+    bcs = [fix_bot]
+    pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
 
-    # Es[idx] = float(E/1e10)
+    Es[idx] = float(E/1e10)
 
-    # print('\nFor %s: E = %fe10 and u =%.4fe-10' %
-    #       (stl_filename, float(E/1e10), disp/1e-10))
+    print('\nFor %s: E = %fe10 and u =%.4fe-10' %(stl_filename, float(E/1e10), disp/1e-10))
 
 if __name__ == '__main__':
 

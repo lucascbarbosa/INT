@@ -29,13 +29,9 @@ def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
         os.mkdir(os.path.join(vtk_dir,array_dir))
 
     if not os.path.exists(vtk_filename):
-        if dimension == 2:
-            stl2vtk_2d(stl_filename,vtk_filename)
-            command_convert = """python "C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3-Simulate_geometries/open-source/src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
-            os.system(command_convert)
         if dimension == 3:
             stl2vtk_3d(stl_filename,vtk_filename)
-            command_convert = """python "C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3-Simulate_geometries/open-source/src/convert_mesh.py" -d 3 "%s" "%s" """ %(vtk_filename,vtk_filename)
+            command_convert = """python "src/convert_mesh.py" -d 3 "%s" "%s" """ %(vtk_filename,vtk_filename)
             os.system(command_convert)
             os.remove(stl_filename)
             
