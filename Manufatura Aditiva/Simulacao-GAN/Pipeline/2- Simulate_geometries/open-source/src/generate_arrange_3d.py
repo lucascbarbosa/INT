@@ -200,11 +200,21 @@ idx = int(sys.argv[6])
 theta = int(sys.argv[7])
 
 if origin == "-g":
-    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/" + simmetry + '/'
-    stls_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/" + simmetry + '/'
+    if os.getcwd().split('\\')[2] == 'lucas':
+        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
+        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
+    else:
+        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
+        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
+    
 else:
-    arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/" + simmetry + '/'
-    stls_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/3D/" + simmetry + '/'
+    if os.getcwd().split('\\')[2] == 'lucas':
+        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
+    else:
+        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
+
 arrays_filename = os.listdir(arrays_dir)
 
 elements_per_arrange = 3

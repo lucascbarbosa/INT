@@ -12,9 +12,12 @@ porosity = float(sys.argv[4])  #0.5
 num_seeds = int(sys.argv[5]) #3/4
 samples = int(sys.argv[6]) #10'000
 
-# Dirs paths
-images_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Images/RTGA/'
-arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
+if os.getcwd().split('\\')[2] == 'lucas':
+
+  # Dirs paths
+  arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
+else:
+  arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
 
 show = False
 save_img = False
@@ -23,7 +26,6 @@ save_array = False
 try:
   data = sys.argv[7]
   if data == '-s': show = True
-  elif data == '-i': save_img = True
   elif data == '-a': save_array = True
 except:
   pass
@@ -31,15 +33,6 @@ except:
 try:
   data = sys.argv[8]
   if data == '-s': show = True
-  elif data == '-i': save_img = True
-  elif data == '-a': save_array = True
-except:
-  pass
-
-try:
-  data = sys.argv[9]
-  if data == '-s': show = True
-  elif data == '-i': save_img = True
   elif data == '-a': save_array = True
 except:
   pass
@@ -58,8 +51,6 @@ while correct_samples < samples:
     if show:
       gen.show_img(unit)
       gen.show_img(arch)
-    if save_img:
-      gen.save_img(unit,images_dir+simmetry+'/%05d_porosity_%.4f.png'%(correct_samples+start+1,porosity))
     if save_array:
       gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
     correct_samples += 1

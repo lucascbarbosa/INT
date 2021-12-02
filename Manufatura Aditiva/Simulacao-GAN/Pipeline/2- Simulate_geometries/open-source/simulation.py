@@ -59,9 +59,15 @@ if __name__ == '__main__':
 
     size = end-start+1
     if origin == "-r":
-        geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
-        vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
-        young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+        if os.getcwd().split('\\')[2] == 'lucas':
+            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
+            vtk_dir = 'E:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
+            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+        else:
+            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
+            vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
+            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
         geometries_filename = os.listdir(geometries_dir)
         rounds = int(2*size/max_processes)
@@ -108,11 +114,16 @@ if __name__ == '__main__':
         print('Elapsed time = %.2f' % (end_time-start_time))
 
     if origin == "-g":
-        geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
-        stl_dir = 'D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
-        vtk_dir = 'D:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-        young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
-            simmetry, problem)
+        if os.getcwd().split('\\')[2] == 'lucas':
+            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
+            stl_dir = 'E:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
+            vtk_dir = 'E:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
+            young_dir = "E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (simmetry, problem)
+        else:
+            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
+            stl_dir = 'D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
+            vtk_dir = 'D:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
+            young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (simmetry, problem)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
 
         geometries_filename = os.listdir(geometries_dir)
