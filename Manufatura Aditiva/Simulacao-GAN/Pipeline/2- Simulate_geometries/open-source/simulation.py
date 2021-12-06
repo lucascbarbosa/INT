@@ -52,7 +52,6 @@ if __name__ == '__main__':
     simmetry = str(sys.argv[3])
     start = int(sys.argv[4])-1
     end = int(sys.argv[5])-1
-    max_processes = 1
 
     if origin == "-g":
         problem = str(sys.argv[5])
@@ -60,10 +59,12 @@ if __name__ == '__main__':
     size = end-start+1
     if origin == "-r":
         if os.getcwd().split('\\')[2] == 'lucas':
+            max_processes = 2
             geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
             vtk_dir = 'E:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
             young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
         else:
+            max_processes = 14
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
             vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
             young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)

@@ -5,6 +5,8 @@ import os
 import sys
 from math import log, sqrt
 import matplotlib.pyplot as plt
+import time
+start = time.time()
 
 def idx2coord(i,j,k,l):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
@@ -50,21 +52,27 @@ def generate_mesh(filename):
                     unit_ = geom.copy(unit[0])
                     geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
                     units.append(unit_)
+
+        arrange = geom.boolean_union(units)
+
+        geom.rotate(arrange,[0,0,0],theta,[0,0,1])
+
+
+        # handle_top = geom.add_polygon(
+        #     [
+        #         [-arrange_size/2.*0.998, arrange_size/2.*0.998],
+        #         [arrange_size/2.*0.998, arrange_size/2.*0.998],
+        #         [arrange_size/2.*0.998, 3*arrange_size/4.-1e-5],
+        #         [-arrange_size/2.*0.998, 3*arrange_size/4.-1e-5],
+        #     ],
+        #     mesh_size=5e-4,
+        # )
         
-        arrange = geom.boolean_union(units) 
+        # handle_bot = geom.copy(handle_top)
+        # geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
 
-        # field0 = geom.add_boundary_layer(
-        # edges_list=[arrange[0].curves[0]],
-        # distmin=0.0,
-        # distmax=pixel_size*sqrt(2),
-        # )
-        # field1 = geom.add_boundary_layer(
-        #     nodes_list=[arrange[0].points[2]],
-        #     distmin=0.0,
-        #     distmax=2*pixel_size*sqrt(2),
-        # )
-        # geom.set_background_mesh([field0, field1], operator="Min")
-
+        # final_geometry = geom.boolean_union([arrange,handle_bot,handle_top])
+        
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_size
         )
@@ -74,7 +82,7 @@ def generate_mesh(filename):
         
         end = time.time()
 
-
+        print(f'Elapsed time: {end-start} s')
 # //////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
@@ -121,4 +129,4 @@ for array_filename in arrays_filename[idx:idx+1]:
         array = np.array(f.readlines()).astype(float)
         array = array.reshape((int(resolution),int(resolution)))
         filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
-        generate_mesh(filename)
+        generate_mesh('test.vtk')
