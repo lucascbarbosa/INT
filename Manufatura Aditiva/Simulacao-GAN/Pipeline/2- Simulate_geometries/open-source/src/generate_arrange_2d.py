@@ -46,8 +46,8 @@ def generate_mesh(filename):
         unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
         units.append(unit[0])
         
-        for i in range(units_per_arrange):
-            for j in range(units_per_arrange):
+        for i in range(units_per_arrange+2):
+            for j in range(units_per_arrange+2):
                 if [i,j] != [int(units_per_arrange/2),int(units_per_arrange/2)]:
                     unit_ = geom.copy(unit[0])
                     geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
@@ -55,23 +55,40 @@ def generate_mesh(filename):
 
         arrange = geom.boolean_union(units)
 
-        geom.rotate(arrange,[0,0,0],theta,[0,0,1])
-
-
-        # handle_top = geom.add_polygon(
-        #     [
-        #         [-arrange_size/2.*0.998, arrange_size/2.*0.998],
-        #         [arrange_size/2.*0.998, arrange_size/2.*0.998],
-        #         [arrange_size/2.*0.998, 3*arrange_size/4.-1e-5],
-        #         [-arrange_size/2.*0.998, 3*arrange_size/4.-1e-5],
-        #     ],
-        #     mesh_size=5e-4,
-        # )
+        geom.translate(arrange[0],[-unit_size,unit_size,0])
         
-        # handle_bot = geom.copy(handle_top)
-        # geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
+        geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
-        # final_geometry = geom.boolean_union([arrange,handle_bot,handle_top])
+        filter_out = geom.add_disk([0.0, 0.0], 0.06, mesh_size=5e-4)
+
+        filter_in = geom.add_polygon(
+            [
+                [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, arrange_size/2-1e-4],
+                [-arrange_size/2+1e-4, arrange_size/2-1e-4],
+            ],
+            mesh_size=5e-4,
+        )
+
+        filter_boolean = geom.boolean_difference(filter_out,filter_in)
+
+        arrange = geom.boolean_difference(arrange, filter_boolean)
+
+        handle_top = geom.add_polygon(
+            [
+                [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
+                [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
+            ],
+            mesh_size=5e-4,
+        )
+        
+        handle_bot = geom.copy(handle_top)
+        geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
+
+        final_geometry = geom.boolean_union([arrange,handle_bot,handle_top])
         
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_size
