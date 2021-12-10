@@ -93,13 +93,14 @@ def generate_mesh(filename):
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_size
         )
+        geom.add_bspline
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
         
         end = time.time()
 
-        print(f'Elapsed time: {end-start} s')
+        # print(f'Elapsed time: {end-start} s')
 # //////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
