@@ -6,7 +6,7 @@ import sys
 from math import log, sqrt
 import matplotlib.pyplot as plt
 import time
-start = time.time()
+# start = time.time()
 
 def idx2coord(i,j,k,l):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)
@@ -93,12 +93,11 @@ def generate_mesh(filename):
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_size
         )
-        geom.add_bspline
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
         
-        end = time.time()
+        # end = time.time()
 
         # print(f'Elapsed time: {end-start} s')
 # //////////////////////////////////////////////////////////////
@@ -147,4 +146,4 @@ for array_filename in arrays_filename[idx:idx+1]:
         array = np.array(f.readlines()).astype(float)
         array = array.reshape((int(resolution),int(resolution)))
         filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
-        generate_mesh('test.vtk')
+        generate_mesh(filename)
