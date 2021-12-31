@@ -194,10 +194,15 @@ def create_arrange(name,locations_units):
     bpy.ops.object.modifier_apply(modifier="Remesh")
     
 # /////////////////////////////////////////////////////////////////////////////////////////
-origin = sys.argv[4]
-simmetry = sys.argv[5]
-idx = int(sys.argv[6])
-theta = int(sys.argv[7])
+# origin = sys.argv[4]
+# simmetry = sys.argv[5]
+# idx = int(sys.argv[6])
+# theta = int(sys.argv[7])
+
+origin = "-r"
+simmetry = "p4"
+idx = 1
+theta = 0
 
 if origin == "-g":
     if os.getcwd().split('\\')[2] == 'lucas':
@@ -233,13 +238,13 @@ degs_pixel = (0,0,0)
 rotations = [(0,0,0),(0,0,90),(0,0,180),(0,0,270)]
 locations = [(0,0,0),(unit_size,0,0),(unit_size,unit_size,0),(0,unit_size,0)]
 
-mag = int(log(len(arrays_filename),10)+3)
+mag = int(log(len(arrays_filename),10)+3)+1
 
 for array_filename in arrays_filename[idx:idx+1]:
     with open(os.path.join(arrays_dir,array_filename),'r') as f:
         array_dir = array_filename.split('_')[0]
         try:
-            os.mkdir(stls_dir+array_dir)
+            os.mkdir(vtks_dir+array_dir)
         except:
             pass
         array = np.array(f.readlines()).astype(float)
@@ -249,7 +254,7 @@ for array_filename in arrays_filename[idx:idx+1]:
         create_arrange("arrange", locations)
     
         # export
-        filepath = stls_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
+        filepath = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
         bpy.ops.export_mesh.stl(
                 filepath=filepath,
                 use_selection=True)
