@@ -33,6 +33,7 @@ def select_object(name):
 
 def deselect_object(name):
     bpy.data.objects[name].select_set(False)    
+    
 def deselect_all():
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.view_layer.objects.active = None
@@ -82,19 +83,23 @@ def get_bm_elements(bm):
     return geom
 
 def create_unit(name,array,rotation,location):
+    p = 0
     for i in range(len(array)):
         for j in range(len(array)):
             loc_y = unit_size/2.0 - (i+0.5)*pixel_size
             if array[i,j] == 0.0:
                 loc_x = (j+0.5)*pixel_size - unit_size/2.0
-                name_pixel = "pixel {}".format(i*resolution+j+1)
+                name_pixel = "pixel {}".format(p)
                 create_cube(name_pixel,pixel_size*1.001,(loc_x,loc_y,0),scale_pixel,degs_pixel)
+                select_object("pixel {}".format(p))
+                p += 1
 
     join(name,"pixel")
     rotate_object(bpy.context.object, rotation)
     translate_object(bpy.context.object,location)    
 
 def create_element(name, locations):
+#    for i in range(2):
     for i in range(units_per_element*units_per_element):
         create_unit("unit {}".format(i+1),array,rotations[i],locations[i])
     join(name,"unit")
@@ -102,20 +107,19 @@ def create_element(name, locations):
 def create_arrange(name,locations_units):
     deselect_all()
     
+    # create element
     create_element("negative element",locations_units)
-    bpy.ops.transform.translate(value=(+unit_size/2, +unit_size/2, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, cursor_transform=True, release_confirm=True)
-    bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
-    bpy.ops.transform.translate(value=(-unit_size/2, -unit_size/2, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, cursor_transform=True, release_confirm=True)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
     bpy.context.object.location[0] = 0
     bpy.context.object.location[1] = 0
     bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name="negative element")
 
-    # create element
-    create_cube("element",element_size,(0, 0, 0),(2,2,float(2*thickness/element_size)),(0,0,0))
+    create_cube("element",element_size/2,(0, 0, 0),(2,2,float(2*thickness/element_size)),(0,0,0))
     bpy.ops.object.modifier_add(type='BOOLEAN')
-    bpy.context.object.modifiers["Boolean"].operand_type = 'COLLECTION'
-    bpy.context.object.modifiers["Boolean"].collection = bpy.data.collections["negative element"]
+    bpy.context.object.modifiers["Boolean"].object = bpy.data.objects["negative element"]
+    bpy.context.object.modifiers["Boolean"].use_self = True
     bpy.ops.object.modifier_apply(modifier="Boolean")
+
     deselect_all()
     select_object("negative element")
     bpy.ops.object.delete()
@@ -178,15 +182,15 @@ def create_arrange(name,locations_units):
     
     #add handles
     for i in range(2):
-        create_cube("arrange {}".format(i+1), arrange_size, locations[i], (2., 1./2.,  float(2*(thickness)/arrange_size)), (0, 0, 0))
+        create_cube("arrange {}".format(i+1), arrange_size, locations[i], (1., 1./4.,  float(1*(thickness)/arrange_size)), (0, 0, 0))
     
     locations = [(float(arrange_size/2.0)+0.0005, 0, 0),(-float(arrange_size/2.0)-0.0005, 0, 0)]
     #add side rectangles
     for i in range(2):
-        create_cube("arrange{}".format(i+3), arrange_size, locations[i], (float(2./(1000*arrange_size)), 3., float(2*(thickness)/arrange_size)), (0, 0, 0))
+        create_cube("arrange{}".format(i+3), arrange_size, locations[i], (float(1./(1000*arrange_size)), 3./2., float(1*(thickness)/arrange_size)), (0, 0, 0))
     
     join(name, "arrange")
-    
+
     #remesh
     bpy.ops.object.modifier_add(type='REMESH')
     bpy.context.object.modifiers["Remesh"].voxel_size = 0.0002
@@ -194,31 +198,35 @@ def create_arrange(name,locations_units):
     bpy.ops.object.modifier_apply(modifier="Remesh")
     
 # /////////////////////////////////////////////////////////////////////////////////////////
-# origin = sys.argv[4]
-# simmetry = sys.argv[5]
-# idx = int(sys.argv[6])
-# theta = int(sys.argv[7])
+origin = sys.argv[4]
+simmetry = sys.argv[5]
+idx = int(sys.argv[6])
+theta = int(sys.argv[7])
+print(origin,simmetry,idx,theta)
 
-origin = "-r"
-simmetry = "p4"
-idx = 1
-theta = 0
+# origin = "-r"
+# simmetry = "p4"
+# idx = 0
+# theta = 45
 
 if origin == "-g":
-    if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
-    else:
-        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
-    
+   if os.getcwd().split('\\')[2] == 'lucas':
+       arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
+       vtks_dir = r"E:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
+   else:
+       arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
+       vtks_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/3D/"+simmetry+'/'
+   
 else:
-    if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
-    else:
-        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
+   if os.getcwd().split('\\')[2] == 'lucas':
+       arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+       vtks_dir = r"E:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
+   else:
+       arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+       vtks_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
+
+arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
+vtks_dir = r"E:/Lucas GAN/Dados/2- Models/RTGA/3D/"+simmetry+'/'
 
 arrays_filename = os.listdir(arrays_dir)
 
@@ -232,34 +240,33 @@ element_size = float(arrange_size/elements_per_arrange) # m
 unit_size = float(element_size/units_per_element) # m
 pixel_size = float(unit_size/resolution)
 
-scale_pixel = (2,2,2*(thickness+0.5e-3)/pixel_size)   
+scale_pixel = (1,1,(thickness+0.5e-3)/pixel_size)   
 degs_pixel = (0,0,0)
     
-rotations = [(0,0,0),(0,0,90),(0,0,180),(0,0,270)]
+rotations = [(0,0,0),(0,0,-90),(0,0,-180),(0,0,-270)]
 locations = [(0,0,0),(unit_size,0,0),(unit_size,unit_size,0),(0,unit_size,0)]
 
 mag = int(log(len(arrays_filename),10)+3)+1
 
-for array_filename in arrays_filename[idx:idx+1]:
-    with open(os.path.join(arrays_dir,array_filename),'r') as f:
-        array_dir = array_filename.split('_')[0]
-        try:
-            os.mkdir(vtks_dir+array_dir)
-        except:
-            pass
-        array = np.array(f.readlines()).astype(float)
-        array = array.reshape((int(resolution),int(resolution)))
-        
-        
-        create_arrange("arrange", locations)
+array_filename = arrays_filename[idx]
+with open(os.path.join(arrays_dir,array_filename),'r') as f:
+    array_dir = array_filename.split('_')[0]
+    try:
+        os.mkdir(vtks_dir+array_dir)
+    except:
+        pass
+    array = np.array(f.readlines()).astype(float)
+    array = array.reshape((int(resolution),int(resolution)))
     
-        # export
-        filepath = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
-        bpy.ops.export_mesh.stl(
-                filepath=filepath,
-                use_selection=True)
+    # create_arrange("arrange", locations)
 
-        #delete object and collection
-        bpy.ops.object.delete()
-        coll = bpy.data.collections.get("arrange")
-        bpy.data.collections.remove(coll)
+    # export
+    # filepath = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
+    # bpy.ops.export_mesh.stl(
+    #         filepath=filepath,
+    #         use_selection=True)
+
+    # delete object and collection
+    # bpy.ops.object.delete()
+    # coll = bpy.data.collections.get("arrange")
+    # bpy.data.collections.remove(coll)
