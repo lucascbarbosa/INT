@@ -202,7 +202,6 @@ origin = sys.argv[4]
 simmetry = sys.argv[5]
 idx = int(sys.argv[6])
 theta = int(sys.argv[7])
-print(origin,simmetry,idx,theta)
 
 # origin = "-r"
 # simmetry = "p4"
@@ -258,15 +257,15 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array = np.array(f.readlines()).astype(float)
     array = array.reshape((int(resolution),int(resolution)))
     
-    # create_arrange("arrange", locations)
+    create_arrange("arrange", locations)
 
     # export
-    # filepath = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
-    # bpy.ops.export_mesh.stl(
-    #         filepath=filepath,
-    #         use_selection=True)
+    filepath = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.stl"%theta
+    bpy.ops.export_mesh.stl(
+            filepath=filepath,
+            use_selection=True)
 
     # delete object and collection
-    # bpy.ops.object.delete()
-    # coll = bpy.data.collections.get("arrange")
-    # bpy.data.collections.remove(coll)
+    bpy.ops.object.delete()
+    coll = bpy.data.collections.get("arrange")
+    bpy.data.collections.remove(coll)
