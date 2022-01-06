@@ -201,11 +201,6 @@ simmetry = sys.argv[5]
 idx = int(sys.argv[6])
 theta = int(sys.argv[7])
 
-# origin = "-r"
-# simmetry = "p4"
-# idx = 0
-# theta = 45
-
 if origin == "-g":
    if os.getcwd().split('\\')[2] == 'lucas':
        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
@@ -241,7 +236,7 @@ scale_pixel = (1,1,(thickness+0.5e-3)/pixel_size)
 degs_pixel = (0,0,0)
     
 rotations = [(0,0,0),(0,0,-90),(0,0,-180),(0,0,-270)]
-locations = [(0,0,0),(unit_size,0,0),(unit_size,unit_size,0),(0,unit_size,0)]
+locations = [(0,0,0),(unit_size,0,0),(unit_size,-unit_size,0),(0,-unit_size,0)]
 
 mag = int(log(len(arrays_filename),10)+3)+1
 
