@@ -99,7 +99,7 @@ def create_unit(name,array,rotation,location):
     translate_object(bpy.context.object,location)    
 
 def create_element(name, locations):
-#    for i in range(2):
+#    for i in range(1):
     for i in range(units_per_element*units_per_element):
         create_unit("unit {}".format(i+1),array,rotations[i],locations[i])
     join(name,"unit")
@@ -128,15 +128,16 @@ def create_arrange(name,locations_units):
     # array
     deselect_all()
     select_object("element")
-    add_array("Array 1", 6,"x")
-    add_array("Array 2", 6,"y")
+    add_array("Array 1", 5,"x")
+    add_array("Array 2", 5,"y")
     bpy.context.active_object.name = name
     bpy.ops.transform.translate(value=(arrange_size-unit_size, arrange_size-unit_size, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, cursor_transform=True, release_confirm=True)
-    bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
-    bpy.ops.transform.translate(value=(-arrange_size+unit_size, -arrange_size+unit_size, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, cursor_transform=True, release_confirm=True)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='MEDIAN')
+    bpy.ops.transform.translate(value=(-arrange_size, -arrange_size, 0), orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=1, use_proportional_connected=False, use_proportional_projected=False, cursor_transform=True, release_confirm=True)
     bpy.context.object.location[0] = 0
     bpy.context.object.location[1] = 0
     bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name=name)
+    bpy.context.scene.cursor.location = (0,0,0)
     
     # bisect 
     deselect_all()
@@ -185,10 +186,7 @@ def create_arrange(name,locations_units):
         create_cube("arrange {}".format(i+1), arrange_size, locations[i], (1., 1./4.,  float(1*(thickness)/arrange_size)), (0, 0, 0))
     
     locations = [(float(arrange_size/2.0)+0.0005, 0, 0),(-float(arrange_size/2.0)-0.0005, 0, 0)]
-    #add side rectangles
-    for i in range(2):
-        create_cube("arrange{}".format(i+3), arrange_size, locations[i], (float(1./(1000*arrange_size)), 3./2., float(1*(thickness)/arrange_size)), (0, 0, 0))
-    
+   
     join(name, "arrange")
 
     #remesh
@@ -196,7 +194,7 @@ def create_arrange(name,locations_units):
     bpy.context.object.modifiers["Remesh"].voxel_size = 0.0002
     bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
     bpy.ops.object.modifier_apply(modifier="Remesh")
-    
+
 # /////////////////////////////////////////////////////////////////////////////////////////
 origin = sys.argv[4]
 simmetry = sys.argv[5]
