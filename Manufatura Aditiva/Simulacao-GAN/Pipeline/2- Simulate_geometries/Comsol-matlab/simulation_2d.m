@@ -135,7 +135,7 @@ model.component('comp1').geom('geom1').run('sq1');
 r = r + 1;
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arrange_size arrange_size]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arrange_size-2*void_size arrange_size]);
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size+unit_size/2 arrange_size-unit_size/2]);
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
@@ -169,8 +169,22 @@ model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arr
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size+unit_size/2 7*arrange_size/4-5*unit_size/4]);
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
+r = r + 1;
+model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [void_size arrange_size]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size/2+unit_size/2+void_size/2 arrange_size-unit_size/2]);
+model.component('comp1').geom('geom1').run(num2str(r,'%i'));
+
+r = r + 1;
+model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [void_size arrange_size]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [3*arrange_size/2+unit_size/2-void_size/2 arrange_size-unit_size/2]);
+model.component('comp1').geom('geom1').run(num2str(r,'%i'));
+
 model.component('comp1').geom('geom1').create('uni4', 'Union');
-model.component('comp1').geom('geom1').feature('uni4').selection('input').set({'dif3' num2str(r-1,'%i') num2str(r,'%i')});
+model.component('comp1').geom('geom1').feature('uni4').selection('input').set({'dif3' num2str(r-3,'%i') num2str(r-2,'%i') num2str(r-1,'%i') num2str(r,'%i')});
 model.component('comp1').geom('geom1').feature('uni4').set('intbnd', false);
 model.component('comp1').geom('geom1').feature('uni4').set('keep', false);
 model.component('comp1').geom('geom1').run;
@@ -233,16 +247,15 @@ model.component('comp1').material('mat1').propertyGroup('Enu').set('poissonsrati
 model.component('comp1').physics.create('solid', 'SolidMechanics', 'geom1');
 
 model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 1);
-model.component('comp1').physics('solid').feature('bndl1').selection.set([17]);
 model.component('comp1').physics('solid').feature('bndl1').label('Top Load');
+model.component('comp1').physics('solid').feature('bndl1').selection.set([5]);
 model.component('comp1').physics('solid').feature('bndl1').set('FperArea', [0 load 0]);
 
 model.component('comp1').physics('solid').create('disp2', 'Displacement1', 1);
-model.component('comp1').physics('solid').feature('disp2').label('Prescribed Displacement Bottom');
-model.component('comp1').physics('solid').feature('disp2').selection.set([2]);
+model.component('comp1').physics('solid').feature('disp2').label('Bottom Displacement');
+model.component('comp1').physics('solid').feature('disp2').selection.set([4]);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 1);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 0);
-
 
 model.component('comp1').mesh('mesh1').create('ftri1', 'FreeTri');
 model.component('comp1').mesh('mesh1').feature('ftri1').selection.geom('geom1');
