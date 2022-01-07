@@ -1,7 +1,7 @@
 function [Es,model] = main(dimension)
 
-    arrays_dir = 'C:\Users\lucas\OneDrive\Documentos\Dados_GAN\Arrays\p4\';
-    young_dir = 'C:\Users\lucas\OneDrive\Documentos\Dados_GAN\young\';
+    arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\Arrays\RTGA\p4\';
+    young_dir = 'E:\Lucas GAN\Dados\3- Mechanical_properties\young_COMSOL\';
 
     datadirs = dir(arrays_dir); 
     dircell = struct2cell(datadirs)';   
@@ -12,7 +12,7 @@ function [Es,model] = main(dimension)
     dtheta = 45;
     theta_max = 45;
     
-    for fid = (874:1000)
+    for fid = (1:1)
         datafilename = strcat(arrays_dir,filenames{fid+2})
         f  = fopen(datafilename,'r');
         f_e = fopen(strcat(young_dir,filenames{fid+2}),'wt');
