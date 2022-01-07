@@ -2,7 +2,7 @@ function out = model
 %
 % seila.m
 %
-% Model exported on Jan 7 2022, 16:11 by COMSOL 5.6.0.280.
+% Model exported on Jan 7 2022, 16:28 by COMSOL 5.6.0.280.
 
 import com.comsol.model.*
 import com.comsol.model.util.*
@@ -848,15 +848,15 @@ model.component('comp1').material('mat1').propertyGroup('Enu').set('youngsmodulu
 model.component('comp1').material('mat1').propertyGroup('Enu').set('poissonsratio', 'poisson');
 
 model.component('comp1').physics.create('solid', 'SolidMechanics', 'geom1');
-model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 1);
-model.component('comp1').physics('solid').feature('bndl1').label('Top Load');
-model.component('comp1').physics('solid').feature('bndl1').selection.set([5]);
-model.component('comp1').physics('solid').feature('bndl1').set('FperArea', [0 100 0]);
 model.component('comp1').physics('solid').create('disp2', 'Displacement1', 1);
 model.component('comp1').physics('solid').feature('disp2').label('Bottom Displacement');
 model.component('comp1').physics('solid').feature('disp2').selection.set([4]);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 1);
 model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 0);
+model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 1);
+model.component('comp1').physics('solid').feature('bndl1').label('Top Load');
+model.component('comp1').physics('solid').feature('bndl1').selection.set([5]);
+model.component('comp1').physics('solid').feature('bndl1').set('FperArea', [0 100 0]);
 
 model.component('comp1').mesh('mesh1').create('ftri1', 'FreeTri');
 model.component('comp1').mesh('mesh1').feature('ftri1').selection.geom('geom1');
@@ -930,6 +930,8 @@ model.result('pgsurf').feature('con1').set('descractive', true);
 model.result('pgsurf').feature('con1').set('descr', 'Effective plastic strain');
 model.result('pgsurf').feature('con1').label('Plastic strain');
 model.result('pgsurf').set('legendpos', 'rightdouble');
+model.result('pgsurf').feature('surf1').feature('def').set('scaleactive', true);
+model.result('pgsurf').feature('surf1').feature('def').set('scale', 0);
 model.result('pgsurf').run;
 
 model.sol('sol1').runAll;
@@ -938,6 +940,6 @@ model.label('simulation_2d.mph');
 
 model.component('comp1').geom('geom1').run('fin');
 
-model.component('comp1').physics('solid').feature('disp2').selection.set([3 4]);
+model.component('comp1').physics('solid').feature('disp2').selection.set([4]);
 
 out = model;

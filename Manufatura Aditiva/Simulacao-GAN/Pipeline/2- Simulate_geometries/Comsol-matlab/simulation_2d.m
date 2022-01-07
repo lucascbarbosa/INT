@@ -189,6 +189,15 @@ model.component('comp1').geom('geom1').feature('uni4').set('intbnd', false);
 model.component('comp1').geom('geom1').feature('uni4').set('keep', false);
 model.component('comp1').geom('geom1').run;
 
+% points = mphgetcoords(model,'geom1','domain',1);
+% points = points(1,:);
+% num_points = length(points);
+% model.component('comp1').geom('geom1').create('fil1', 'Fillet');
+% model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni4',[1:num_points]);
+% model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
+% model.component('comp1').geom('geom1').run('fil1');
+model.component('comp1').geom('geom1').run;
+
 model.component('comp1').material.create('mat1', 'Common');
 model.component('comp1').material('mat1').propertyGroup.create('Enu', 'Young''s modulus and Poisson''s ratio');
 model.component('comp1').material('mat1').propertyGroup.create('Murnaghan', 'Murnaghan');
@@ -246,33 +255,21 @@ model.component('comp1').material('mat1').propertyGroup('Enu').set('poissonsrati
 
 model.component('comp1').physics.create('solid', 'SolidMechanics', 'geom1');
 
+model.component('comp1').physics('solid').create('disp2', 'Displacement1', 1);
+model.component('comp1').physics('solid').feature('disp2').label('Bottom Displacement');
+model.component('comp1').physics('solid').feature('disp2').selection.set([2]);
+model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 1);
+model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 0);
+
 model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 1);
 model.component('comp1').physics('solid').feature('bndl1').label('Top Load');
 model.component('comp1').physics('solid').feature('bndl1').selection.set([5]);
 model.component('comp1').physics('solid').feature('bndl1').set('FperArea', [0 load 0]);
 
-model.component('comp1').physics('solid').create('disp2', 'Displacement1', 1);
-model.component('comp1').physics('solid').feature('disp2').label('Bottom Displacement');
-model.component('comp1').physics('solid').feature('disp2').selection.set([4]);
-model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 1);
-model.component('comp1').physics('solid').feature('disp2').setIndex('Direction', true, 0);
-
 model.component('comp1').mesh('mesh1').create('ftri1', 'FreeTri');
 model.component('comp1').mesh('mesh1').feature('ftri1').selection.geom('geom1');
 model.component('comp1').mesh('mesh1').feature('size').set('hauto', 6);
 model.component('comp1').mesh('mesh1').run;
-
-points = mphgetcoords(model,'geom1','domain',1);
-points = points(1,:);
-num_points = length(points);
-model.component('comp1').geom('geom1').create('fil1', 'Fillet');
-model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni4',[1:num_points]);
-model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
-model.component('comp1').geom('geom1').run('fil1');
-model.component('comp1').geom('geom1').run('uni4');
-model.component('comp1').geom('geom1').run;
-
-model.component('comp1').geom('geom1').run('dif1');
 
 model.study.create('std1');
 model.study('std1').create('stat', 'Stationary');
@@ -331,6 +328,8 @@ model.result('pgsurf').feature('con1').set('descractive', true);
 model.result('pgsurf').feature('con1').set('descr', 'Effective plastic strain');
 model.result('pgsurf').feature('con1').label('Plastic strain');
 model.result('pgsurf').set('legendpos', 'rightdouble');
+model.result('pgsurf').feature('surf1').feature('def').set('scaleactive', true);
+model.result('pgsurf').feature('surf1').feature('def').set('scale', 0);
 model.result('pgsurf').run;
 
 model.sol('sol1').runAll;
