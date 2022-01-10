@@ -21,8 +21,8 @@ def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origi
     RHO = 4500
 
     ORDER = 1
-    STRESS = 1*(-100)
-    
+    STRESS = -100
+       
     if dimension == 2:
         sim = Simulate2D()
         plane = 'stress'

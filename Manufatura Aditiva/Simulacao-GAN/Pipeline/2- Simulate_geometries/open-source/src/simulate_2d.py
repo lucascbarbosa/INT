@@ -50,7 +50,7 @@ class Simulate2D(object):
         mesh = Mesh.from_file(filename)
         return mesh
 
-    def create_regions(self, mesh, tol=1e-1):
+    def create_regions(self, mesh, tol=1e-5):
         domain = FEDomain('domain', mesh)
 
         min_x, max_x = domain.get_mesh_bounding_box()[:, 0]
