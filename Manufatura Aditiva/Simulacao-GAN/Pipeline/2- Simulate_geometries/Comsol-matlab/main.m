@@ -1,4 +1,4 @@
-function [Es,model] = main(dimension)
+function Es = main(dimension,start_geometry,end_geometry)
 
     arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\Arrays\RTGA\p4\';
     young_dir = 'E:\Lucas GAN\Dados\3- Mechanical_properties\young_COMSOL\';
@@ -12,10 +12,10 @@ function [Es,model] = main(dimension)
     dtheta = 45;
     theta_max = 45;
     
-    for fid = (1:1)
-        datafilename = strcat(arrays_dir,filenames{fid+2})
+    for fid = (start_geometry:end_geometry)
+        datafilename = strcat(arrays_dir,filenames{fid+2});
         f  = fopen(datafilename,'r');
-        f_e = fopen(strcat(young_dir,filenames{fid+2}),'wt');
+        file_out = fopen(strcat(young_dir,filenames{fid+2}),'wt');
         array = get_array(f);
         fclose(f);
 
@@ -52,7 +52,7 @@ function [Es,model] = main(dimension)
             end
             Es(fid,int8(theta/dtheta)+1) = E;
         end
-        fprintf(f_e,'%d\n',Es(fid,:)');
-        fclose(f_e);
+        fprintf(file_out,'%d\n',Es(fid,:)');
+        fclose(file_out);
     end
 end

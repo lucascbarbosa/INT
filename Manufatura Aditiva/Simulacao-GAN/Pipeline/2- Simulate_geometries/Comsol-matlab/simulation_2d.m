@@ -1,4 +1,4 @@
-function [out,E] = simulation_2d(array,theta)
+function [out,E] = simulation_2d(array,theta,model_name)
 
 % teste.m
 %
