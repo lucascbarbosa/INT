@@ -284,7 +284,7 @@ model.result.create('pg1', 'PlotGroup3D');
 
 model.result('pg1').set('data', 'dset1');
 model.result('pg1').create('surf1', 'Surface');
-model.result('pg1').feature('surf1').set('expr', {'solid.disp'});
+model.result('pg1').feature('surf1').set('expr', {'v'});
 model.result('pg1').label('Displacement Y (solid)');
 model.result('pg1').feature('surf1').set('colortable', 'RainbowLight');
 model.result('pg1').feature('surf1').set('resolution', 'normal');

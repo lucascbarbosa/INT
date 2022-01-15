@@ -307,7 +307,7 @@ model.sol('sol1').attach('std1');
 model.result.create('pgsurf', 'PlotGroup2D');
 model.result('pgsurf').set('data', 'dset1');
 model.result('pgsurf').create('surf1', 'Surface');
-model.result('pgsurf').feature('surf1').set('expr', {'solid.disp'});
+model.result('pgsurf').feature('surf1').set('expr', {'v'});
 model.result('pgsurf').label('Stress (solid)');
 model.result('pgsurf').feature('surf1').set('colortable', 'RainbowLight');
 model.result('pgsurf').feature('surf1').set('resolution', 'normal');
