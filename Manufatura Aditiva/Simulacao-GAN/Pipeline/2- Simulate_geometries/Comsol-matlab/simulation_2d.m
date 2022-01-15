@@ -1,4 +1,4 @@
-function [out,E] = simulation_2d(array,theta,model_name)
+function [out,E] = simulation_2d(array,theta,model_name,save_model)
 
 % teste.m
 %
@@ -335,8 +335,10 @@ model.result('pgsurf').run;
 model.sol('sol1').runAll;
 
 out = model;
- 
-mphsave(model,model_name);
+
+if save_model == true
+    mphsave(model,model_name);
+end
 
 data = mpheval(model,'v','selection',5,'edim','boundary');
 
