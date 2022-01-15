@@ -336,8 +336,7 @@ model.sol('sol1').runAll;
 
 out = model;
  
-simulation_name = 'simulation_2d';
-mphsave(model,simulation_name);
+mphsave(model,model_name);
 
 data = mpheval(model,'v','selection',5,'edim','boundary');
 

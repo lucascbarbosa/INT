@@ -1,6 +1,7 @@
 function Es = main(dimension,start_geometry,end_geometry)
 
     arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\Arrays\RTGA\p4\';
+    models_dir = strcat('E:\Lucas GAN\Dados\2- Models\MATLAB\',int2str(dimension),'D\');
     young_dir = 'E:\Lucas GAN\Dados\3- Mechanical_properties\young_COMSOL\';
 
     datadirs = dir(arrays_dir); 
@@ -13,9 +14,13 @@ function Es = main(dimension,start_geometry,end_geometry)
     theta_max = 45;
     
     for fid = (start_geometry:end_geometry)
-        datafilename = strcat(arrays_dir,filenames{fid+2});
+        filename = filenames{fid+2};
+        datafilename = strcat(arrays_dir,filename);
         f  = fopen(datafilename,'r');
-        file_out = fopen(strcat(young_dir,filenames{fid+2}),'wt');
+        file_out = fopen(strcat(young_dir,filename),'wt');
+        model_name = split(filename,".txt");
+        model_name = model_name(1);
+        model_name = model_name+".mph";
         array = get_array(f);
         fclose(f);
 
@@ -25,25 +30,25 @@ function Es = main(dimension,start_geometry,end_geometry)
             E = 0;
             try
                 if dimension==2
-                    [model,E] = simulation_2d(array,theta);
+                    [model,E] = simulation_2d(array,theta,model_name);
                 else
-                    [model,E] = simulation_3d(array,theta);
+                    [model,E] = simulation_3d(array,theta,model_name);
                 end
             catch
                 try
                     disp(theta+1);
                     if dimension==2
-                        [model,E] = simulation_2d(array,theta);
+                        [model,E] = simulation_2d(array,theta,model_name);
                     else
-                        [model,E] = simulation_3d(array,theta);
+                        [model,E] = simulation_3d(array,theta,model_name);
                     end
                 catch
                     try
                         disp(theta-1);
                     	if dimension==2
-                            [model,E] = simulation_2d(array,theta);
+                            [model,E] = simulation_2d(array,theta,model_name);
                         else
-                            [model,E] = simulation_3d(array,theta);
+                            [model,E] = simulation_3d(array,theta,model_name);
                         end
                     catch
                         approved(fid) = false;
