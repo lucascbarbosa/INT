@@ -1,8 +1,8 @@
-function Es = main(dimension,start_geometry,end_geometry,save_model)
+function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
 
     arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\Arrays\RTGA\p4\';
     models_dir = strcat('E:\Lucas GAN\Dados\2- Models\MATLAB\',int2str(dimension),'D\');
-    young_dir = 'E:\Lucas GAN\Dados\3- Mechanical_properties\young_COMSOL\';
+    young_dir = 'E:\Lucas GAN\Dados\3- Mechanical_properties\young\MATLAB\';
 
     datadirs = dir(arrays_dir); 
     dircell = struct2cell(datadirs)';   
@@ -14,7 +14,7 @@ function Es = main(dimension,start_geometry,end_geometry,save_model)
     theta_max = 45;
     
     for fid = (start_geometry:end_geometry)
-        filename = string(filenames{fid+2});
+        filename = string(filenames{fid+2})
         datafilename = strcat(arrays_dir,filename);
         f  = fopen(datafilename,'r');
         file_out = fopen(strcat(young_dir,filename),'wt');
