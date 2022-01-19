@@ -6,9 +6,8 @@ function array = get_array(idx)
     dircell = struct2cell(datadirs)';   
     filenames = dircell(:,1);
 
-    filename = filenames{idx+2};
-    datafilename = strcat(arrays_dir,filename);
-    f  = fopen(datafilename,'r');
+    filename = filenames{idx};
+    f  = fopen(strcat(arrays_dir,filename),'r');
     data = textscan(f,'%s');
     data = data{1};
     size = sqrt(length(data));

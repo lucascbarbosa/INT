@@ -13,10 +13,8 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
     dtheta = 45;
     theta_max = 45;
     
-    for fid = (start_geometry:end_geometry)
-        filename = string(filenames{fid+2})
-        datafilename = strcat(arrays_dir,filename);
-        f  = fopen(datafilename,'r');
+    for fid = (start_geometry+2:end_geometry+2)
+        filename = filenames{fid}
         file_out = fopen(strcat(young_dir,filename),'wt');
         model_name = split(filename,".txt");
         model_name = string(model_name{1});
@@ -25,8 +23,8 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
         if ~exist(idx_dir, 'dir')
             mkdir(idx_dir);
         end
-        array = get_array(f);
-        fclose(f);
+        
+        array = get_array(fid)
     
         for theta = 0:dtheta:theta_max
             model_filename = idx_dir+model_name(2)+"_"+model_name(3)+"_theta_"+int2str(theta)+".mph";
@@ -38,6 +36,7 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
                 else
                     [model,E] = simulation_3d(array,theta,model_filename,save_model);
                 end
+                approved(fid-2) = true;
             catch
                 try
                     disp(theta+1);
@@ -46,6 +45,7 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
                     else
                         [model,E] = simulation_3d(array,theta,model_filename,save_model);
                     end
+                    approved(fid-2) = true;
                 catch
                     try
                         disp(theta-1);
@@ -54,14 +54,15 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
                         else
                             [model,E] = simulation_3d(array,theta,model_filename,save_model);
                         end
+                        approved(fid-2) = true;
                     catch
-                        approved(fid) = false;
+                        approved(fid-2) = false;
                     end
                 end
             end
-            Es(fid,int8(theta/dtheta)+1) = E;
+            Es(fid-2,int8(theta/dtheta)+1) = E;
         end
-        fprintf(file_out,'%d\n',Es(fid,:)');
+        fprintf(file_out,'%d\n',Es(fid-2,:)');
         fclose(file_out);
     end
 end
