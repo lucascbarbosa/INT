@@ -24,7 +24,7 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
             mkdir(idx_dir);
         end
         
-        array = get_array(fid)
+        array = get_array(fid);
     
         for theta = 0:dtheta:theta_max
             model_filename = idx_dir+model_name(2)+"_"+model_name(3)+"_theta_"+int2str(theta)+".mph";
@@ -57,6 +57,7 @@ function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
                         approved(fid-2) = true;
                     catch
                         approved(fid-2) = false;
+                        E = 0;
                     end
                 end
             end
