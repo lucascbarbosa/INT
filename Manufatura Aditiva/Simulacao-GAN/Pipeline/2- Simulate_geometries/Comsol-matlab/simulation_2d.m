@@ -1,4 +1,4 @@
-function [out,E] = simulation_2d(array,theta,model_name,save_model)
+function [model,E] = simulation_2d(array,theta,model_name,save_model)
 
 % teste.m
 %
@@ -335,7 +335,6 @@ model.result('pgsurf').run;
 
 model.sol('sol1').runAll;
 
-out = model;
 
 if save_model == true
     mphsave(model,model_name);
@@ -343,7 +342,7 @@ end
 
 data = mpheval(model,'v','selection',5,'edim','boundary');
 
-disp = data.d1(fix(length(data.d1)/2));
+disp = data.d1(fix(length(data.d1)/2))
 strain = disp/(3*arrange_size/2);
 E = load/strain;
 

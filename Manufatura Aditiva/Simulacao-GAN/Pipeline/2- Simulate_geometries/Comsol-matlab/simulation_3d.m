@@ -1,4 +1,4 @@
-function [out,E] = simulation_3d(array,theta,model_name,save_model)
+function [model,E] = simulation_3d(array,theta,model_name,save_model)
 
 % teste.m
 %
@@ -280,7 +280,7 @@ model.sol('sol1').feature('s1').feature('fc1').set('reserrfact', 1000);
 model.sol('sol1').feature('s1').feature.remove('fcDef');
 model.sol('sol1').attach('std1');
 
-model.result.create('pg1', 'PlotGroup3D');
+model.result.create('pgsurf', 'PlotGroup3D');
 
 model.result('pgsurf').set('data', 'dset1');
 model.result('pgsurf').create('surf1', 'Surface');
@@ -292,12 +292,12 @@ model.result('pgsurf').feature('surf1').create('def', 'Deform');
 model.result('pgsurf').feature('surf1').feature('def').set('expr', {'u' 'v' 'w'});
 model.result('pgsurf').feature('surf1').feature('def').set('descr', 'Displacement field');
 model.result('pgsurf').feature('surf1').feature('def').set('scale', '0');
-model.result('pg1').run;
+model.result('pgsurf').run;
 
 model.sol('sol1').runAll;
 
 data = mpheval(model,'v','selection',7,'edim','boundary');
-disp = data.d1(fix(length(data.d1)/2));
+disp = data.d1(fix(length(data.d1)/2))
 strain = disp/(3*arrange_size/2);
 E = load/strain;
 
@@ -305,5 +305,4 @@ if save_model == true
     mphsave(model,model_name);
 end
 
-out = model;
 end
