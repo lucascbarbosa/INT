@@ -1,4 +1,4 @@
-function [out,E] = simulation_3d(array,theta,model_name)
+function [out,E] = simulation_3d(array,theta,model_name,save_model)
 
 % teste.m
 %
@@ -282,28 +282,28 @@ model.sol('sol1').attach('std1');
 
 model.result.create('pg1', 'PlotGroup3D');
 
-model.result('pg1').set('data', 'dset1');
-model.result('pg1').create('surf1', 'Surface');
-model.result('pg1').feature('surf1').set('expr', {'v'});
-model.result('pg1').label('Displacement Y (solid)');
-model.result('pg1').feature('surf1').set('colortable', 'RainbowLight');
-model.result('pg1').feature('surf1').set('resolution', 'normal');
-model.result('pg1').feature('surf1').create('def', 'Deform');
-model.result('pg1').feature('surf1').feature('def').set('expr', {'u' 'v' 'w'});
-model.result('pg1').feature('surf1').feature('def').set('descr', 'Displacement field');
-model.result('pg1').feature('surf1').feature('def').set('scale', '0');
+model.result('pgsurf').set('data', 'dset1');
+model.result('pgsurf').create('surf1', 'Surface');
+model.result('pgsurf').feature('surf1').set('expr', {'v'});
+model.result('pgsurf').label('Displacement Y (solid)');
+model.result('pgsurf').feature('surf1').set('colortable', 'RainbowLight');
+model.result('pgsurf').feature('surf1').set('resolution', 'normal');
+model.result('pgsurf').feature('surf1').create('def', 'Deform');
+model.result('pgsurf').feature('surf1').feature('def').set('expr', {'u' 'v' 'w'});
+model.result('pgsurf').feature('surf1').feature('def').set('descr', 'Displacement field');
+model.result('pgsurf').feature('surf1').feature('def').set('scale', '0');
 model.result('pg1').run;
 
 model.sol('sol1').runAll;
 
 data = mpheval(model,'v','selection',7,'edim','boundary');
-
 disp = data.d1(fix(length(data.d1)/2));
 strain = disp/(3*arrange_size/2);
 E = load/strain;
 
-simulation_name = 'simulation_3d';
-mphsave(model,simulation_name)
+if save_model == true
+    mphsave(model,model_name);
+end
 
 out = model;
 end

@@ -328,6 +328,7 @@ model.result('pgsurf').feature('con1').set('descractive', true);
 model.result('pgsurf').feature('con1').set('descr', 'Effective plastic strain');
 model.result('pgsurf').feature('con1').label('Plastic strain');
 model.result('pgsurf').set('legendpos', 'rightdouble');
+model.result('pgsurf').label('Displacement Y (solid)');
 model.result('pgsurf').feature('surf1').feature('def').set('scaleactive', true);
 model.result('pgsurf').feature('surf1').feature('def').set('scale', 0);
 model.result('pgsurf').run;
