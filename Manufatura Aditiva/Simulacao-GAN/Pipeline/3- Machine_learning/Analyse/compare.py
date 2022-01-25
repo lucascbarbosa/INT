@@ -3,7 +3,7 @@ import os
 import numpy as np
 import sys
 
-problem = str(sys.argv[1])
+prop = str(sys.argv[1])
 dimension = int(sys.argv[2])
 origin = str(sys.argv[3])
 simmetry = str(sys.argv[4])
@@ -15,12 +15,12 @@ if origin == "-g":
     origin = "GAN"
 
 if os.getcwd().split('\\')[2] == 'lucas':
-    open_source_dir = f"E:/Lucas GAN/Dados/3- Mechanical_properties/{problem}/{origin}/{dimension}D/{simmetry}/"
-    comsol_dir = f"E:/Lucas GAN/Dados/3- Mechanical_properties/{problem}/MATLAB/{dimension}D/{simmetry}/"
+    open_source_dir = f"E:/Lucas GAN/Dados/3- Mechanical_properties/{prop}/{origin}/{dimension}D/{simmetry}/"
+    comsol_dir = f"E:/Lucas GAN/Dados/3- Mechanical_properties/{prop}/MATLAB/{dimension}D/{simmetry}/"
 
 else:
-    open_source_dir = f"D:/Lucas GAN/Dados/3- Mechanical_properties/{problem}/{origin}/{dimension}D/{simmetry}/"
-    comsol_dir = f"D:/Lucas GAN/Dados/3- Mechanical_properties/{problem}/MATLAB/{dimension}D/{simmetry}/"
+    open_source_dir = f"D:/Lucas GAN/Dados/3- Mechanical_properties/{prop}/{origin}/{dimension}D/{simmetry}/"
+    comsol_dir = f"D:/Lucas GAN/Dados/3- Mechanical_properties/{prop}/MATLAB/{dimension}D/{simmetry}/"
 
 os_filenames = os.listdir(open_source_dir)
 comsol_filenames = os.listdir(comsol_dir)
@@ -29,15 +29,23 @@ props_os = np.array([])
 for os_filename in os_filenames:
     try:
         prop = np.loadtxt(open_source_dir+os_filename)
-        props_os = np.append(props_os,np.array([(prop[0]/prop[1])]),axis=0)
+        if prop[0] != 0 and prop[1] != 0:
+            m = prop.min()
+            M = prop.max()
+            props_os = np.append(props_os,np.array([1.0 - ((M-m)/((M+m)))]),axis=0)
     except:
         pass
 
-print(props_os)
-# props_comsol = np.array([])
-# for comsol_filename in comsol_filenames:
-#     prop = np.loadtxt(comsol_dir+comsol_filename)
-#     props_comsol = np.append(props_comsol,np.array([prop[0]/prop[1]]),axis=0)
+props_comsol = np.array([])
+for comsol_filename in comsol_filenames:
+    try:
+        prop = np.loadtxt(open_source_dir+comsol_filename)
+        if prop[0] != 0 and prop[1] != 0:
+            m = prop.min()
+            M = prop.max()
+            props_comsol = np.append(props_comsol,np.array([1.0 - ((M-m)/((M+m)))]),axis=0)
+    except:
+        pass
 
 # props_comsol_ = []
 # props_os_ = []
