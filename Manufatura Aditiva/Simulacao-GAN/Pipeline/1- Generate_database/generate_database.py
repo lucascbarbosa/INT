@@ -49,7 +49,7 @@ while correct_samples < samples:
   arch = gen.create_arch(unit)
   if passed:
     if show:
-      gen.show_img(unit)
+      # gen.show_img(unit)
       gen.show_img(arch)
     if save_array:
       gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 

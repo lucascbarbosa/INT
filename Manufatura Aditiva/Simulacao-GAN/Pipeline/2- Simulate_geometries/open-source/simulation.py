@@ -10,10 +10,10 @@ from multiprocessing import Process, freeze_support, Array
 import sys
 
 
-def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin,dimension):
+def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
 
     stl_filename, vtk_filename = preproc(
-        array_dir, vtk_dir, idx_array, idx_file, simmetry, origin,dimension)
+        array_dir, vtk_dir, idx_array, idx_file, simmetry, origin, dimension)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -22,7 +22,7 @@ def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origi
 
     ORDER = 1
     STRESS = -100
-       
+
     if dimension == 2:
         sim = Simulate2D()
         plane = 'stress'
@@ -35,15 +35,18 @@ def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origi
     field, u, v = sim.create_field_variables(omega, ORDER)
     integral = sim.define_integral(ORDER)
     area = sim.get_area(integral, top, u)
-    solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
+    solid, f = sim.define_material(
+        YOUNG, POISSON, RHO, STRESS, dimension, plane)
     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
     fix_bot = sim.set_bcs(bot, top)
     bcs = [fix_bot]
-    pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
+    pb, out, E, disp = sim.solve_problem(
+        eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
 
-    Es[idx] = float(E/1e10)
+    Es[idx] = float(E/1e9)
 
-    print('\nFor %s: E = %fe10 and u =%.4fe-10' %(stl_filename, float(E/1e10), disp/1e-10))
+    print('\nFor %s: E = %fe9 and u =%.4fe-9' %(stl_filename, float(E/1e9), disp/1e-9))
+
 
 if __name__ == '__main__':
 
@@ -60,14 +63,18 @@ if __name__ == '__main__':
     if origin == "-r":
         if os.getcwd().split('\\')[2] == 'lucas':
             max_processes = 2
-            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
-            vtk_dir = 'E:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
-            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' % simmetry
+            vtk_dir = 'E:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s' % (
+                dimension, simmetry)
+            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
+                dimension, simmetry)
         else:
             max_processes = 14
-            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/'%simmetry
-            vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s'%(dimension,simmetry)
-            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s'%(dimension,simmetry)
+            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' % simmetry
+            vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s' % (
+                dimension, simmetry)
+            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
+                dimension, simmetry)
 
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
         geometries_filename = os.listdir(geometries_dir)
@@ -94,7 +101,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin,dimension,))
+                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -119,12 +126,14 @@ if __name__ == '__main__':
             geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
             stl_dir = 'E:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
             vtk_dir = 'E:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-            young_dir = "E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (simmetry, problem)
+            young_dir = "E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
+                simmetry, problem)
         else:
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
             stl_dir = 'D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
             vtk_dir = 'D:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-            young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (simmetry, problem)
+            young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
+                simmetry, problem)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
 
         geometries_filename = os.listdir(geometries_dir)
@@ -152,7 +161,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin,dimension,))
+                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -163,11 +172,9 @@ if __name__ == '__main__':
             for i in range(0, len(Es[:]), 2):
                 Es_geometry = Es[i:i+2]
                 for j in range(len(Es_geometry)):
-                    Es_geometry[j] = str(Es_geometry[j])+'e+10'
-                filename = geometries_filename[int(
-                    i/2)+start+r*int(max_processes/2)]
-                np.savetxt(young_dir+'/'+filename, Es_geometry,
-                           delimiter='\n', fmt='%s')
+                    Es_geometry[j] = str(Es_geometry[j])+'e+9'
+                filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
+                np.savetxt(young_dir+'/'+filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))
