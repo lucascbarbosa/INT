@@ -112,7 +112,7 @@ if __name__ == '__main__':
             for i in range(0, len(Es[:]), 2):
                 Es_geometry = Es[i:i+2]
                 for j in range(len(Es_geometry)):
-                    Es_geometry[j] = str(Es_geometry[j])+'e+10'
+                    Es_geometry[j] = str(Es_geometry[j])+'e+9'
                 filename = geometries_filename[int(
                     i/2)+start+r*int(max_processes/2)]
                 np.savetxt(young_dir+'/'+filename, Es_geometry,
