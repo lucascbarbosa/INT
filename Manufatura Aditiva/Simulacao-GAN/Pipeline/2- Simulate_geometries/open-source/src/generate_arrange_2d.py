@@ -134,7 +134,7 @@ arrange_size = 48e-3 # m
 unit_size = float(arrange_size/units_per_arrange) # m
 element_size = float(unit_size/elements_per_unit) # m
 pixel_size = float(element_size/resolution)
-mag = int(log(len(arrays_filename),10)+3)+1
+mag = int(log(len(arrays_filename),10)+3)
 
 for array_filename in arrays_filename[idx:idx+1]:
     with open(os.path.join(arrays_dir,array_filename),'r') as f:

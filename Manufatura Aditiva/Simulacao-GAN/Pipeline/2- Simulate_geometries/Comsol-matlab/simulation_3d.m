@@ -21,10 +21,10 @@ thickness = 0.0025;
 resolution = length(array);
 void_size = arrange_size/(6*resolution);
 
-model.param.set('load', num2str(load,'%d'), 'prescribed load');
+model.param.set('load', [num2str(load,'%d') '' '[N/m^2]'], 'prescribed load');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
 model.param.set('poisson', num2str(poisson,'%.2f'), 'poisson''s modulus');
-model.param.set('rho', [num2str(rho,'%d') '' '[Kg/m^3]'], 'density');
+model.param.set('p', [num2str(rho,'%d') '' '[Kg/m^3]'], 'density');
 model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');
 model.param.set('arrange_size', [num2str(arrange_size,'%.4f') '' '[m]'], 'arrange size');
