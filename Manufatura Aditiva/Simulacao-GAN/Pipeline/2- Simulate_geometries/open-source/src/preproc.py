@@ -10,7 +10,6 @@ def preproc(array_dir, vtk_dir, idx_array,idx_file,simmetry,origin,dimension):
         os.system(command_vtk)
         stl_filenames = os.listdir(vtk_dir + '/' + array_dir)
         stl_filename = stl_filenames[idx_file]
-        print(stl_filename)
         vtk_filename = stl_filename[:-4]+'.vtk'
         vtk_filename = vtk_dir + '/' + array_dir + '/' + vtk_filename
         command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
