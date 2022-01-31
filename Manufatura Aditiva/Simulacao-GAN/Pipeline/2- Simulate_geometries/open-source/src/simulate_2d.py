@@ -49,7 +49,14 @@ class Simulate2D(object):
     def get_mesh(self, filename):
         mesh = Mesh.from_file(filename)
         return mesh
-
+    
+    def get_top_coors(self, mesh, tol=1e-5):
+        domain = FEDomain('domain', mesh)
+        min_x, max_x = domain.get_mesh_bounding_box()[:, 0]
+        min_y, max_y = domain.get_mesh_bounding_box()[:, 1]
+        # eps_y = tol*(max_y-min_y)
+        return max_y
+    
     def create_regions(self, mesh, tol=1e-5):
         domain = FEDomain('domain', mesh)
 
@@ -70,7 +77,6 @@ class Simulate2D(object):
         top = domain.create_region('top',
                                    'vertices in y > %.10f' % (max_y-eps_y),
                                    'facet')
-
         return dimensions, omega, top, bot
 
     def create_field_variables(self, omega, order):
@@ -109,9 +115,9 @@ class Simulate2D(object):
         area = ta.evaluate()
         return area
 
-    def get_disp(self, u):
-        # return (np.linalg.norm(u,axis=1).max()-np.linalg.norm(u,axis=1).min())
-        disp = np.abs(u[:, 1]).max()
+    def get_disp(self, mesh, u):
+        top = self.get_top_coors(mesh)
+        disp = np.abs(u[np.where(mesh.coors[:,1]==top)[0]][:,1]).mean()
         return disp
 
     def set_bcs(self, bot, top):
@@ -121,7 +127,7 @@ class Simulate2D(object):
 
         return fix_bot
 
-    def solve_problem(self, eqs, bcs, dimensions, solid, stress, dim, vtk_filename):
+    def solve_problem(self, mesh, eqs, bcs, dimensions, solid, stress, dim, vtk_filename):
         ls = ScipyDirect({})
 
         nls_status = IndexedStruct()
@@ -147,7 +153,7 @@ class Simulate2D(object):
 
         u_tensor = state()
         u_tensor = u_tensor.reshape((int(u_tensor.shape[0]/dim), dim))
-        disp = self.get_disp(u_tensor)
+        disp = self.get_disp(mesh, u_tensor)
 
         E = self.get_young_arrange(stress, dimensions, disp)
         pb.save_state(vtk_filename, out=out)

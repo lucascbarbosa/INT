@@ -98,47 +98,34 @@ model.component('comp1').geom('geom1').useConstrDim(false);
 
 model.component('comp1').geom('geom1').create('arrec1', 'Array');
 model.component('comp1').geom('geom1').feature('arrec1').selection('input').set({'uni1'});
-model.component('comp1').geom('geom1').feature('arrec1').set('fullsize', [3 3]);
+model.component('comp1').geom('geom1').feature('arrec1').set('fullsize', [5 5]);
 model.component('comp1').geom('geom1').feature('arrec1').set('displ', {'2*unit_size' '2*unit_size'});
 model.component('comp1').geom('geom1').run('arrec1');
+
 model.component('comp1').geom('geom1').create('uni2', 'Union');
 model.component('comp1').geom('geom1').feature('uni2').selection('input').set({'arrec1'});
+model.component('comp1').geom('geom1').feature('uni2').set('keep', false);
 model.component('comp1').geom('geom1').feature('uni2').set('intbnd', false);
-
-model.component('comp1').geom('geom1').create('arrec2', 'Array');
-model.component('comp1').geom('geom1').feature('arrec2').set('fullsize', [2 2]);
-model.component('comp1').geom('geom1').feature('arrec2').set('displ', {'arrange_size' '0'});
-model.component('comp1').geom('geom1').feature('arrec2').setIndex('displ', 'arrange_size', 1);
-model.component('comp1').geom('geom1').feature('arrec2').selection('input').set({'uni2'});
-model.component('comp1').geom('geom1').runPre('fin');
-model.component('comp1').geom('geom1').run('arrec2');
-
-model.component('comp1').geom('geom1').create('uni3', 'Union');
-model.component('comp1').geom('geom1').feature('uni3').selection('input').set({'arrec2'});
-model.component('comp1').geom('geom1').feature('uni3').set('keep', false);
-model.component('comp1').geom('geom1').feature('uni3').set('intbnd', false);
-model.component('comp1').geom('geom1').run('uni3');
+model.component('comp1').geom('geom1').run('uni2');
 
 model.component('comp1').geom('geom1').create('rot4', 'Rotate');
-model.component('comp1').geom('geom1').feature('rot4').selection('input').set({'uni3'});
+model.component('comp1').geom('geom1').feature('rot4').selection('input').set({'uni2'});
 model.component('comp1').geom('geom1').feature('rot4').set('rot', 'theta');
-model.component('comp1').geom('geom1').feature('rot4').set('pos', {'arrange_size-unit_size/2' '0'});
-model.component('comp1').geom('geom1').feature('rot4').setIndex('pos', 'arrange_size-unit_size/2', 1);
+model.component('comp1').geom('geom1').feature('rot4').set('pos', {'arrange_size-3*unit_size/2' 'arrange_size-5*unit_size/2'});
 model.component('comp1').geom('geom1').run('rot4');
 
 model.component('comp1').geom('geom1').create('sq1', 'Square');
 model.component('comp1').geom('geom1').feature('sq1').set('base', 'center');
-model.component('comp1').geom('geom1').feature('sq1').set('size', '4*arrange_size');
-model.component('comp1').geom('geom1').feature('sq1').set('pos', {'arrange_size-unit_size/2' '0'});
-model.component('comp1').geom('geom1').feature('sq1').setIndex('pos', 'arrange_size-unit_size/2', 1);
+model.component('comp1').geom('geom1').feature('sq1').set('size', '3*arrange_size');
+model.component('comp1').geom('geom1').feature('sq1').set('pos', {'arrange_size-3*unit_size/2' 'arrange_size-5*unit_size/2'});
 
 model.component('comp1').geom('geom1').run('sq1');
 
 r = r + 1;
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arrange_size-2*void_size arrange_size]);
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size+unit_size/2 arrange_size-unit_size/2]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'arrange_size-2*void_size' 'arrange_size'});
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'arrange_size-3*unit_size/2' 'arrange_size-5*unit_size/2'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
 model.component('comp1').geom('geom1').create('dif2', 'Difference');
@@ -159,30 +146,30 @@ r = r + 1;
 
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arrange_size arrange_size/4]);
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size+unit_size/2 arrange_size/4+unit_size/4]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'arrange_size' 'arrange_size/4'});
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'arrange_size-3*unit_size/2' 'arrange_size/8-unit_size'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
 r = r + 1;
 
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [arrange_size arrange_size/4]);
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size+unit_size/2 7*arrange_size/4-5*unit_size/4]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'arrange_size' 'arrange_size/4'});
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'arrange_size-3*unit_size/2' '11*arrange_size/8-unit_size'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
 r = r + 1;
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [void_size arrange_size]);
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [arrange_size/2+unit_size/2+void_size/2 arrange_size-unit_size/2]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'void_size' 'arrange_size'});
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'arrange_size/2-3*unit_size/2+void_size/2' 'arrange_size-5*unit_size/2'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
 r = r + 1;
 model.component('comp1').geom('geom1').create(num2str(r,'%i'), 'Rectangle');
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('base', 'center');
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', [void_size arrange_size]);
-model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', [3*arrange_size/2+unit_size/2-void_size/2 arrange_size-unit_size/2]);
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'void_size' 'arrange_size'});
+model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'3*arrange_size/2-3*unit_size/2-void_size/2' 'arrange_size-5*unit_size/2'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
 model.component('comp1').geom('geom1').create('uni4', 'Union');
