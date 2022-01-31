@@ -172,17 +172,17 @@ model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('size', {'vo
 model.component('comp1').geom('geom1').feature(num2str(r,'%i')).set('pos', {'3*arrange_size/2-3*unit_size/2-void_size/2' 'arrange_size-5*unit_size/2'});
 model.component('comp1').geom('geom1').run(num2str(r,'%i'));
 
-model.component('comp1').geom('geom1').create('uni4', 'Union');
-model.component('comp1').geom('geom1').feature('uni4').selection('input').set({'dif3' num2str(r-3,'%i') num2str(r-2,'%i') num2str(r-1,'%i') num2str(r,'%i')});
-model.component('comp1').geom('geom1').feature('uni4').set('intbnd', false);
-model.component('comp1').geom('geom1').feature('uni4').set('keep', false);
+model.component('comp1').geom('geom1').create('uni3', 'Union');
+model.component('comp1').geom('geom1').feature('uni3').selection('input').set({'dif3' num2str(r-3,'%i') num2str(r-2,'%i') num2str(r-1,'%i') num2str(r,'%i')});
+model.component('comp1').geom('geom1').feature('uni3').set('intbnd', false);
+model.component('comp1').geom('geom1').feature('uni3').set('keep', false);
 model.component('comp1').geom('geom1').run;
 
 % points = mphgetcoords(model,'geom1','domain',1);
 % points = points(1,:);
 % num_points = length(points);
 % model.component('comp1').geom('geom1').create('fil1', 'Fillet');
-% model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni4',[1:num_points]);
+% model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni3',[1:num_points]);
 % model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
 % model.component('comp1').geom('geom1').run('fil1');
 model.component('comp1').geom('geom1').run;
@@ -290,7 +290,7 @@ end
 
 data = mpheval(model,'v','selection',5,'edim','boundary');
 
-disp = data.d1(fix(length(data.d1)/2))
+disp = data.d1(fix(length(data.d1)/2));
 strain = disp/(3*arrange_size/2);
 E = load/strain;
 
