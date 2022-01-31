@@ -23,7 +23,7 @@ void_size = arrange_size/(6*resolution);
 
 model.param.set('load', [num2str(load,'%d') '' '[N]'], 'prescribed load');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
-model.param.set('p', [num2str(p,'%d') '' '[GPa]'], 'density');
+model.param.set('p', [num2str(p,'%d') '' '[Kg/m^3]'], 'density');
 model.param.set('poisson', num2str(poisson,'%.2f'), 'poisson''s modulus');
 model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');

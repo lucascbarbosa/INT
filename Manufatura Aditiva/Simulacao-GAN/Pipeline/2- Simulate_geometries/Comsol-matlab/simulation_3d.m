@@ -14,7 +14,7 @@ model.modelPath(['C:\Users\lucas\Documents\Github\INT\Manufatura Aditiva\Simula'
 load = 100;
 young = 100.0;
 poisson = 0.3;
-rho = 4500;
+p = 4500;
 arrange_size = 0.048;
 unit_size = arrange_size/6;
 thickness = 0.0025;
@@ -24,7 +24,7 @@ void_size = arrange_size/(6*resolution);
 model.param.set('load', [num2str(load,'%d') '' '[N/m^2]'], 'prescribed load');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
 model.param.set('poisson', num2str(poisson,'%.2f'), 'poisson''s modulus');
-model.param.set('p', [num2str(rho,'%d') '' '[Kg/m^3]'], 'density');
+model.param.set('p', [num2str(p,'%d') '' '[Kg/m^3]'], 'density');
 model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');
 model.param.set('arrange_size', [num2str(arrange_size,'%.4f') '' '[m]'], 'arrange size');
@@ -200,7 +200,7 @@ model.component('comp1').geom('geom1').run('ext1');
 model.component('comp1').geom('geom1').feature('wp1').geom.run;
 
 model.component('comp1').material.create('mat1', 'Common');
-model.component('comp1').material('mat1').propertyGroup('def').set('density', 'rho');
+model.component('comp1').material('mat1').propertyGroup('def').set('density', 'p');
 model.component('comp1').material('mat1').propertyGroup('def').descr('density_symmetry', '');
 model.component('comp1').material('mat1').propertyGroup.create('Enu', 'Young''s modulus and Poisson''s ratio');
 model.component('comp1').material('mat1').propertyGroup('Enu').set('youngsmodulus', 'young');
