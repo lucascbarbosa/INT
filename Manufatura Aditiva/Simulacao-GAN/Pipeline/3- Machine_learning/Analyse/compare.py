@@ -21,7 +21,7 @@ comsol_filenames = os.listdir(comsol_dir)
 
 props_os = np.array([])
 approved_os = np.array([])
-for os_filename in os_filenames[:10]:
+for os_filename in os_filenames[:len(comsol_filenames)]:
     try:
         prop = np.loadtxt(open_source_dir+os_filename)
         props_os = np.append(props_os, np.array([prop]).ravel(), axis=0)
@@ -36,7 +36,7 @@ for os_filename in os_filenames[:10]:
 
 props_comsol = np.array([])
 approved_comsol = np.array([])
-for comsol_filename in comsol_filenames[:10]:
+for comsol_filename in comsol_filenames:
     try:
         prop = np.loadtxt(comsol_dir+comsol_filename)
         props_comsol = np.append(props_comsol, np.array([prop]).ravel(), axis=0)
