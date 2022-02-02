@@ -1,8 +1,8 @@
-function [Es,approved] = main(dimension,start_geometry,end_geometry,save_model)
+function [Es,approved] = main(dimension,simmetry,start_geometry,end_geometry,save_model)
 
     arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\Arrays\RTGA\p4\';
     models_dir = strcat('E:\Lucas GAN\Dados\2- Models\MATLAB\',int2str(dimension),'D\');
-    young_dir = strcat('E:\Lucas GAN\Dados\3- Mechanical_properties\young\MATLAB\',int2str(dimension),'D\');
+    young_dir = strcat('E:\Lucas GAN\Dados\3- Mechanical_properties\young\MATLAB\',int2str(dimension),'D\',simmetry,'\');
 
     datadirs = dir(arrays_dir); 
     dircell = struct2cell(datadirs)';   
