@@ -64,9 +64,7 @@ for prop_comsol,ap_comsol,prop_os,ap_os in list(zip(props_comsol,approved_comsol
 
 props_os = np.array(props_os_).ravel()
 props_comsol = np.array(props_comsol_).ravel()
-print(props_os)
-print(props_comsol)
+erro = np.mean(((props_comsol-props_os)*100/props_comsol)**2)
+erro_RMS = np.round(np.sqrt(erro),4)
 
-erro_RMS = np.round(np.sqrt(np.mean((props_comsol-props_os)**2)),2)
-
-print("Erro para %dD, simetria %s e propriedade %s: %.4fe9"%(dimension,simmetry,prop_,erro_RMS/1e9))
+print("Erro para %dD, simetria %s e propriedade %s: %.4f"%(dimension,simmetry,prop_,erro_RMS))

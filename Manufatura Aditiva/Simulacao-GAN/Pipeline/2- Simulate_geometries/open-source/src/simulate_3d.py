@@ -116,12 +116,9 @@ class Simulate3D(object):
         area = ta.evaluate()
         return area
 
-    def get_disp(self, mesh, u):
-        top = self.get_top_coors(mesh)
-        print(top)
-        print(u[np.where(mesh.coors[:,1]==top)[0],1])
-        print(mesh.coors[np.where(mesh.coors[:,1]==top)[0],1])
-        disp = np.abs(u[np.where(mesh.coors[:,1]==top)[0],1]).mean()
+    def get_disp(self, pb, field, u):
+        ii = field.get_dofs_in_region(pb.domain.regions['top'])
+        disp = np.mean(u[ii,1])
         return disp
 
     def set_bcs(self, bot, top):
@@ -132,7 +129,7 @@ class Simulate3D(object):
 
         return fix_bot
 
-    def solve_problem(self, mesh, eqs, bcs, dimensions, solid, stress, dim, vtk_filename):
+    def solve_problem(self, field, eqs, bcs, dimensions, stress, dim, vtk_filename):
         ls = ScipyDirect({})
 
         nls_status = IndexedStruct()
@@ -156,9 +153,8 @@ class Simulate3D(object):
 
         # out,vms = self.get_stress(out, pb, state, solid, extend=True)
 
-        u_tensor = state()
-        u_tensor = u_tensor.reshape((int(u_tensor.shape[0]/dim), dim))
-        disp = self.get_disp(mesh,u_tensor)
+        u_tensor = state().reshape(-1, dim)
+        disp = self.get_disp(pb, field, u_tensor)
 
         E = self.get_young_arrange(stress, dimensions, disp)
         

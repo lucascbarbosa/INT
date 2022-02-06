@@ -40,8 +40,7 @@ def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origi
     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
     fix_bot = sim.set_bcs(bot, top)
     bcs = [fix_bot]
-    pb, out, E, disp = sim.solve_problem(
-        mesh, eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
+    pb, out, E, disp = sim.solve_problem(field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
 
     Es[idx] = float(E/1e9)
 
