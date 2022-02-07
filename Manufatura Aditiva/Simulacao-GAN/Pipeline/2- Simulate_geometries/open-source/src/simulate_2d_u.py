@@ -93,10 +93,13 @@ class Simulate2D(object):
         integral = Integral('i', order=order)
         return integral
 
-    def define_material(self, young, poisson, rho, stress, dim, plane):
+    def define_material(self, mode, young, poisson, rho, stress, dim, plane):
         D = stiffness_from_youngpoisson(dim, young, poisson, plane=plane)
         solid = Material('solid', kind='stationary', D=D,rho=rho)
-        f = Material('f', kind='stationary', val=stress)
+        if mode == 'f':
+            f = Material('f', kind='stationary', val=stress)
+        else:
+            f =  Material('f', kind='stationary', val=0)
         return solid, f
 
     def define_terms(self, solid, f, u, v, integral, top, omega):
@@ -123,11 +126,12 @@ class Simulate2D(object):
     def set_bcs(self, mode, bot, top, disp):
         fix_bot = EssentialBC('fix_bot', bot, {'u.all': 0.0})
 
-        # shift_u = EssentialBC('shift_u', top, {'u.1' : disp})
+        if mode == 'u':
+            shift_u = EssentialBC('shift_u', top, {'u.1' : disp})
+            
+        return fix_bot,shift_u
 
-        return fix_bot
-
-    def solve_problem(self, field, eqs, bcs, dimensions, stress, dim, vtk_filename):
+    def solve_problem(self, mode, field, eqs, bcs, dimensions, stress, dim, vtk_filename):
         ls = ScipyDirect({})
 
         nls_status = IndexedStruct()
@@ -148,8 +152,8 @@ class Simulate2D(object):
         # print('Stationary solver status:\n', status)
 
         out = state.create_output_dict()
-
-        # out,vms = self.get_stress(out, pb, state, solid, extend=True)
+        if mode == 'u':
+            out,vms = self.get_stress(out, pb, state, solid, extend=True)
 
         u_tensor = state().reshape(-1, dim)
         disp = self.get_disp(pb, field, u_tensor)
@@ -164,25 +168,29 @@ class Simulate2D(object):
         return pb, out, E, disp
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     YOUNG = 100e9  # GPa
-#     POISSON = 0.3
-#     RHO = 4500
+    YOUNG = 100e9  # GPa
+    POISSON = 0.3
+    RHO = 4500
 
-#     ORDER = 1
-#     STRESS = 2*(-100)
-#     dimension = 2
+    ORDER = 1
+    STRESS = 0
+    DISP = 2e-9
 
-#     sim = Simulate2D()
-#     vtk_filename = 'porosity_0.5273_theta_0.vtk'
-#     mesh = sim.get_mesh(vtk_filename)
-#     dimensions, omega, top, bot = sim.create_regions(mesh)
-#     field, u, v = sim.create_field_variables(omega, ORDER)
-#     integral = sim.define_integral(ORDER)
-#     area = sim.get_area(integral, top, u)
-#     solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS,dimension)
-#     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
-#     fix_bot = sim.set_bcs(bot, top)
-#     bcs = [fix_bot]
-#     pb, out, E, disp = sim.solve_problem(eqs, bcs, dimensions, solid, STRESS, dimension, vtk_filename)
+    dimension = 2
+    mode = 'u'
+    plane = 'stress'
+    vtk_filename = 'test.vtk'
+
+    sim = Simulate2D()
+    mesh = sim.get_mesh(vtk_filename)
+    dimensions, omega, top, bot = sim.create_regions(mesh)
+    field, u, v = sim.create_field_variables(omega, ORDER)
+    integral = sim.define_integral(ORDER)
+    area = sim.get_area(integral, top, u)
+    solid, f = sim.define_material(mode, YOUNG, POISSON, RHO, STRESS, dimension, plane)
+    t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
+    fix_bot,shift_u = sim.set_bcs(mode, bot, top, DISP)
+    bcs = [fix_bot,shift_u]
+    pb, out, E, disp = sim.solve_problem(mode, field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)

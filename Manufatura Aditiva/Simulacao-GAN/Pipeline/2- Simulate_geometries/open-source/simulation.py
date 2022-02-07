@@ -37,9 +37,9 @@ def simulation(mode, simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx,
     area = sim.get_area(integral, top, u)
     solid, f = sim.define_material(mode, YOUNG, POISSON, RHO, STRESS, dimension, plane)
     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
-    fix_bot = sim.set_bcs(mode, bot, top, disp)
-    bcs = [fix_bot]
-    pb, out, E, disp = sim.solve_problem(field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
+    fix_bot,shift_u = sim.set_bcs(mode, bot, top, disp)
+    bcs = [fix_bot,shift_u]
+    pb, out, E, disp = sim.solve_problem(mode, field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
 
     Es[idx] = float(E/1e9)
 
