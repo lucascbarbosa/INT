@@ -85,7 +85,6 @@ def create_df(dimension,property,origin,problem,simmetry,E):
             data = np.append(data,data_point,axis=0)
 
         data = data.reshape((len(isos),len(geometry)+2))
-        np.savetxt(score_filename,data, delimiter=',')
     
     if problem == 'hs':
         hss = []
@@ -106,7 +105,8 @@ def create_df(dimension,property,origin,problem,simmetry,E):
             data = np.append(data,data_point,axis=0)
 
         data = data.reshape((len(hss),len(geometry)+2))
-        np.savetxt(score_filename,data, delimiter=',')
+    
+    np.savetxt(score_filename,data, delimiter=',')
 
 
 if __name__ == '__main__':
