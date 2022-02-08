@@ -10,7 +10,7 @@ from multiprocessing import Process, freeze_support, Array
 import sys
 
 
-def simulation(mode, simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
+def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
 
     stl_filename, vtk_filename = preproc(
         array_dir, vtk_dir, idx_array, idx_file, simmetry, origin, dimension)
@@ -35,11 +35,11 @@ def simulation(mode, simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx,
     field, u, v = sim.create_field_variables(omega, ORDER)
     integral = sim.define_integral(ORDER)
     area = sim.get_area(integral, top, u)
-    solid, f = sim.define_material(mode, YOUNG, POISSON, RHO, STRESS, dimension, plane)
+    solid, f = sim.define_material(YOUNG, POISSON, RHO, STRESS, dimension, plane)
     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
-    fix_bot,shift_u = sim.set_bcs(mode, bot, top, disp)
-    bcs = [fix_bot,shift_u]
-    pb, out, E, disp = sim.solve_problem(mode, field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
+    fix_bot = sim.set_bcs(bot, top)
+    bcs = [fix_bot]
+    pb, out, E, disp = sim.solve_problem(field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
 
     Es[idx] = float(E/1e9)
 
@@ -51,9 +51,8 @@ if __name__ == '__main__':
     dimension = int(sys.argv[1])
     origin = str(sys.argv[2])
     simmetry = str(sys.argv[3])
-    mode = str(sys.argv[4])
-    start = int(sys.argv[5])-1
-    end = int(sys.argv[6])-1
+    start = int(sys.argv[4])-1
+    end = int(sys.argv[5])-1
 
     if origin == "-g":
         problem = str(sys.argv[5])
