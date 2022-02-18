@@ -39,18 +39,24 @@ class GAN(object):
         if len(physical_devices) == 0:
             print("Erro: Nenhuma GPU disponível")
 
-    def load_data(self,data_path):
-        data = np.loadtxt(data_path,delimiter=',')
+    def load_data(self,score_filename):
+
+        data = np.loadtxt(score_filename,delimiter=',')
         X = data[:,1:-1]
-        self.size = int(np.sqrt(X.shape[1]))
-        X = X.reshape((X.shape[0],self.size,self.size,1))
+        size = int(np.sqrt(X.shape[1]))
+        X = X.reshape((X.shape[0],size,size,1))
 
         y = data[:,-1]
         y = y.reshape((y.shape[0],1))
 
         scaler = MinMaxScaler()
         y = scaler.fit_transform(y).round(10)
-        idxs_good = np.where(y>self.cutoff)[0]
+        cutoff = 0.85
+        idxs_good = np.where(y>cutoff)[0]
+        idxs_bad = np.where(y<=cutoff)[0]
+
+        y = np.zeros(y.shape)
+        y[idxs_good] = 1.0
 
         X_good = X[idxs_good]
 
@@ -337,10 +343,15 @@ class GAN(object):
         
 
 if __name__ == "__main__":
-    simmetry = sys.argv[1]
-    problem = sys.argv[2]
+    dimension = sys.argv[1]
+    simmetry = sys.argv[2]
+    score = sys.argv[3]
+
     # mlflow.set_experiment(experiment_name='GAN_%s'%problem)
-    data_path =r'C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/4- Machine_learning/Extraction/data/RTGA/%s/%s.csv'%(simmetry,problem)
+    if os.getcwd().split('\\')[2] == 'lucas':
+        score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
+    else:
+        score_filename = 'D:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
     porosity = 0.5
     top = 1000
     tol = 0.1
@@ -354,16 +365,16 @@ if __name__ == "__main__":
     # config GAN
     gan = GAN(alpha,lr,porosity,num_epochs,batch_size,cutoff)
     gan.config()
-    data = gan.load_data(data_path)
+    data = gan.load_data(score_filename)
 
     # train
-    start_time = time.time()
-    G_loss,D_loss = gan.train(data,problem,True)
-    end_time = time.time()
-    run_time = end_time-start_time
+    # start_time = time.time()
+    # G_loss,D_loss = gan.train(data,problem,True)
+    # end_time = time.time()
+    # run_time = end_time-start_time
 
-    # generate arrays
-    gan.generate_arrays(top,simmetry,tol,False,True)
+    # # generate arrays
+    # gan.generate_arrays(top,simmetry,tol,False,True)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)

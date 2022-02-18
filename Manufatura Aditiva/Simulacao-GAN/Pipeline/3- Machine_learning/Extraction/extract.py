@@ -13,25 +13,25 @@ def calculate_HS(Es,E,p):
     E_HS = E*(1-p)/(1+2*p)
     return E_mean/E_HS
 
-def create_df(dimension,property,origin,problem,simmetry,E):
+def create_df(dimension,property,origin,score,simmetry,E):
     if origin == "-g":
         if os.getcwd().split('\\')[2] == 'lucas':
-            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry)
-            array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/' %(simmetry)
-            score_filename = 'D:/Lucas GAN/Dados/4- Scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,problem)
+            property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry)
+            array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/' %(simmetry)
+            score_filename = 'E:/Lucas GAN/Dados/4- Scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
             property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry)
             array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/' %(simmetry)
-            score_filename = 'D:/Lucas GAN/Dados/4- Scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,problem)
+            score_filename = 'D:/Lucas GAN/Dados/4- Scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
     else:
         if os.getcwd().split('\\')[2] == 'lucas':
             property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
             array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' %(simmetry)
-            score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,problem)
+            score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
             property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
             array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' %(simmetry)
-            score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,problem)
+            score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
     Es = np.array([])
     porosities = []
     geometries = []
@@ -66,7 +66,7 @@ def create_df(dimension,property,origin,problem,simmetry,E):
     geometries = np.array(geometries).astype(int)
     idxs = np.array(idxs)
 
-    if problem == 'isotropy':
+    if score == 'isotropy':
         isos = []
         data = np.array([])
 
@@ -86,7 +86,7 @@ def create_df(dimension,property,origin,problem,simmetry,E):
 
         data = data.reshape((len(isos),len(geometry)+2))
     
-    if problem == 'hs':
+    if score == 'hs':
         hss = []
         data = np.array([])
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     dimension = sys.argv[1]
     origin = sys.argv[2]
     property = sys.argv[3].lower()
-    problem = sys.argv[4].lower()
+    score = sys.argv[4].lower()
     simmetry = sys.argv[5]
     E = float(sys.argv[6])*1e9
-    create_df(dimension, property,origin,problem,simmetry,E)
+    create_df(dimension, property,origin,score,simmetry,E)
