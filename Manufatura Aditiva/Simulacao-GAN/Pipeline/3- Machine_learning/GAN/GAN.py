@@ -43,8 +43,8 @@ class GAN(object):
 
         data = np.loadtxt(score_filename,delimiter=',')
         X = data[:,1:-1]
-        size = int(np.sqrt(X.shape[1]))
-        X = X.reshape((X.shape[0],size,size,1))
+        self.size = int(np.sqrt(X.shape[1]))
+        X = X.reshape((X.shape[0],self.size,self.size,1))
 
         y = data[:,-1]
         y = y.reshape((y.shape[0],1))
@@ -152,7 +152,7 @@ class GAN(object):
         y = np.ones((n_samples, 1))
         return X, y
     
-    def train(self,data,problem,plot=False,verbose=False):
+    def train(self,data,score,model_dir,plot=False,verbose=False):
         # setup G and D
         self.G_model = gan.setup_G()
         self.D_model = gan.setup_D()
@@ -198,11 +198,11 @@ class GAN(object):
             if (i+1) % 5 == 0 and i >= self.num_epochs-50 and G_loss_epoch + D_loss_epoch < G_loss_best + D_loss_best:
                 D_loss_best = D_loss_epoch
                 G_loss_best = G_loss_epoch
-                files = os.listdir('C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/4- Machine_learning/GAN/models/')
+                # files = os.listdir(model_dir)
                 # for file in files:
-                #     if file.split('_')[0] == problem:
+                #     if file.split('_')[0] == score:
                 #         os.remove('C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/4- Machine_learning/GAN/models/'+file)
-                # self.G_model.save('C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/4- Machine_learning/GAN/models/%s_epoch_%d_loss_%.4f.h5'%(problem,i+1,G_loss_best))
+                self.G_model.save(model_dir+'%s_epoch_%d_loss_%.4f.h5'%(score,i+1,G_loss_best))
                 self.G_best = self.G_model
 
         G_losses = np.array(G_losses)
@@ -347,11 +347,14 @@ if __name__ == "__main__":
     simmetry = sys.argv[2]
     score = sys.argv[3]
 
-    # mlflow.set_experiment(experiment_name='GAN_%s'%problem)
+    # mlflow.set_experiment(experiment_name='GAN_%s'%score)
     if os.getcwd().split('\\')[2] == 'lucas':
         score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
+        model_dir = 'E:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
+
     else:
         score_filename = 'D:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
+        model_dir = 'D:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
     porosity = 0.5
     top = 1000
     tol = 0.1
@@ -368,10 +371,10 @@ if __name__ == "__main__":
     data = gan.load_data(score_filename)
 
     # train
-    # start_time = time.time()
-    # G_loss,D_loss = gan.train(data,problem,True)
-    # end_time = time.time()
-    # run_time = end_time-start_time
+    start_time = time.time()
+    G_loss,D_loss = gan.train(data,score,model_dir,True)
+    end_time = time.time()
+    run_time = end_time-start_time
 
     # # generate arrays
     # gan.generate_arrays(top,simmetry,tol,False,True)
