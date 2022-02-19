@@ -81,46 +81,6 @@ class Generator(object):
     arr_ = arr_.reshape((int(arr_.shape[0]/2),2))
     return arr_
   
-  def check_unit(self,unit,tol):
-    labels = measure.label(unit,connectivity=1)
-    main_label = 0
-    main_label_count = 0
-    passed = True
-
-    for label in range(1,len(np.unique(labels))):
-      label_count = np.where(labels==label)[0].shape[0]
-      if label_count > main_label_count:
-        main_label = label
-        main_label_count = label_count
-
-    if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] >(1.0-tol)*unit.shape[0]*unit.shape[0]:
-      for label in range(1,len(np.unique(labels))):
-        if label not in [0,main_label]:
-          unit[np.where(labels==label)] = 0.
-
-      if unit[0,:].sum() > 0 and unit[:,0].sum() > 0:
-        # check if there is connectivity right-left
-        connections_rl = 0
-        for i in range(unit.shape[0]):
-          if (unit[i,0] == 1 and unit[i,-1] == 1):
-            connections_rl += 1
-
-        # check if there is connectivity top-bottom
-        connections_tb = 0
-        for j in range(unit.shape[1]):
-          if (unit[0,j] == 1 and unit[i,-1] == 1):
-            connections_tb += 1
-
-        if connections_rl == 0 or connections_tb == 0:
-          passed = False
-        
-      else:
-        passed = False
-        
-    else:
-      passed = False
-
-    return passed, unit[:int(unit.shape[0]/2),:int(unit.shape[0]/2)]
     
   def create_element(self):
     if self.simmetry == 'p4':
@@ -282,6 +242,47 @@ class Generator(object):
             unit[k,l]  = el
 
     return unit
+
+  def check_unit(self,unit,tol):
+    labels = measure.label(unit,connectivity=1)
+    main_label = 0
+    main_label_count = 0
+    passed = True
+
+    for label in range(1,len(np.unique(labels))):
+      label_count = np.where(labels==label)[0].shape[0]
+      if label_count > main_label_count:
+        main_label = label
+        main_label_count = label_count
+
+    if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] >(1.0-tol)*unit.shape[0]*unit.shape[0]:
+      for label in range(1,len(np.unique(labels))):
+        if label not in [0,main_label]:
+          unit[np.where(labels==label)] = 0.
+
+      if unit[0,:].sum() > 0 and unit[:,0].sum() > 0:
+        # check if there is connectivity right-left
+        connections_rl = 0
+        for i in range(unit.shape[0]):
+          if (unit[i,0] == 1 and unit[i,-1] == 1):
+            connections_rl += 1
+
+        # check if there is connectivity top-bottom
+        connections_tb = 0
+        for j in range(unit.shape[1]):
+          if (unit[0,j] == 1 and unit[i,-1] == 1):
+            connections_tb += 1
+
+        if connections_rl == 0 or connections_tb == 0:
+          passed = False
+        
+      else:
+        passed = False
+        
+    else:
+      passed = False
+
+    return passed, unit[:int(unit.shape[0]/2),:int(unit.shape[0]/2)]
 
   def create_arch(self,unit):
     cols = rows = int(sqrt(self.units))
