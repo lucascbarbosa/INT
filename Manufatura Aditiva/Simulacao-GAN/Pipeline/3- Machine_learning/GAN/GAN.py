@@ -389,4 +389,3 @@ if __name__ == "__main__":
     #     mlflow.log_metric('G_loss',G_loss)
     #     mlflow.log_metric('D_loss',D_loss)
         
-        # mlflow.log_artifact(knn_hyppar_path)
