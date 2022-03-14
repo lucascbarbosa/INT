@@ -245,10 +245,8 @@ class GAN(object):
                 acc_real, acc_fake = self.summarize_performance(i+1)
                 X_test = self.generate_input_G(1000)
                 geoms = self.G_model.predict(X_test)
-                por_match, _ = self.porosity_match(
-                    geoms, self.porosity, tol_porosity)
-                self.G_model.save(
-                    tmp_models_dir+f'epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
+                por_match, _ = self.porosity_match(geoms, self.porosity, tol_porosity)
+                self.G_model.save(tmp_models_dir+f'epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
 
                 if verbose_acc:
                     print('>Epoch: %i Accuracy real: %.0f%%, fake: %.0f%%' %
@@ -276,7 +274,7 @@ class GAN(object):
             size = g.shape[0]
             g = g.reshape((size*size,))
             p = np.sum(g)/(size*size)
-            if p >= porosity-tol and p <= porosity+tol:
+            if p >= self.porosity-tol and p <= self.porosity+tol:
                 geoms_.append(g.reshape((size, size)))
                 passed += 1
 
@@ -424,8 +422,7 @@ if __name__ == "__main__":
 
     # train
     start_time = time.time()
-    gan.train(score, tmp_models_dir, tol_porosity, plot=True,
-              verbose_loss=False, verbose_acc=True)
+    gan.train(score, tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=True)
     end_time = time.time()
     run_time = end_time-start_time
 
