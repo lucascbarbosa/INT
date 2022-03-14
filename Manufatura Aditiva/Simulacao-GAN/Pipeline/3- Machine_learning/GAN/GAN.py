@@ -51,34 +51,35 @@ class GAN(object):
 
         scaler = MinMaxScaler()
         y = scaler.fit_transform(y).round(10)
-        cutoff = 0.85
         idxs_good = np.where(y>cutoff)[0]
         idxs_bad = np.where(y<=cutoff)[0]
+        print(f"Good = %.2f %%"%(100*len(idxs_good)/(len(idxs_good)+len(idxs_bad))))
 
         y = np.zeros(y.shape)
         y[idxs_good] = 1.0
 
         X_good = X[idxs_good]
+        self.data = X_good
+
 
         # set shapes
         self.input_G = 128
         self.output_G = self.input_D = X_good.shape[1:]
         self.output_D = 1
 
-        return X_good
-    
     def setup_G(self):
         size = int(self.size/2)
         in_G = Input(shape=(self.input_G,))
 
-        # foundation for 7x7 image
+        # foundation for 8x8 image
         n_nodes = 128 * size * size
         out_G = Dense(n_nodes,activation=LeakyReLU(alpha=0.2))(in_G)
+        out_G = LeakyReLU(alpha=0.2)(out_G)
         out_G = Reshape((size, size, 128))(out_G)
-        # upsample to 14x14
+        # upsample to 16x16
         out_G = Conv2DTranspose(128, (4,4), strides=(2,2), padding='same',activation=LeakyReLU(alpha=0.2))(out_G)
+        out_G = LeakyReLU(alpha=0.2)(out_G)
         out_G = Conv2D(1, (size,size), activation='sigmoid', padding='same')(out_G)
-
 
         out_density = Lambda(lambda x:x)(out_G)
 
@@ -86,15 +87,14 @@ class GAN(object):
 
         return model
         
-    def style_loss(self,alpha):
+    def style_loss(self):
         def custom_loss(y_true,y_pred):
-            y_pred = tf.reshape(y_pred,shape=(y_pred.shape[0],y_pred.shape[1]*y_pred.shape[2]))
-            y_true = tf.reshape(y_true,shape=(y_true.shape[0],y_true.shape[1]*y_true.shape[2]))
-            size = y_pred.shape[1]
-            por_true = K.sum(y_true,axis=-1)/size
-            por_pred = K.sum(y_pred,axis=-1)/size
-            mse = MeanSquaredError()
-            return alpha*mse(por_true,por_pred)
+            size = y_pred.shape[1]*y_pred.shape[2]
+            y_pred = K.round(y_pred)
+            por_true = K.sum(K.sum(K.sum(y_true,axis=1),axis=1),axis=1)/size
+            por_pred = K.sum(K.sum(K.sum(y_pred,axis=1),axis=1),axis=1)/size
+            mse = (por_true-por_pred)**2
+            return mse
         return custom_loss
 
     def setup_D(self):
@@ -107,24 +107,36 @@ class GAN(object):
         out_D = Dense(1, activation='sigmoid')(out_D)
 
         # compile model
+        opt = adam_v2.Adam(learning_rate=0.0002, beta_1=0.5)
+        
         in_density = Input(shape=self.input_D)
         out_density = Lambda(lambda x: x)(in_density)
 
-        optimizer = adam_v2.Adam(learning_rate=self.lr, beta_1=0.5)
-        model = Model(name='Discriminator',inputs=[in_D,in_density],outputs=[out_D,out_density])
+        optimizer = adam_v2.Adam(learning_rate=lr, beta_1=0.5)
+        model = Model(
+                    name='Discriminator', \
+                    inputs=[in_D,in_density], \
+                    outputs=[out_D,out_density])
 
-        model.compile(loss=['binary_crossentropy',self.style_loss(self.alpha)], optimizer=optimizer, metrics=['accuracy'])
-        return model
-
-    def setup_GAN(self):
-        optimizer = adam_v2.Adam(learning_rate=self.lr, beta_1=0.5)
-        self.D_model.trainable = False
-        in_G = self.G_model.input
-        out_GAN = self.D_model(self.G_model(in_G))
-        model = Model(name='GAN',inputs=in_G,outputs=out_GAN)
-        model.compile(loss=['binary_crossentropy',self.style_loss(self.alpha)], \
+        model.compile(
+                    loss=['binary_crossentropy',self.style_loss()], \
+                    loss_weights=[1.0,alpha], \
                     optimizer=optimizer, \
                     metrics=['accuracy'])
+        return model
+
+    def setup_GAN(self,G_model,D_model):
+        optimizer = adam_v2.Adam(learning_rate=self.lr, beta_1=0.5)
+        D_model.trainable = False
+        in_G = G_model.input
+        out_GAN = D_model(G_model(in_G))
+        model = Model(name='GAN',inputs=in_G,outputs=out_GAN)
+        model.compile(
+                loss=['binary_crossentropy',self.style_loss()], \
+                loss_weights=[1.0,self.alpha], \
+                optimizer=optimizer, \
+                metrics=['accuracy']
+                )
         return model
 
     def generate_fake_samples(self, n_samples):
@@ -143,67 +155,87 @@ class GAN(object):
         X_input = X_input.reshape(n_samples, self.input_G)
         return X_input
 
-    def generate_real_samples(self,dataset, n_samples):
+    def generate_real_samples(self,n_samples):
         # choose random instances
-        ix = np.random.randint(0, dataset.shape[0], n_samples)
+        ix = np.random.randint(0, self.data.shape[0], n_samples)
         # retrieve selected images
-        X = dataset[ix]
+        X = self.data[ix]
         # generate 'real' class labels (1)
         y = np.ones((n_samples, 1))
         return X, y
+
+    def summarize_performance(self,epoch,n_samples=100):
+        # prepare real samples
+        X_real, y_real = self.generate_real_samples(n_samples)
+        # evaluate discriminator on real examples
+        _,_,_,acc_real,_ = self.D_model.evaluate(x=[X_real,X_real], y=[y_real,self.porosity*np.ones(X_real.shape)], verbose=0)
+        # prepare fake examples
+        X_fake, y_fake = self.generate_fake_samples(n_samples)
+        # evaluate discriminator on fake examples
+        _,_,_,acc_fake,_ = self.D_model.evaluate(x=[X_fake,X_fake], y=[y_fake,self.porosity*np.ones(X_fake.shape)], verbose=0)
+        # summarize discriminator performance
+        return  acc_real,acc_fake
     
-    def train(self,data,score,model_dir,plot=False,verbose=False):
+    def train(self,score,tmp_models_dir,plot=False,verbose_loss=False,verbose_acc=False):
         # setup G and D
         self.G_model = gan.setup_G()
         self.D_model = gan.setup_D()
-        self.GAN_model = gan.setup_GAN()
+        self.GAN_model = gan.setup_GAN(self.G_model,self.D_model)
     
-        batch_per_epoch = int(data.shape[0] /self.batch_size)
+        batch_per_epoch = int(self.data.shape[0] /self.batch_size)
         half_batch = int(self.batch_size/2)
 
         G_losses = []
         D_losses = []
 
-        G_loss_best = 999.0
-        D_loss_best = 999.0
-        
         # mlflow.keras.autolog()
 
         for i in range(self.num_epochs):
             G_losses_epoch = []
             D_losses_epoch = []
             for j in range(batch_per_epoch):
-                X_real,y_real = self.generate_real_samples(data,half_batch)
+                X_real,y_real = self.generate_real_samples(half_batch)
                 X_fake,y_fake = self.generate_fake_samples(half_batch)            
 
                 X, y = np.vstack((X_real, X_fake)), np.vstack((y_real, y_fake))
             
-                D_loss = self.D_model.train_on_batch(x=[X,X], y=[y,porosity*np.ones(X.shape)])
-                D_loss = D_loss[0]
-                D_losses_epoch.append(D_loss)
+                if not verbose_loss:
+                    D_loss = self.D_model.train_on_batch(x=[X,X], y=[y,porosity*np.ones(X.shape)])
+                    D_loss = D_loss[0]
+                else:
+                    D_loss = self.D_model.train_on_batch(x=[X,X], y=[y,porosity*np.ones(X.shape)],return_dict=True)
+                    print(D_loss)
+                    D_loss = D_loss['loss']
                 
+                D_losses_epoch.append(D_loss)
+
                 X_GAN = self.generate_input_G(self.batch_size)
                 y_GAN = np.ones((self.batch_size, 1))
+
+                if not verbose_loss:
+                    G_loss= self.GAN_model.train_on_batch(x=X_GAN, y=[y_GAN,porosity*np.ones(X.shape)])
+                    G_loss = G_loss[0]
+                else:
+                    G_loss= self.GAN_model.train_on_batch(x=X_GAN, y=[y_GAN,porosity*np.ones(X.shape)],return_dict=True)
+                    print(G_loss)
+                    G_loss = G_loss['loss']
+
                 G_loss= self.GAN_model.train_on_batch(x=X_GAN, y=[y_GAN,porosity*np.ones(X.shape)])
                 G_loss = G_loss[0]
                 G_losses_epoch.append(G_loss)
                 
-                if verbose:
+                if verbose_loss:
                     print('>%d, %d/%d, D_loss=%.3f, G_loss=%.3f' % (i+1, j+1, batch_per_epoch,  D_loss, G_loss))
-            G_losses.append(G_losses_epoch)
-            D_losses.append(D_losses_epoch)
-            G_loss_epoch = np.mean(G_losses_epoch)
-            D_loss_epoch = np.mean(D_losses_epoch)
+            
+            G_losses.append(np.array(G_losses_epoch).mean())
+            D_losses.append(np.array(D_losses_epoch).mean())
 
-            if (i+1) % 5 == 0 and i >= self.num_epochs-50 and G_loss_epoch + D_loss_epoch < G_loss_best + D_loss_best:
-                D_loss_best = D_loss_epoch
-                G_loss_best = G_loss_epoch
-                # files = os.listdir(model_dir)
-                # for file in files:
-                #     if file.split('_')[0] == score:
-                #         os.remove('C:/Users/lucas.barbosa/Documents/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/4- Machine_learning/GAN/models/'+file)
-                self.G_model.save(model_dir+'%s_epoch_%d_loss_%.4f.h5'%(score,i+1,G_loss_best))
-                self.G_best = self.G_model
+            if (i+1) % 10 == 0:
+                acc_real,acc_fake = self.summarize_performance(i+1)
+                self.G_model.save(tmp_models_dir+f'epoch_{i+1}.h5')
+                
+                if verbose_acc:
+                    print('>Epoch: %i Accuracy real: %.0f%%, fake: %.0f%%' % (i+1,acc_real*100, acc_fake*100))
 
         G_losses = np.array(G_losses)
         D_losses = np.array(D_losses)
@@ -211,21 +243,77 @@ class GAN(object):
         if plot:
             fig = plt.figure()
             fig.set_size_inches((10,8)) 
-            plt.plot(list(range(1,self.num_epochs+1)),np.mean(D_losses,axis=1),label='D Loss')
+            plt.plot(list(range(1,num_epochs+1)),D_losses,label='D Loss')
             plt.title('Loss')
             plt.ylabel('Loss')
             plt.xlabel('Epoch')
-            plt.plot(list(range(1,self.num_epochs+1)),np.mean(G_losses,axis=1),label='G Loss')
+            plt.plot(list(range(1,num_epochs+1)),G_losses,label='G Loss')
             plt.legend()
             plt.show()
+        
+        return G_losses,D_losses
 
+    def porosity_match(self,geoms,tol):
+        geoms_ = []
+        passed = 0
+        for i in range(geoms.shape[0]):
+            g =geoms[i,:,:,0]
+            size = g.shape[0]
+            g = g.reshape((size*size,))
+            p = np.sum(g)/(size*size)
+            if p >= porosity-tol and p <= porosity+tol:
+                geoms_.append(g.reshape((size,size)))
+                passed += 1
+        return np.array(geoms_).reshape((passed,size,size,1))
 
-        return G_loss_best,D_loss_best
+    def create_unit(self, element):
+        if self.simmetry == 'p4':
+            unit_size = 2*self.size
+            fold_size = np.random.choice(4,1)[0]
+            unit = np.ones((unit_size,unit_size))*(-1)
+            h,w = element.shape
+            for i in range(h):
+                for j in range(w):
+                    el = element[i,j]
+                    i_ = i+self.size*(fold_size//2)
+                    j_ = j+self.size*(fold_size%2)
+                    unit[i_,j_] = el
+                    for k in [i_,2*self.size-1-i_]:
+                        for l in [j_,2*self.size-1-j_]:
+                            unit[k,l] = el
+        return unit
+    
+    def check_geometry(self, geometry, tol, size, simmetry):
+        unit = self.create_unit(geometry,size,simmetry)
+        unit_size = 2*self.size
+        labels = measure.label(unit,connectivity=1)
+        main_label = 0
+        main_label_count = 0
+        for label in range(1,len(np.unique(labels))):
+            label_count = np.where(labels==label)[0].shape[0]
+            if label_count > main_label_count:
+                main_label = label
+                main_label_count = label_count
 
+        if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] >(1.0-tol)*unit_size*unit_size:
+            for label in range(1,len(np.unique(labels))):
+                if label not in [0,main_label]:
+                    unit[np.where(labels==label)] = 0.
 
-    def generate_arrays(self,top,simmetry,tol,plot=False,save=False):
-        path = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/"%(simmetry)
-        test_size = 100000
+                if unit[0,:].sum() > 0 and unit[:,0].sum() > 0:
+                    return True, unit[:size,:size]
+
+                else:
+                    return False,unit
+
+        else:
+            return False, unit
+
+    def select_model(self):
+        pass
+
+    def generate_arrays(self, top, simmetry, tol_porosiy, tol_unit, arrays_dir, plot=False, save=False):
+        test_size = top*100
         X_test = self.generate_input_G(test_size)
 
         generated_geoms,_ = self.G_best.predict(X_test)
@@ -242,73 +330,14 @@ class GAN(object):
 
         sns.histplot(porosities,bins=32)
         plt.show()
-
-        # Filter per porosity
-        def porosity_match(geoms,porosity,tol):
-            geoms_ = []
-            passed = 0
-            for i in range(geoms.shape[0]):
-                g =geoms[i,:,:,0]
-                size = g.shape[0]
-                g = g.reshape((size*size,))
-                p = np.sum(g)/(size*size)
-                if p >= (1.0-tol)*porosity and p <= (1.0+tol)*porosity:
-                    geoms_.append(g.reshape((size,size)))
-                    passed += 1
-            return np.array(geoms_).reshape((passed,size,size,1))
-
-        def create_unit(element,size,simmetry):
-            if simmetry == 'p4':
-                unit_size = 2*size
-                fold_size = np.random.choice(4,1)[0]
-                unit = np.ones((unit_size,unit_size))*(-1)
-                h,w = element.shape
-                for i in range(h):
-                    for j in range(w):
-                        el = element[i,j]
-                        i_ = i+size*(fold_size//2)
-                        j_ = j+size*(fold_size%2)
-                        unit[i_,j_] = el
-                        for k in [i_,2*size-1-i_]:
-                            for l in [j_,2*size-1-j_]:
-                                unit[k,l] = el
-                        
-            return unit
-
-        def check_geometry(geometry,tol,size,simmetry):
-            unit = create_unit(geometry,size,simmetry)
-            unit_size = 2*size
-            labels = measure.label(unit,connectivity=1)
-            main_label = 0
-            main_label_count = 0
-            for label in range(1,len(np.unique(labels))):
-                label_count = np.where(labels==label)[0].shape[0]
-                if label_count > main_label_count:
-                    main_label = label
-                    main_label_count = label_count
-
-            if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] >(1.0-tol)*unit_size*unit_size:
-                for label in range(1,len(np.unique(labels))):
-                    if label not in [0,main_label]:
-                        unit[np.where(labels==label)] = 0.
-
-                    if unit[0,:].sum() > 0 and unit[:,0].sum() > 0:
-                        return True, unit[:size,:size]
-
-                    else:
-                        return False,unit
-
-            else:
-                return False, unit
-
         
-        geometries = porosity_match(generated_geoms,porosity,tol)
+        geometries = self.porosity_match(generated_geoms,porosity,self.tol_porosity)
         size = geometries.shape[1]
         geometries_ = []
 
         for i in range(geometries.shape[0]):
             geom = geometries[i].reshape((size,size))
-            passed,geom_ = check_geometry(geom,tol,size,simmetry)
+            passed,geom_ = self.check_geometry(geom,self.tol_unit,size,simmetry)
             if passed:
                 geometries_.append(geom_)
 
@@ -332,15 +361,14 @@ class GAN(object):
         p = 1
         for top_idx in top_idxs:
             geom = geometries[top_idx]
-            unit = create_unit(geom.reshape((size,size)),size,simmetry)
+            unit = self.create_unit(geom.reshape((size,size)),size,simmetry)
             if plot:
                 plt.imshow(unit,cmap="Greys")
                 # print("Score: %.2f Porosity: %.2f"%(scores[top_idx,0],geom.ravel().sum()/((size+2)*(size+2))))
                 plt.show()
-            filename = path+"%05d_porosity_%.4f.txt"%(p,geom.ravel().sum()/((size+2)*(size+2)))
+            filename = arrays_dir+"%05d_porosity_%.4f.txt"%(p,geom.ravel().sum()/((size+2)*(size+2)))
             np.savetxt(filename,geom.ravel(),delimiter='/n',fmt='%s')
             p += 1    
-        
 
 if __name__ == "__main__":
     dimension = sys.argv[1]
@@ -350,20 +378,25 @@ if __name__ == "__main__":
     # mlflow.set_experiment(experiment_name='GAN_%s'%score)
     if os.getcwd().split('\\')[2] == 'lucas':
         score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
-        model_dir = 'E:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
-
+        models_dir = 'E:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
+        arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/'% simmetry
+        tmp_models_dir = 'C:/Users/lucas/OneDrive/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
     else:
         score_filename = 'D:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
-        model_dir = 'D:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
+        models_dir = 'D:/Lucas GAN/Dados/5- Models/%sD/%s/' %(dimension,simmetry)
+        arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/'% simmetry
+        tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
+
     porosity = 0.5
     top = 1000
-    tol = 0.1
+    tol_porosity = 0.02
+    tol_unit = 0.1
 
-    alpha = 1e-1
+    alpha = 1e-2
     lr = 1e-4
-    num_epochs = 200 #iso:100 hs:300
+    num_epochs = 200 
     batch_size = 64
-    cutoff = 0.79 #iso:0.78 hs: 0.75
+    cutoff = 0.82 
 
     # config GAN
     gan = GAN(alpha,lr,porosity,num_epochs,batch_size,cutoff)
@@ -372,12 +405,12 @@ if __name__ == "__main__":
 
     # train
     start_time = time.time()
-    G_loss,D_loss = gan.train(data,score,model_dir,True)
+    G_loss,D_loss,por_match_ratio,accuracy = gan.train(score,tmp_models_dir,plot=True,verbose_loss=False,verbose_acc=True)
     end_time = time.time()
     run_time = end_time-start_time
 
-    # # generate arrays
-    # gan.generate_arrays(top,simmetry,tol,False,True)
+    # generate arrays
+    # gan.generate_arrays(top, simmetry, tol_porosity, tol_unit, arrays_dir, plot=False, save=True)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)
