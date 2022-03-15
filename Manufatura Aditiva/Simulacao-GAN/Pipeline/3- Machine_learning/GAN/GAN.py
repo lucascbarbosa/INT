@@ -250,8 +250,8 @@ class GAN(object):
                 geoms, _ = self.G_model.predict(X_test)
                 geoms = np.array(geoms)
                 por_match, _ = self.porosity_match(geoms, tol_porosity)
-                self.G_model.save(tmp_models_dir+f'G_epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
-                self.D_model.save(tmp_models_dir+f'D_epoch_{i+1}.h5')
+                self.G_model.save(tmp_models_dir+'G/'+f'G_epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
+                self.D_model.save(tmp_models_dir+'D/'+f'D_epoch_{i+1}.h5')
 
                 if verbose_acc:
                     print('>Epoch: %i Accuracy real: %.0f%%, fake: %.0f%%' %
@@ -329,11 +329,14 @@ class GAN(object):
             return False, unit
 
     def select_model(self, tmp_models_dir, epoch):
-        for file in os.listdir(tmp_models_dir+'G/'):
-            print(int(file.split('_epoch_')[1].split('.')[0]))
-            if int(file.split('_epoch_')[1].split('.')[0]) == epoch:
-                G_model = load_model(tmp_models_dir+'G/'+file)
-                D_model = load_model(tmp_models_dir+'D/'+file)
+        G_files = os.listdir(tmp_models_dir+'G/')
+        D_files = os.listdir(tmp_models_dir+'D/')
+        for i in range(len(G_files)):
+            G_file = G_files[i]
+            D_file = D_files[i]
+            if int(G_file.split('_')[2]) == epoch:
+                G_model = load_model(tmp_models_dir+'G/'+G_file)
+                D_model = load_model(tmp_models_dir+'D/'+D_file, custom_objects={'custom_loss': self.style_loss()})
         return G_model, D_model
 
     def generate_arrays(self, G_model, D_model, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, arrays_dir, plot=False, save=False):
@@ -348,13 +351,15 @@ class GAN(object):
         geometries_ = []
 
         for i in range(geometries.shape[0]):
-            geom = geometries[i].reshape((size, size))
+            geom = geometries[i].reshape((size, size)).round()
             passed, geom_ = self.check_geometry(
                 geom, tol_unit, size, simmetry)
             if passed:
                 geometries_.append(geom_)
 
-        geometries = np.array(geometries_).reshape((len(geometries_), size, size, 1))
+        # geometries = np.array(geometries_).reshape((len(geometries_), size, size, 1))
+        geometries = np.array(geometries_)
+
         # Round pixels
         geometries = geometries.round()
 
