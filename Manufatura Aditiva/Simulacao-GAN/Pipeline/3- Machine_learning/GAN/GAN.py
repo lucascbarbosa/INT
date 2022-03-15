@@ -31,12 +31,18 @@ class GAN(object):
         self.batch_size = batch_size
         self.cutoff = cutoff
 
-    def config(self):
+    def config(self,tmp_models_dir):
         physical_devices = tf.config.list_physical_devices('GPU')
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
         if len(physical_devices) == 0:
             print("Erro: Nenhuma GPU disponível")
-        tf.config.run_functions_eagerly(True)
+        
+        for file in os.listdir(tmp_models_dir+'D/'):
+            os.remove(tmp_models_dir+'D/'+file)
+
+        for file in os.listdir(tmp_models_dir+'G/'):
+            os.remove(tmp_models_dir+'G/'+file)
+        
 
     def load_data(self, score_filename, verbose=False):
 
@@ -117,7 +123,7 @@ class GAN(object):
         in_density = Input(shape=self.input_D)
         out_density = Lambda(lambda x: x)(in_density)
 
-        optimizer = adam_v2.Adam(learning_rate=lr, beta_1=0.5)
+        optimizer = adam_v2.Adam(learning_rate=self.lr, beta_1=0.5)
         model = Model(
             name='Discriminator',
             inputs=[in_D, in_density],
@@ -127,7 +133,8 @@ class GAN(object):
             loss=['binary_crossentropy', self.style_loss()],
             loss_weights=[1.0, alpha],
             optimizer=optimizer,
-            metrics=['accuracy']
+            metrics=['accuracy'],
+            run_eagerly=True
             )
         return model
 
@@ -141,7 +148,8 @@ class GAN(object):
             loss=['binary_crossentropy', self.style_loss()],
             loss_weights=[1.0, self.alpha],
             optimizer=optimizer,
-            metrics=['accuracy']
+            metrics=['accuracy'],
+            run_eagerly=True
             )
         return model
 
@@ -271,6 +279,28 @@ class GAN(object):
             plt.legend()
             plt.show()
 
+    def select_model(self, tmp_models_dir, epoch):
+        G_files = os.listdir(tmp_models_dir+'G/')
+        D_files = os.listdir(tmp_models_dir+'D/')
+
+        for i in range(len(G_files)):
+            G_file = G_files[i]
+            D_file = D_files[i]
+            if int(G_file.split('_')[2]) == epoch:
+                G_model = load_model(tmp_models_dir+'G/'+G_file, compile=False)
+                D_model = load_model(tmp_models_dir+'D/'+D_file, custom_objects={'custom_loss': self.style_loss()}, compile=False)
+        
+        optimizer = adam_v2.Adam(learning_rate=self.lr, beta_1=0.5)
+        D_model.compile(
+            loss=['binary_crossentropy', self.style_loss()],
+            loss_weights=[1.0, alpha],
+            optimizer=optimizer,
+            metrics=['accuracy'],
+            run_eagerly=True
+        )
+
+        return G_model, D_model
+
     def porosity_match(self, geoms, tol):
         geoms_ = []
         passed = 0
@@ -327,17 +357,6 @@ class GAN(object):
 
         else:
             return False, unit
-
-    def select_model(self, tmp_models_dir, epoch):
-        G_files = os.listdir(tmp_models_dir+'G/')
-        D_files = os.listdir(tmp_models_dir+'D/')
-        for i in range(len(G_files)):
-            G_file = G_files[i]
-            D_file = D_files[i]
-            if int(G_file.split('_')[2]) == epoch:
-                G_model = load_model(tmp_models_dir+'G/'+G_file)
-                D_model = load_model(tmp_models_dir+'D/'+D_file, custom_objects={'custom_loss': self.style_loss()})
-        return G_model, D_model
 
     def generate_arrays(self, G_model, D_model, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, arrays_dir, plot=False, save=False):
         test_size = saved_geoms*100
@@ -416,7 +435,7 @@ if __name__ == "__main__":
 
     # config GAN
     gan = GAN(porosity, alpha, lr, num_epochs, batch_size, cutoff)
-    gan.config()
+    gan.config(tmp_models_dir)
     data = gan.load_data(score_filename,verbose=False)
 
     # train
@@ -429,7 +448,6 @@ if __name__ == "__main__":
 
     # select model
     G_model, D_model = gan.select_model(tmp_models_dir, epoch)
-
 
     # generate arrays
     gan.generate_arrays(G_model, D_model, saved_geoms, simmetry, tol_porosity, tol_unit,
