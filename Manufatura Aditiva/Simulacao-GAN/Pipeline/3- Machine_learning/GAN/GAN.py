@@ -37,7 +37,7 @@ class GAN(object):
         if len(physical_devices) == 0:
             print("Erro: Nenhuma GPU disponível")
 
-    def load_data(self, score_filename):
+    def load_data(self, score_filename, verbose=False):
 
         data = np.loadtxt(score_filename, delimiter=',')
         X = data[:, 1:-1]
@@ -51,8 +51,9 @@ class GAN(object):
         y = scaler.fit_transform(y).round(10)
         idxs_good = np.where(y > cutoff)[0]
         idxs_bad = np.where(y <= cutoff)[0]
-        print(f"Good = %.2f %%" %
-              (100*len(idxs_good)/(len(idxs_good)+len(idxs_bad))))
+        if verbose:
+            print(f"Good = %.2f %%" %
+                    (100*len(idxs_good)/(len(idxs_good)+len(idxs_bad))))
 
         y = np.zeros(y.shape)
         y[idxs_good] = 1.0
@@ -244,8 +245,9 @@ class GAN(object):
             if (i+1) % 10 == 0:
                 acc_real, acc_fake = self.summarize_performance(i+1)
                 X_test = self.generate_input_G(1000)
-                geoms = self.G_model.predict(X_test)
-                por_match, _ = self.porosity_match(geoms, self.porosity, tol_porosity)
+                geoms, _ = self.G_model.predict(X_test)
+                geoms = np.array(geoms)
+                por_match, _ = self.porosity_match(geoms, tol_porosity)
                 self.G_model.save(tmp_models_dir+f'epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
 
                 if verbose_acc:
@@ -272,7 +274,7 @@ class GAN(object):
         for i in range(geoms.shape[0]):
             g = geoms[i, :, :, 0]
             size = g.shape[0]
-            g = g.reshape((size*size,))
+            g = g.ravel().round()
             p = np.sum(g)/(size*size)
             if p >= self.porosity-tol and p <= self.porosity+tol:
                 geoms_.append(g.reshape((size, size)))
@@ -325,27 +327,26 @@ class GAN(object):
 
     def select_model(self, tmp_models_dir, epoch):
         G_model = load_model(tmp_models_dir+f"epoch_{epoch}.h5")
+        return G_model
 
-    def generate_arrays(self, top, simmetry, tol_porosiy, tol_unit, tmp_models_dir, arrays_dir, plot=False, save=False):
-        test_size = top*100
+    def generate_arrays(self, G_model, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, arrays_dir, plot=False, save=False):
+        test_size = saved_geoms*100
         X_test = self.generate_input_G(test_size)
 
-        G_best = self.select_model(tmp_models_dir)
-        generated_geoms, _ = self.G_best.predict(X_test)
+        generated_geoms, _ = self.G_model.predict(X_test)
         size = generated_geoms.shape[1]
 
         porosities = []
         pors = []
 
-        _, geometries = self.porosity_match(
-            generated_geoms, self.porosity, self.tol_porosity)
+        _, geometries = self.porosity_match(generated_geoms, self.porosity, tol_porosity)
         size = geometries.shape[1]
         geometries_ = []
 
         for i in range(geometries.shape[0]):
             geom = geometries[i].reshape((size, size))
             passed, geom_ = self.check_geometry(
-                geom, self.tol_unit, size, simmetry)
+                geom, tol_unit, size, simmetry)
             if passed:
                 geometries_.append(geom_)
 
@@ -355,9 +356,8 @@ class GAN(object):
         geometries = geometries.round()
 
         # Get scores
-        top = 20
         scores = self.D_model.predict([geometries, geometries])[0]
-        top_idxs = scores[:, 0].argsort()[-top:]
+        top_idxs = scores[:, 0].argsort()[-saved_geoms:]
 
         # Add solid boundary
         geometries_expanded = []
@@ -405,7 +405,7 @@ if __name__ == "__main__":
         tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
 
     porosity = 0.5
-    top = 1000
+    saved_geoms = 1000
     tol_porosity = 0.02
     tol_unit = 0.1
 
@@ -415,20 +415,28 @@ if __name__ == "__main__":
     batch_size = 64
     cutoff = 0.82
 
+    epoch = 10
+
     # config GAN
     gan = GAN(alpha, lr, porosity, num_epochs, batch_size, cutoff)
     gan.config()
-    data = gan.load_data(score_filename)
+    data = gan.load_data(score_filename,verbose=False)
 
     # train
     start_time = time.time()
-    gan.train(score, tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=True)
+    gan.train(score, tmp_models_dir, tol_porosity, plot=False, verbose_loss=False, verbose_acc=False)
+
+    # get time
     end_time = time.time()
     run_time = end_time-start_time
 
+    # select model
+    G_model = gan.select_model(tmp_models_dir, epoch)
+
+
     # generate arrays
-    gan.generate_arrays(top, simmetry, tol_porosity, tol_unit,
-                        arrays_dir, tmp_models_dir, plot=False, save=True)
+    gan.generate_arrays(G_model, saved_geoms, simmetry, tol_porosity, tol_unit,
+                        tmp_models_dir, arrays_dir, plot=False, save=True)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)
