@@ -258,7 +258,7 @@ class GAN(object):
                 geoms, _ = self.G_model.predict(X_test)
                 geoms = np.array(geoms)
                 por_match, _ = self.porosity_match(geoms, tol_porosity)
-                self.G_model.save(tmp_models_dir+'G/'+f'G_epoch_{i+1}_por_{por_match}_acc_{acc_fake}.h5')
+                self.G_model.save(tmp_models_dir+'G/'+f'G_epoch_{i+1}_por_{np.round(por_match,2)}_acc_{np.round(acc_fake,2)}.h5')
                 self.D_model.save(tmp_models_dir+'D/'+f'D_epoch_{i+1}.h5')
 
                 if verbose_acc:
