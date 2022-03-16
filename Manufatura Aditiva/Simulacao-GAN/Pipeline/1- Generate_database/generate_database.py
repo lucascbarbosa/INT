@@ -15,9 +15,9 @@ samples = int(sys.argv[6]) #10'000
 if os.getcwd().split('\\')[2] == 'lucas':
 
   # Dirs paths
-  arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
+  arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
 else:
-  arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/'
+  arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
 
 show = False
 save_img = False

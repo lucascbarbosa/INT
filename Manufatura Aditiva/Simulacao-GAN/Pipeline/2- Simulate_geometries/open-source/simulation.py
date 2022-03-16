@@ -10,10 +10,10 @@ from multiprocessing import Process, freeze_support, Array
 import sys
 
 
-def simulation(simmetry, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
+def simulation(simmetry, score, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
 
     stl_filename, vtk_filename = preproc(
-        array_dir, vtk_dir, idx_array, idx_file, simmetry, origin, dimension)
+        array_dir, vtk_dir, score, idx_array, idx_file, simmetry, origin, dimension)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -54,6 +54,9 @@ if __name__ == '__main__':
     start = int(sys.argv[4])-1
     end = int(sys.argv[5])-1
 
+    if origin == "-r":
+        score = None
+
     if origin == "-g":
         score = str(sys.argv[6])
 
@@ -62,16 +65,16 @@ if __name__ == '__main__':
         if os.getcwd().split('\\')[2] == 'lucas':
             max_processes = 2
             geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' % simmetry
-            vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s' % (
+            vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s/' % (
                 dimension, simmetry)
-            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
+            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s/' % (
                 dimension, simmetry)
         else:
             max_processes = 14
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' % simmetry
-            vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s' % (
+            vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s/' % (
                 dimension, simmetry)
-            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
+            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s/' % (
                 dimension, simmetry)
 
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
@@ -99,7 +102,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
+                    simmetry, score, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -157,7 +160,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
+                    simmetry, score, vtk_dir, array_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
                 processes.append(process)
                 process.start()
                 process_count += 1

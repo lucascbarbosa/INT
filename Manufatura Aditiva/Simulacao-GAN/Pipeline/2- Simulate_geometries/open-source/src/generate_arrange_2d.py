@@ -110,11 +110,11 @@ theta = int(sys.argv[5])
 
 if origin == "-g":
     if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/%s/%s/" % (simmetry, score)
-        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/2D/%s/%s/" % (simmetry, score)
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     else:
-        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/%s/%s/" % (simmetry, score)
-        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/2D/%s/%s/" % (simmetry, score)
+        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     
 else:
     if os.getcwd().split('\\')[2] == 'lucas':
