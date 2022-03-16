@@ -104,24 +104,25 @@ def generate_mesh(filename):
 
 origin = sys.argv[1]
 simmetry = sys.argv[2]
-idx = int(sys.argv[3])
-theta = int(sys.argv[4])
+score = sys.argv[3]
+idx = int(sys.argv[4])
+theta = int(sys.argv[5])
 
 if origin == "-g":
     if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/GAN/2D/"+simmetry+'/'
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/%s/%s/" % (simmetry, score)
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/2D/%s/%s/" % (simmetry, score)
     else:
-        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/"+simmetry+'/'
-        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/GAN/2D/"+simmetry+'/'
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/%s/%s/" % (simmetry, score)
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/2D/%s/%s/" % (simmetry, score)
     
 else:
     if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = r"E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-        vtks_dir = r"E:/Lucas GAN/Dados/2- Models/RTGA/2D/"+simmetry+'/'
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/" % simmetry
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/%s/" % simmetry
     else:
-        arrays_dir = r"D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/"+simmetry+'/'
-        vtks_dir = r"D:/Lucas GAN/Dados/2- Models/RTGA/2D/"+simmetry+'/'
+        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/" % simmetry
+        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/%s/" % simmetry
 
 arrays_filename = os.listdir(arrays_dir)
 

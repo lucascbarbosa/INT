@@ -130,7 +130,7 @@ if __name__ == '__main__':
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
             vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
             young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
-        arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
+        arrays_dir = ['%05d/' % (i+1) for i in range(start, end+1)]
 
         geometries_filename = os.listdir(geometries_dir)
         rounds = int(2*size/max_processes)
