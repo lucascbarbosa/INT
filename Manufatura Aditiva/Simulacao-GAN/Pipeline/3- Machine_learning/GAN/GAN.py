@@ -187,11 +187,8 @@ class GAN(object):
 
     def train(self, score, tmp_models_dir, tol_porosity, plot=False, verbose_loss=False, verbose_acc=False):
         # remove previous tmp models
-        for file in os.listdir(tmp_models_dir+'D/'):
-            os.remove(tmp_models_dir+'D/'+file)
-
-        for file in os.listdir(tmp_models_dir+'G/'):
-            os.remove(tmp_models_dir+'G/'+file)
+        for file in os.listdir(tmp_models_dir):
+            os.remove(tmp_models_dir+file)
         
         # setup G and D
         self.G_model = gan.setup_G()
@@ -280,15 +277,15 @@ class GAN(object):
             plt.legend()
             plt.show()
 
-    def select_model(self, tmp_models_dir, epoch):
-        G_files = os.listdir(tmp_models_dir+'G/')
+    def select_model(self, tmp_models_dir, models_dir, epoch):
+        G_files = os.listdir(tmp_models_dir)
 
         for i in range(len(G_files)):
             G_file = G_files[i]
-            if int(G_file.split('_')[2]) == epoch:
+            if int(G_file.split('_')[1]) == epoch:
                 G_model = load_model(tmp_models_dir+G_file)
-        
-        G_model.save(tmp_models_dir[:-3]+f'_lr_{self.lr}_alpha_{self.alpha}.h5')
+        G_file = G_file.split('/')[-1][:-3]+f'_batch_{self.batch_size}_lr_{self.lr}_alpha_{self.alpha}.h5'
+        G_model.save(models_dir + G_file)
 
         return G_model
 
@@ -417,18 +414,16 @@ if __name__ == "__main__":
 
     # mlflow.set_experiment(experiment_name='GAN_%s'%score)
     if os.getcwd().split('\\')[2] == 'lucas':
-        score_filename = 'E:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' % (
+        score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' % (
             dimension, simmetry, score)
-        models_dir = 'E:/Lucas GAN/Dados/5- Models/%sD/%s/' % (
-            dimension, simmetry)
-        arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/' % simmetry
+        models_dir = 'E:/Lucas GAN/Dados/5- GAN_models/%sD/%s/%s/' % (dimension, simmetry, score)
+        arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry,score)
         tmp_models_dir = 'C:/Users/lucas/OneDrive/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
     else:
-        score_filename = 'D:/Lucas GAN/Dados/4- Scores/RTGA/%sD/%s/%s.csv' % (
+        score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' % (
             dimension, simmetry, score)
-        models_dir = 'D:/Lucas GAN/Dados/5- Models/%sD/%s/' % (
-            dimension, simmetry)
-        arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/%s/' % simmetry
+        models_dir = 'D:/Lucas GAN/Dados/5- GAN_models/%sD/%s/' % (dimension, simmetry)
+        arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry,score)
         tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
 
     porosity = 0.5
@@ -453,7 +448,7 @@ if __name__ == "__main__":
     start_time = time.time()
     gan.train(score, tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
     
-    gan.select_model(tmp_models_dir,epoch) 
+    gan.select_model(tmp_models_dir, models_dir, epoch) 
 
     # get time
     end_time = time.time()

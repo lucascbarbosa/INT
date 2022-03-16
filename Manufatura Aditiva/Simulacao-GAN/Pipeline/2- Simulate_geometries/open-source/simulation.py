@@ -55,21 +55,21 @@ if __name__ == '__main__':
     end = int(sys.argv[5])-1
 
     if origin == "-g":
-        problem = str(sys.argv[5])
+        score = str(sys.argv[6])
 
     size = end-start+1
     if origin == "-r":
         if os.getcwd().split('\\')[2] == 'lucas':
             max_processes = 2
-            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' % simmetry
-            vtk_dir = 'E:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s' % (
+            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' % simmetry
+            vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s' % (
                 dimension, simmetry)
             young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
                 dimension, simmetry)
         else:
             max_processes = 14
-            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/RTGA/%s/' % simmetry
-            vtk_dir = 'D:/Lucas GAN/Dados/2- Models/RTGA/%sD/%s' % (
+            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' % simmetry
+            vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/RTGA/%sD/%s' % (
                 dimension, simmetry)
             young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/RTGA/%sD/%s' % (
                 dimension, simmetry)
@@ -121,17 +121,15 @@ if __name__ == '__main__':
 
     if origin == "-g":
         if os.getcwd().split('\\')[2] == 'lucas':
-            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
-            stl_dir = 'E:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
-            vtk_dir = 'E:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-            young_dir = "E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
-                simmetry, problem)
+            max_processes = 2
+            geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
+            vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
+            young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
         else:
-            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/Arrays/GAN/'+simmetry
-            stl_dir = 'D:/Lucas GAN/Dados/2- 3D_models/stl/GAN/'+simmetry
-            vtk_dir = 'D:/Lucas GAN/Dados/2- 3D_models/vtk/GAN/'+simmetry
-            young_dir = "D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%s/%s/" % (
-                simmetry, problem)
+            max_processes = 14
+            geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
+            vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
+            young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
         arrays_dir = ['%05d' % (i+1) for i in range(start, end+1)]
 
         geometries_filename = os.listdir(geometries_dir)
@@ -172,7 +170,8 @@ if __name__ == '__main__':
                 for j in range(len(Es_geometry)):
                     Es_geometry[j] = str(Es_geometry[j])+'e+9'
                 filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-                np.savetxt(young_dir+'/'+filename, Es_geometry,delimiter='\n', fmt='%s')
+                print(filename)
+                np.savetxt(young_dir+filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))
