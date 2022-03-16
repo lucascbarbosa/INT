@@ -263,6 +263,8 @@ class GAN(object):
                     print('>Epoch: %i Accuracy real: %.0f%%, fake: %.0f%%' %
                           (i+1, acc_real*100, acc_fake*100))
 
+        self.D_model.save('D.h5')
+
         G_losses = np.array(G_losses)
         D_losses = np.array(D_losses)
 
@@ -279,11 +281,13 @@ class GAN(object):
 
     def select_model(self, tmp_models_dir, models_dir, epoch):
         G_files = os.listdir(tmp_models_dir)
-
         for i in range(len(G_files)):
             G_file = G_files[i]
-            if int(G_file.split('_')[1]) == epoch:
+            epoch_model = int(G_file.split('_')[1])
+            if epoch_model == epoch:
                 G_model = load_model(tmp_models_dir+G_file)
+                break
+
         G_file = G_file.split('/')[-1][:-3]+f'_batch_{self.batch_size}_lr_{self.lr}_alpha_{self.alpha}.h5'
         G_model.save(models_dir + G_file)
 
@@ -366,17 +370,30 @@ class GAN(object):
             passed = False
         return passed, unit[:unit.shape[0]//2,:unit.shape[0]//2]
     
-
-    def generate_arrays(self, epoch, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, arrays_dir, plot=False, save=False):
+    def create_arrange(self,unit,rows,cols):
+        size = unit.shape[0]
+        arrange = np.zeros((rows*size,cols*size))
+        for i in range(unit.shape[0]):
+            for j in range(unit.shape[1]):
+                for row in range(rows):
+                    for col in range(cols):
+                        arrange[j+row*size,i+col*size] = unit[j,i]
+            
+        return arrange
+    def generate_arrays(self, epoch, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, models_dir, arrays_dir, plot=False, save=False):
         # select model
-        G_model = gan.select_model(tmp_models_dir, epoch)
-        
+        G_model = gan.select_model(tmp_models_dir, models_dir, epoch)
+        self.D_model = load_model('D.h5',custom_objects={'custom_loss':self.style_loss()})
+
         # generate geometries
-        test_size = saved_geoms*100
+        test_size = saved_geoms*1000
         X_test = self.generate_input_G(test_size)
         generated_geoms, _ = G_model.predict(X_test)
         size = generated_geoms.shape[1]
-        _, geometries = self.porosity_match(generated_geoms, tol_porosity)
+        print(generated_geoms.shape)
+        por_match, geometries = self.porosity_match(generated_geoms, tol_porosity)
+        print(geometries.shape, por_match)
+
         size = geometries.shape[1]
         geometries_ = []
 
@@ -388,18 +405,18 @@ class GAN(object):
                 geometries_.append(geom_)
 
         geometries = np.array(geometries_)
-
         # Get scores
-        scores = self.D_model.predict([geometries, geometries])[0]
-        top_idxs = scores[:, 0].argsort()[-saved_geoms:]
+        scores = self.D_model.predict([geometries, geometries])[0].ravel()
+        top_idxs = np.argsort(-scores)[:saved_geoms]
 
         p = 1
         for top_idx in top_idxs:
             geom = geometries[top_idx]
             unit = self.create_unit(geom.reshape((size, size)), simmetry)
+            arrange = self.create_arrange(unit,3,3)
             if plot:
-                plt.imshow(unit, cmap="Greys")
-                print("Score: %.2f Porosity: %.2f"%(scores[top_idx,0],geom.ravel().sum()/(size*size)))
+                plt.imshow(arrange, cmap="Greys")
+                print("Score: %.2f Porosity: %.2f"%(scores[top_idx],geom.ravel().sum()/(size*size)))
                 plt.show()
             if save:
                 filename = arrays_dir + "%05d_porosity_%.4f.txt" % (p, geom.ravel().sum()/(size*size))
@@ -411,7 +428,24 @@ if __name__ == "__main__":
     dimension = sys.argv[1]
     simmetry = sys.argv[2]
     score = sys.argv[3]
+    saved_geoms = int(sys.argv[4])
+    save = False
+    plot = False
 
+    try:
+        data = sys.argv[5]
+        if data == '-s': save = True
+        elif data == '-p': plot = True
+    except:
+        pass
+
+    try:
+        data = sys.argv[6]
+        if data == '-s': save = True
+        elif data == '-p': plot = True
+    except:
+        pass
+    
     # mlflow.set_experiment(experiment_name='GAN_%s'%score)
     if os.getcwd().split('\\')[2] == 'lucas':
         score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' % (
@@ -427,7 +461,6 @@ if __name__ == "__main__":
         tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
 
     porosity = 0.5
-    saved_geoms = 1000
     tol_porosity = 0.02
     tol_unit = 0.02
 
@@ -437,7 +470,7 @@ if __name__ == "__main__":
     batch_size = 64
     cutoff = 0.82
 
-    epoch = 250
+    epoch = 230
 
     # config GAN
     gan = GAN(porosity, alpha, lr, num_epochs, batch_size, cutoff)
@@ -446,17 +479,15 @@ if __name__ == "__main__":
 
     # train
     start_time = time.time()
-    gan.train(tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
+    # gan.train(tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
     
-    gan.select_model(tmp_models_dir, models_dir, epoch) 
-
     # get time
     end_time = time.time()
     run_time = end_time-start_time    
 
     # generate arrays
-    # gan.generate_arrays(epoch, saved_geoms, simmetry, tol_porosity, tol_unit,
-    #                     tmp_models_dir, arrays_dir, plot=False, save=False)
+    gan.generate_arrays(epoch, saved_geoms, simmetry, tol_porosity, tol_unit,
+                        tmp_models_dir, models_dir, arrays_dir, plot=plot, save=save)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)
