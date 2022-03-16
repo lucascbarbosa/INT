@@ -185,7 +185,7 @@ class GAN(object):
         # summarize discriminator performance
         return acc_real, acc_fake
 
-    def train(self, score, tmp_models_dir, tol_porosity, plot=False, verbose_loss=False, verbose_acc=False):
+    def train(self, tmp_models_dir, tol_porosity, plot=False, verbose_loss=False, verbose_acc=False):
         # remove previous tmp models
         for file in os.listdir(tmp_models_dir):
             os.remove(tmp_models_dir+file)
@@ -446,7 +446,7 @@ if __name__ == "__main__":
 
     # train
     start_time = time.time()
-    gan.train(score, tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
+    gan.train(tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
     
     gan.select_model(tmp_models_dir, models_dir, epoch) 
 
