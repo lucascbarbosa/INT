@@ -260,8 +260,7 @@ class GAN(object):
                 geoms = np.array(geoms)
                 por_match, _ = self.porosity_match(geoms, tol_porosity)
                 # save models
-                self.G_model.save(tmp_models_dir+'G/'+f'G_epoch_{i+1}_por_{np.round(por_match,2)}_acc_{np.round(acc_fake,2)}.h5')
-                # self.D_model.save(tmp_models_dir+'D/'+f'D_epoch_{i+1}.h5')
+                self.G_model.save(tmp_models_dir+f'epoch_{i+1}_por_{np.round(por_match,2)}_acc_{np.round(acc_fake,2)}.h5')
 
                 if verbose_acc:
                     print('>Epoch: %i Accuracy real: %.0f%%, fake: %.0f%%' %
@@ -287,7 +286,9 @@ class GAN(object):
         for i in range(len(G_files)):
             G_file = G_files[i]
             if int(G_file.split('_')[2]) == epoch:
-                G_model = load_model(tmp_models_dir+'G/'+G_file)
+                G_model = load_model(tmp_models_dir+G_file)
+        
+        G_model.save(tmp_models_dir[:-3]+f'_lr_{self.lr}_alpha_{self.alpha}.h5')
 
         return G_model
 
@@ -403,8 +404,9 @@ class GAN(object):
                 plt.imshow(unit, cmap="Greys")
                 print("Score: %.2f Porosity: %.2f"%(scores[top_idx,0],geom.ravel().sum()/(size*size)))
                 plt.show()
-            filename = arrays_dir + "%05d_porosity_%.4f.txt" % (p, geom.ravel().sum()/(size*size))
-            np.savetxt(filename, geom.ravel(), delimiter='/n', fmt='%s')
+            if save:
+                filename = arrays_dir + "%05d_porosity_%.4f.txt" % (p, geom.ravel().sum()/(size*size))
+                np.savetxt(filename, geom.ravel(), delimiter='/n', fmt='%s')
             p += 1
 
 
@@ -450,14 +452,16 @@ if __name__ == "__main__":
     # train
     start_time = time.time()
     gan.train(score, tmp_models_dir, tol_porosity, plot=True, verbose_loss=False, verbose_acc=False)
+    
+    gan.select_model(tmp_models_dir,epoch) 
 
     # get time
     end_time = time.time()
     run_time = end_time-start_time    
 
     # generate arrays
-    gan.generate_arrays(epoch, saved_geoms, simmetry, tol_porosity, tol_unit,
-                        tmp_models_dir, arrays_dir, plot=False, save=False)
+    # gan.generate_arrays(epoch, saved_geoms, simmetry, tol_porosity, tol_unit,
+    #                     tmp_models_dir, arrays_dir, plot=False, save=False)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)
