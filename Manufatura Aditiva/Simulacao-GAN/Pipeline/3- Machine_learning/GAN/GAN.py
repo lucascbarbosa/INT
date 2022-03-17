@@ -380,7 +380,7 @@ class GAN(object):
                         arrange[j+row*size,i+col*size] = unit[j,i]
             
         return arrange
-    def generate_arrays(self, epoch, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, models_dir, arrays_dir, plot=False, save=False):
+    def generate_arrays(self, epoch, saved_geoms, simmetry, tol_porosiy, tol_unit, tmp_models_dir, models_dir, arrays_dir, start, plot=False, save=False):
         # select model
         G_model = gan.select_model(tmp_models_dir, models_dir, epoch)
         self.D_model = load_model('D.h5',custom_objects={'custom_loss':self.style_loss()})
@@ -390,9 +390,7 @@ class GAN(object):
         X_test = self.generate_input_G(test_size)
         generated_geoms, _ = G_model.predict(X_test)
         size = generated_geoms.shape[1]
-        print(generated_geoms.shape)
         por_match, geometries = self.porosity_match(generated_geoms, tol_porosity)
-        print(geometries.shape, por_match)
 
         size = geometries.shape[1]
         geometries_ = []
@@ -409,7 +407,7 @@ class GAN(object):
         scores = self.D_model.predict([geometries, geometries])[0].ravel()
         top_idxs = np.argsort(-scores)[:saved_geoms]
 
-        p = 1
+        p = start+1
         for top_idx in top_idxs:
             geom = geometries[top_idx]
             unit = self.create_unit(geom.reshape((size, size)), simmetry)
@@ -460,17 +458,19 @@ if __name__ == "__main__":
         arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry,score)
         tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
 
+    start = len(os.listdir(arrays_dir))
+
     porosity = 0.5
     tol_porosity = 0.02
     tol_unit = 0.02
 
     alpha = 1e-2
     lr = 1e-4
-    num_epochs = 250  # 200+
+    num_epochs = 250  # iso: 200+
     batch_size = 64
-    cutoff = 0.82
+    cutoff = 0.82 # hs: 0.63 iso: 0.82
 
-    epoch = 230
+    epoch = 210
 
     # config GAN
     gan = GAN(porosity, alpha, lr, num_epochs, batch_size, cutoff)
@@ -487,7 +487,7 @@ if __name__ == "__main__":
 
     # generate arrays
     gan.generate_arrays(epoch, saved_geoms, simmetry, tol_porosity, tol_unit,
-                        tmp_models_dir, models_dir, arrays_dir, plot=plot, save=save)
+                        tmp_models_dir, models_dir, arrays_dir, start, plot=plot, save=save)
 
     # with mlflow.start_run() as run:
     #     mlflow.log_param('alpha',alpha)
