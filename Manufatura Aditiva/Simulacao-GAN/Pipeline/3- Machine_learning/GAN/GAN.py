@@ -386,7 +386,7 @@ class GAN(object):
         self.D_model = load_model('D.h5',custom_objects={'custom_loss':self.style_loss()})
 
         # generate geometries
-        test_size = saved_geoms*1000
+        test_size = saved_geoms*100
         X_test = self.generate_input_G(test_size)
         generated_geoms, _ = G_model.predict(X_test)
         size = generated_geoms.shape[1]
@@ -466,11 +466,11 @@ if __name__ == "__main__":
 
     alpha = 1e-2
     lr = 1e-4
-    num_epochs = 250  # iso: 200+
+    num_epochs = 250  # 250-300
     batch_size = 64
     cutoff = 0.82 # hs: 0.63 iso: 0.82
 
-    epoch = 210
+    epoch = 290
 
     # config GAN
     gan = GAN(porosity, alpha, lr, num_epochs, batch_size, cutoff)
