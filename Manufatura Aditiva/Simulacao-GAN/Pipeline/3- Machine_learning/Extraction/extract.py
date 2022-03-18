@@ -16,12 +16,12 @@ def calculate_HS(Es,E,p):
 def create_df(dimension,property,origin,score,simmetry,E):
     if origin == "-g":
         if os.getcwd().split('\\')[2] == 'lucas':
-            property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry)
-            array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/' %(simmetry)
+            property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/%s/' %(property,dimension,simmetry,score)
+            array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' %(simmetry,score)
             score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
-            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry)
-            array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/' %(simmetry)
+            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry,score)
+            array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' %(simmetry,score)
             score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
     else:
         if os.getcwd().split('\\')[2] == 'lucas':
@@ -76,7 +76,6 @@ def create_df(dimension,property,origin,score,simmetry,E):
             isos.append(iso)
         
         isos = np.array(isos)
-
         for i in range(len(isos)):
             idx = np.array([idxs[i]])
             iso = np.array([isos[i]])
