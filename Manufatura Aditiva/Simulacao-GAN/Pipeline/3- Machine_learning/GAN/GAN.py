@@ -458,6 +458,7 @@ if __name__ == "__main__":
         arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry,score)
         tmp_models_dir = 'C:/Users/lucas/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/GAN/tmp_models/'
 
+    geom_epoch_dirs = 'C:/Users/lucas/OneDrive/Documentos/GitHub/INT/Manufatura Aditiva/Simulacao-GAN/Pipeline/3- Machine_learning/Analyse/data/%sD/geom_epoch/%s/%s/' %(dimension,simmetry,score)
     start = len(os.listdir(arrays_dir))
 
     porosity = 0.5
