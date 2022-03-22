@@ -19,21 +19,20 @@ if os.getcwd().split('\\')[2] == 'lucas':
 else:
   arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
 
-show = False
-save_img = False
+plot = False
 save_array = False
 
 try:
   data = sys.argv[7]
-  if data == '-s': show = True
-  elif data == '-a': save_array = True
+  if data == '-p': plot = True
+  elif data == '-s': save_array = True
 except:
   pass
 
 try:
   data = sys.argv[8]
-  if data == '-s': show = True
-  elif data == '-a': save_array = True
+  if data == '-p': plot = True
+  elif data == '-s': save_array = True
 except:
   pass
 
@@ -48,7 +47,7 @@ while correct_samples < samples:
   porosity = np.float32(gen.get_porosity(element)).round(4)
   arch = gen.create_arch(unit)
   if passed:
-    if show:
+    if plot:
       # gen.show_img(unit)
       gen.show_img(arch)
     if save_array:

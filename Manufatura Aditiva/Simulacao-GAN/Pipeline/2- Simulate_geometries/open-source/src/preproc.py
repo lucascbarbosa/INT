@@ -4,7 +4,7 @@ from src.stl2vtk_3d import stl2vtk_3d
 
 def preproc(array_dir, vtk_dir, score, idx_array,idx_file,simmetry,origin,dimension):
     angle = [0,45][idx_file]
-    
+
     if dimension == 2:
         command_vtk = "python src/generate_arrange_2d.py %s %s %s %i %i"%(origin,simmetry,score,idx_array,angle)
         os.system(command_vtk)

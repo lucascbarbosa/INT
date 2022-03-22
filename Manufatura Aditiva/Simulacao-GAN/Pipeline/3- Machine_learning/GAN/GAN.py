@@ -471,7 +471,7 @@ if __name__ == "__main__":
     batch_size = 64
     cutoff = 0.82 # hs: 0.63 iso: 0.82
 
-    epoch = 290
+    epoch = 400
 
     # config GAN
     gan = GAN(porosity, alpha, lr, num_epochs, batch_size, cutoff)
