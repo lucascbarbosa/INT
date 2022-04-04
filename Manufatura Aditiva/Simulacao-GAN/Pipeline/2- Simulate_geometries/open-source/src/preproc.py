@@ -27,9 +27,8 @@ def preproc(array_dir, vtk_dir, score, idx_array,idx_file,simmetry,origin,dimens
     stl_filenames = os.listdir(vtk_dir + array_dir)
     stl_filename = stl_filenames[idx_file]
     vtk_filename = stl_filename[:-4]+'.vtk'
-    stl_filename = vtk_dir + array_dir + stl_filename
-    vtk_filename = vtk_dir + array_dir + vtk_filename
-    # print('Preproc ',vtk_filename)
+    stl_filename = vtk_dir + array_dir + '/' + stl_filename
+    vtk_filename = vtk_dir + array_dir + '/' + vtk_filename
     
     if not os.path.exists((os.path.join(vtk_dir,array_dir))):
         os.mkdir(os.path.join(vtk_dir,array_dir))

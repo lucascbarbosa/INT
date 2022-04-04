@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from numpy.lib.ufunclike import fix
 
-from sfepy.base.base import IndexedStruct
+from sfepy.base.base import IndexedStruct, output
 from sfepy.discrete import (FieldVariable, Material, Integral, Function,
                             Equation, Equations, Problem)
 from sfepy.discrete.fem import Mesh, FEDomain, Field
@@ -16,7 +16,7 @@ from sfepy.base.base import Struct
 from sfepy.mechanics.tensors import get_von_mises_stress
 from sfepy.discrete.common.extmods.cmesh import CMesh
 # from sfepy.postprocess.viewer import Viewer
-
+output.set_output(filename='log.txt', combined=False)
 
 class Simulate2D(object):
     def __init__(self):
@@ -135,7 +135,7 @@ class Simulate2D(object):
 
         pb = Problem('elasticity', equations=eqs)
 
-        pb.save_regions_as_groups('regions')
+        # pb.save_regions_as_groups('regions')
 
         pb.set_bcs(ebcs=Conditions(bcs))
 
@@ -150,7 +150,7 @@ class Simulate2D(object):
         out = state.create_output_dict()
 
         # out,vms = self.get_stress(out, pb, state, solid, extend=True)
-
+        
         u_tensor = state().reshape(-1, dim)
         disp = self.get_disp(pb, field, u_tensor)
 
