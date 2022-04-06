@@ -2,7 +2,7 @@ import os
 from src.stl2vtk_2d import stl2vtk_2d
 from src.stl2vtk_3d import stl2vtk_3d
 
-def preproc(vtk_dir, array_dir, log_dir, score, idx_array,idx_file,simmetry,origin,dimension):
+def preproc(vtk_dir, array_dir, score, idx_array,idx_file,simmetry,origin,dimension):
     angle = [0,45][idx_file]
     
     if dimension == 2:

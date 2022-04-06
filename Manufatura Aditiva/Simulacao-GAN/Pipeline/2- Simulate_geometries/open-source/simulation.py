@@ -12,7 +12,7 @@ import sys
 def simulation(simmetry, score, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin, dimension):
 
     stl_filename, vtk_filename = preproc(
-        vtk_dir, array_dir, log_dir, score, idx_array, idx_file, simmetry, origin, dimension)
+        vtk_dir, array_dir, score, idx_array, idx_file, simmetry, origin, dimension)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -31,10 +31,9 @@ def simulation(simmetry, score, vtk_dir, array_dir, log_dir, idx_array, idx_file
 
     log_dir = log_dir + array_dir 
     log_filename = stl_filename.split('/')[-1][:-4] + '.txt'
-    sim.setup_log(log_dir,log_filename)
-
-    print(vtk_filename)
-    mesh = sim.get_mesh(vtk_filename)
+    sim.quiet_log()
+    start_sim = time.time()
+    mesh, geom, cells, verts = sim.get_mesh(vtk_filename)
     dimensions, omega, top, bot = sim.create_regions(mesh)
     field, u, v = sim.create_field_variables(omega, ORDER)
     integral = sim.define_integral(ORDER)
@@ -43,11 +42,13 @@ def simulation(simmetry, score, vtk_dir, array_dir, log_dir, idx_array, idx_file
     t1, t2, eqs = sim.define_terms(solid, f, u, v, integral, top, omega)
     fix_bot = sim.set_bcs(bot, top)
     bcs = [fix_bot]
-    pb, out, E, disp = sim.solve_problem(field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
-
+    pb, out, E, disp, dofs = sim.solve_problem(field, eqs, bcs, dimensions, STRESS, dimension, vtk_filename)
+    end_sim = time.time()
+    sim_time = np.round(end_sim - start_sim,2)
     Es[idx] = float(E/1e9)
 
-    print('\nFor %s: E = %fe9 and u =%.4fe-9' %(stl_filename, float(E/1e9), disp/1e-9))
+    sim.log(log_dir, log_filename, sim_time, geom, cells, verts, dofs)
+    # print('\nFor %s: E = %fe9 and u =%.4fe-9' %(stl_filename, float(E/1e9), disp/1e-9))
 
 
 if __name__ == '__main__':
@@ -178,7 +179,6 @@ if __name__ == '__main__':
                 for j in range(len(Es_geometry)):
                     Es_geometry[j] = str(Es_geometry[j])+'e+9'
                 filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-                print(filename)
                 np.savetxt(young_dir+filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()

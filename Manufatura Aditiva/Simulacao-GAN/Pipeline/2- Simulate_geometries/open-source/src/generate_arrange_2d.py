@@ -97,7 +97,6 @@ def generate_mesh(filename):
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
-        
         # end = time.time()
 
         # print(f'Elapsed time: {end-start} s')
@@ -108,7 +107,6 @@ simmetry = sys.argv[2]
 score = sys.argv[3]
 idx = int(sys.argv[4])
 theta = int(sys.argv[5])
-
 if origin == "-g":
     if os.getcwd().split('\\')[2] == 'lucas':
         arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
