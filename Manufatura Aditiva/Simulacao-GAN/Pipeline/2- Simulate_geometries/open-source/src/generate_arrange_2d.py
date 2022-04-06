@@ -138,14 +138,14 @@ element_size = float(unit_size/elements_per_unit) # m
 pixel_size = float(element_size/resolution)
 mag = int(log(len(arrays_filename),10)+3)
 
-for array_filename in arrays_filename[idx:idx+1]:
-    with open(os.path.join(arrays_dir,array_filename),'r') as f:
-        array_dir = array_filename.split('_')[0]
-        try:
-            os.mkdir(vtks_dir+array_dir)
-        except:
-            pass
-        array = np.array(f.readlines()).astype(float)
-        array = array.reshape((int(resolution),int(resolution)))
-        filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
-        generate_mesh(filename)
+array_filename = arrays_filename[idx]
+with open(os.path.join(arrays_dir,array_filename),'r') as f:
+    array_dir = array_filename.split('_')[0]
+    try:
+        os.mkdir(vtks_dir+array_dir)
+    except:
+        pass
+    array = np.array(f.readlines()).astype(float)
+    array = array.reshape((int(resolution),int(resolution)))
+    filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
+    generate_mesh(filename)

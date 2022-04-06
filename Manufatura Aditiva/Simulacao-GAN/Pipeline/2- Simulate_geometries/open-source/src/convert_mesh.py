@@ -27,7 +27,7 @@ from sfepy.mesh.mesh_tools import triangulate
 from sfepy.mesh.mesh_tools import expand2d
 from sfepy.base.base import output
 
-output.set_output(filename='log.txt', combined=False)
+output.set_output(quiet=True, combined=False)
 
 helps = {
     'scale' : 'scale factor (float or comma-separated list for each axis)'

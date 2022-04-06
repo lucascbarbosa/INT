@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 from numpy.lib.ufunclike import fix
 
@@ -16,12 +17,17 @@ from sfepy.base.base import Struct
 from sfepy.mechanics.tensors import get_von_mises_stress
 from sfepy.discrete.common.extmods.cmesh import CMesh
 # from sfepy.postprocess.viewer import Viewer
-
-output.set_output(filename='log.txt', combined=False)
-
+from sfepy.base.base import output
 class Simulate3D(object):
     def __init__(self):
         pass
+
+    def setup_log(self,log_dir, log_filename):
+        try:
+            os.mkdir(log_dir)
+        except:
+            pass
+        output.set_output(filename=log_dir+log_filename, combined=False)
 
     def get_stress(self, out, pb, state, solid, extend=False):
         """
