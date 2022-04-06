@@ -6,7 +6,8 @@ import sys
 from math import log, sqrt
 import matplotlib.pyplot as plt
 import time
-# start = time.time()
+import warnings
+warnings.filterwarnings('ignore')
 
 def idx2coord(i,j,k,l):
     loc_y = np.round(element_size - (i+0.5)*pixel_size,5)

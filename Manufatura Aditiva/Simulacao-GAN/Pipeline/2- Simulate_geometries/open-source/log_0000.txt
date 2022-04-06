@@ -1,0 +1,27 @@
+sfepy: reading mesh (E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/p4/00001/porosity_0.5039_theta_0.vtk)...
+sfepy:   number of vertices: 12769
+sfepy:   number of cells:
+sfepy:     2_3: 23044
+sfepy: ...done in 0.14 s
+sfepy: setting up dof connectivities...
+sfepy: ...done in 0.00 s
+sfepy: updating variables...
+sfepy: ...done
+sfepy: setting up dof connectivities...
+sfepy: ...done in 0.00 s
+sfepy: matrix shape: (25344, 25344)
+sfepy: assembling matrix graph...
+sfepy: ...done in 0.02 s
+sfepy: matrix structural nonzeros: 335296 (5.22e-02% fill)
+sfepy: updating variables...
+sfepy: ...done
+sfepy: updating materials...
+sfepy:     f
+sfepy:     solid
+sfepy: ...done in 0.01 s
+sfepy: nls: iter: 0, residual: 4.863810e-01 (rel: 1.000000e+00)
+sfepy:   residual:    0.01 [s]
+sfepy:     matrix:    0.02 [s]
+sfepy:      solve:    0.16 [s]
+sfepy: nls: iter: 1, residual: 9.815950e-12 (rel: 2.018161e-11)
+sfepy: solved in 1 steps in 0.23 seconds

@@ -21,7 +21,7 @@ def preproc(array_dir, vtk_dir, score, idx_array,idx_file,simmetry,origin,dimens
             stl_filename = stl_filenames[idx_file]
             
         except:
-            command_stl = "blender -b -P src/generate_arrange_3d.py %s %s %i %i"%(origin,simmetry,idx_array,angle)
+            command_stl = "blender -b -P src/generate_arrange_3d.py %s %s %i %i --log-level 0"%(origin,simmetry,idx_array,angle)
             os.system(command_stl)
 
     stl_filenames = os.listdir(vtk_dir + array_dir)

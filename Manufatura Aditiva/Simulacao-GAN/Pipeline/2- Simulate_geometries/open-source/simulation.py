@@ -8,9 +8,10 @@ from src.preproc import preproc
 import time
 from multiprocessing import Process, freeze_support, Array
 import sys
-
+from sfepy.base.base import output
 
 def simulation(simmetry, score, vtk_dir, array_dir, idx_array, idx_file, Es, idx, origin, dimension):
+
 
     stl_filename, vtk_filename = preproc(
         array_dir, vtk_dir, score, idx_array, idx_file, simmetry, origin, dimension)

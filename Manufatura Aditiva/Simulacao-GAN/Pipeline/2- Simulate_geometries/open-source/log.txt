@@ -1,13 +1,21 @@
-sfepy: reading mesh (E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/p4/00001/porosity_0.5039_theta_0.vtk)...
+sfepy: reading mesh (E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/p4/00001/porosity_0.5039_theta_45.vtk)...
+sfepy:   warning: unknown cell type vertex with dimension 2
+sfepy:   number of vertices: 13185
+sfepy:   number of cells:
+sfepy:     1_2: 2792
+sfepy:     2_3: 23704
+sfepy: ...done in 0.01 s
+sfepy: writing E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/p4/00001/porosity_0.5039_theta_45.vtk...
 sfepy:   number of vertices: 12769
 sfepy:   number of cells:
 sfepy:     2_3: 23044
-sfepy: ...done in 0.13 s
+sfepy: ...done in 0.12 s
+sfepy: ...done
 sfepy: reading mesh (E:/Lucas GAN/Dados/2- Geometry_models/RTGA/2D/p4/00001/porosity_0.5039_theta_45.vtk)...
 sfepy:   number of vertices: 13185
 sfepy:   number of cells:
 sfepy:     2_3: 23704
-sfepy: ...done in 0.16 s
+sfepy: ...done in 0.13 s
 sfepy: setting up dof connectivities...
 sfepy: ...done in 0.00 s
 sfepy: updating variables...
@@ -16,20 +24,20 @@ sfepy: setting up dof connectivities...
 sfepy: ...done in 0.00 s
 sfepy: matrix shape: (25344, 25344)
 sfepy: assembling matrix graph...
-sfepy: ...done in 0.02 s
+sfepy: ...done in 0.03 s
 sfepy: matrix structural nonzeros: 335296 (5.22e-02% fill)
 sfepy: updating variables...
 sfepy: ...done
 sfepy: updating materials...
-sfepy:     f
 sfepy:     solid
+sfepy:     f
 sfepy: ...done in 0.01 s
 sfepy: nls: iter: 0, residual: 4.863810e-01 (rel: 1.000000e+00)
 sfepy:   residual:    0.01 [s]
 sfepy:     matrix:    0.02 [s]
-sfepy:      solve:    0.15 [s]
+sfepy:      solve:    0.18 [s]
 sfepy: nls: iter: 1, residual: 9.815950e-12 (rel: 2.018161e-11)
-sfepy: solved in 1 steps in 0.22 seconds
+sfepy: solved in 1 steps in 0.26 seconds
 sfepy: setting up dof connectivities...
 sfepy: ...done in 0.00 s
 sfepy: updating variables...
@@ -38,7 +46,7 @@ sfepy: setting up dof connectivities...
 sfepy: ...done in 0.00 s
 sfepy: matrix shape: (26176, 26176)
 sfepy: assembling matrix graph...
-sfepy: ...done in 0.02 s
+sfepy: ...done in 0.03 s
 sfepy: matrix structural nonzeros: 345624 (5.04e-02% fill)
 sfepy: updating variables...
 sfepy: ...done
@@ -49,6 +57,6 @@ sfepy: ...done in 0.01 s
 sfepy: nls: iter: 0, residual: 4.863810e-01 (rel: 1.000000e+00)
 sfepy:   residual:    0.01 [s]
 sfepy:     matrix:    0.02 [s]
-sfepy:      solve:    0.17 [s]
+sfepy:      solve:    0.16 [s]
 sfepy: nls: iter: 1, residual: 8.232565e-12 (rel: 1.692616e-11)
-sfepy: solved in 1 steps in 0.26 seconds
+sfepy: solved in 1 steps in 0.23 seconds

@@ -16,7 +16,6 @@ from sfepy.base.base import Struct
 from sfepy.mechanics.tensors import get_von_mises_stress
 from sfepy.discrete.common.extmods.cmesh import CMesh
 # from sfepy.postprocess.viewer import Viewer
-output.set_output(filename='log.txt', combined=False)
 
 class Simulate2D(object):
     def __init__(self):

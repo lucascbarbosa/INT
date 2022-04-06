@@ -25,6 +25,10 @@ from sfepy.discrete.fem.meshio import output_mesh_formats, MeshIO
 from sfepy.discrete.fem.mesh import fix_double_nodes
 from sfepy.mesh.mesh_tools import triangulate
 from sfepy.mesh.mesh_tools import expand2d
+from sfepy.base.base import output
+
+output.set_output(filename='log.txt', combined=False)
+
 helps = {
     'scale' : 'scale factor (float or comma-separated list for each axis)'
     ' [default: %(default)s]',
