@@ -22,12 +22,17 @@ class Simulate3D(object):
     def __init__(self):
         pass
 
-    def setup_log(self,log_dir, log_filename):
+    def quiet_log(self):
+        output.set_output(quiet=True, combined= False)
+
+    def log(self, log_dir, log_filename, time, geom, cells, verts, dofs):
         try:
             os.mkdir(log_dir)
         except:
             pass
-        output.set_output(filename=log_dir+log_filename, combined=False)
+        log = f'cells ({geom}): {cells}\nverts: {verts}\nDOFS: {dofs}\ntime: {time}'
+        with open(log_dir+log_filename,'w') as f:
+            f.write(log)
 
     def get_stress(self, out, pb, state, solid, extend=False):
         """
@@ -55,8 +60,11 @@ class Simulate3D(object):
 
     def get_mesh(self, filename):
         mesh = Mesh.from_file(filename)
-        return mesh
-    
+        cells = mesh.n_el
+        verts = mesh.n_nod
+        geom = mesh.descs[0]
+        return mesh, geom, cells, verts
+
     def get_top_coors(self, mesh, tol=1e-5):
         domain = FEDomain('domain', mesh)
         min_x, max_x = domain.get_mesh_bounding_box()[:, 0]
@@ -170,8 +178,11 @@ class Simulate3D(object):
         
         pb.save_state(vtk_filename, out=out)
 
+        variables = pb.get_variables()
+        dofs =  variables.di.n_dof['u']
+
         # visualize deformation
         # view = Viewer('linear_elasticity_%f.vtk'%E)
         # view(vector_mode='warp_norm', rel_scaling=1e-10, is_scalar_bar=True, is_wireframe=False)
 
-        return pb, out, E, disp
+        return pb, out, E, disp, dofs

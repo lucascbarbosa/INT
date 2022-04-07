@@ -31,7 +31,6 @@ class Simulate2D(object):
         except:
             pass
         log = f'cells ({geom}): {cells}\nverts: {verts}\nDOFS: {dofs}\ntime: {time}'
-        print(log)
         with open(log_dir+log_filename,'w') as f:
             f.write(log)
         
