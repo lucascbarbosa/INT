@@ -43,13 +43,14 @@ correct_samples = 0
 while correct_samples < samples:
   element = gen.create_element()
   unit = gen.create_unit(element)
-  passed, element = gen.check_unit(unit,porosity*0.1)
+  # passed, element = gen.check_unit(unit,porosity*0.1)
   porosity = np.float32(gen.get_porosity(element)).round(4)
-  arch = gen.create_arch(unit)
+  # arch = gen.create_arch(unit)
+  passed = True
   if passed:
     if plot:
-      # gen.show_img(unit)
-      gen.show_img(arch)
+      gen.show_img(element)
+      gen.show_img(unit)
     if save_array:
       gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
     correct_samples += 1

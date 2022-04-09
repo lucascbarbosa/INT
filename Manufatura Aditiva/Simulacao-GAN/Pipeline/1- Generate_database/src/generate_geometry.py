@@ -226,20 +226,19 @@ class Generator(object):
 
   def create_unit(self,element):
     
-    if self.simmetry == 'p4':
-      self.unit_size = 2*self.size
-      # fold_size = np.random.choice(4,1)[0]
-      unit = np.ones((2*self.size,2*self.size))*(-1)
-      h,w = element.shape
-      for i in range(h):
-        for j in range(w):
-          el = element[i,j]
-          
-          j_ = [j,2*w-1-i,2*h-1-j,i]
-          i_ = [i,j,2*w-1-i,2*h-1-j]
-          # (1,7)->(7,14)->(14,8)->(8,1)
-          for (k,l) in list(zip(i_,j_)):
-            unit[k,l]  = el
+    self.unit_size = 2*self.size
+    # fold_size = np.random.choice(4,1)[0]
+    unit = np.ones((2*self.size,2*self.size))*(-1)
+    h,w = element.shape
+    for i in range(h):
+      for j in range(w):
+        el = element[i,j]
+        
+        j_ = [j,2*w-1-i,2*h-1-j,i]
+        i_ = [i,j,2*w-1-i,2*h-1-j]
+        # (1,7)->(7,14)->(14,8)->(8,1)
+        for (k,l) in list(zip(i_,j_)):
+          unit[k,l]  = el
 
     return unit
 
