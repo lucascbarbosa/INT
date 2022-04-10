@@ -84,10 +84,6 @@ class Generator(object):
     
   def create_element(self):
     if self.simmetry == 'p4':
-      # freq = np.loadtxt('freq.txt').reshape((self.size-2,self.size-2))
-      # freq = freq/freq.sum()
-      # px = freq.sum(axis=0)
-      # py = freq.sum(axis=1)
       element = np.ones((self.size,self.size))
       seeds_x = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
       seeds_y = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
@@ -104,11 +100,6 @@ class Generator(object):
           new_voids_coords = contour_coords[new_voids_coords_idxs]
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
-
-      # element[0,:] = 1.
-      # element[element.shape[0]-1,:] = 1.
-      # element[:,0] = 1.
-      # element[:,element.shape[0]-1] = 1.
 
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
 
@@ -145,13 +136,8 @@ class Generator(object):
               to_add -= 1
               if to_add < 1:
                 break
-
     
     if self.simmetry == 'p4m':
-      # freq = np.loadtxt('freq.txt').reshape((self.size-2,self.size-2))
-      # freq = freq/freq.sum()
-      # px = freq.sum(axis=0)
-      # py = freq.sum(axis=1)
       element = np.ones((self.size,self.size))
       seeds_x = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
       seeds_y = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
@@ -171,10 +157,63 @@ class Generator(object):
             element[new_void_coords[0],new_void_coords[1]] = 0.
             element[self.size-new_void_coords[1]-1,self.size-new_void_coords[0]-1] = 0.
       
-      # element[0,:] = 1.
-      # element[element.shape[0]-1,:] = 1.
-      # element[:,0] = 1.
-      # element[:,element.shape[0]-1] = 1.
+      to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
+
+      if to_remove > 1:
+        while to_remove > 1:
+          contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+          for _, contour in enumerate(contours):
+            contour_coords = np.around(contour.astype(np.double)).astype(int)
+            contour_coords = np.unique(contour_coords, axis=0)
+            contour_coords = self.filter_edge(contour_coords)
+            size = contour_coords.shape[0]
+            new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+            new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+            for new_void_coords in new_voids_coords:
+              element[new_void_coords[0],new_void_coords[1]] = 0.
+              element[self.size-new_void_coords[1]-1,self.size-new_void_coords[0]-1] = 0.
+              to_remove -= 2
+              if to_remove < 1:
+                break
+      
+      to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
+
+      if to_add > 1:
+        while to_add > 1:
+          contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+          for _, contour in enumerate(contours):
+            contour_coords = np.around(contour.astype(np.double)).astype(int)
+            contour_coords = np.unique(contour_coords, axis=0)
+            contour_coords = self.filter_edge(contour_coords)
+            size = contour_coords.shape[0]
+            new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+            new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+            for new_void_coords in new_voids_coords:
+              element[new_void_coords[0],new_void_coords[1]] = 1.
+              element[self.size-new_void_coords[1]-1,self.size-new_void_coords[0]-1] = 1.
+              to_add -= 2
+              if to_add < 1:
+                break
+    
+    if self.simmetry == 'p4g':
+      element = np.ones((self.size,self.size))
+      seeds_x = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
+      seeds_y = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
+
+      for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
+        element[seed_x,seed_y] = 0.
+        element[seed_y,seed_x] = 0.
+
+      while np.where(element==0)[0].shape[0] < self.num_void_pixels:
+        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
+          size = contour.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
+          new_voids_coords = contour_coords[new_voids_coords_idxs]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 0.
+            element[new_void_coords[1],new_void_coords[0]] = 0.
       
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
 
@@ -225,20 +264,33 @@ class Generator(object):
     return element
 
   def create_unit(self,element):
+    if self.simmetry in ['p4']:
+      self.unit_size = 2*self.size
+      # fold_size = np.random.choice(4,1)[0]
+      unit = np.ones((2*self.size,2*self.size))*(-1)
+      for i in range(self.size):
+        for j in range(self.size):
+          el = element[i,j]
+          j_ = [j,self.size-1-i,2*self.size-1-j,i+self.size]
+          i_ = [i+self.size,j,self.size-1-i,2*self.size-1-j]
+          # (1,7)->(7,14)->(14,8)->(8,1)
+          for (k,l) in list(zip(i_,j_)):
+            unit[k,l]  = el
     
-    self.unit_size = 2*self.size
-    # fold_size = np.random.choice(4,1)[0]
-    unit = np.ones((2*self.size,2*self.size))*(-1)
-    h,w = element.shape
-    for i in range(h):
-      for j in range(w):
-        el = element[i,j]
-        
-        j_ = [j,2*w-1-i,2*h-1-j,i]
-        i_ = [i,j,2*w-1-i,2*h-1-j]
-        # (1,7)->(7,14)->(14,8)->(8,1)
-        for (k,l) in list(zip(i_,j_)):
-          unit[k,l]  = el
+    if self.simmetry in ['p4g','p4m']:
+      self.unit_size = 2*self.size
+      # fold_size = np.random.choice(4,1)[0]
+      unit = np.ones((2*self.size,2*self.size))*(-1)
+      h,w = element.shape
+      for i in range(h):
+        for j in range(w):
+          el = element[i,j]
+          
+          j_ = [j,2*self.size-1-j,2*self.size-1-j,j]
+          i_ = [i+self.size,i+self.size,self.size-1-i,self.size-1-i]
+          # (1,2)-> (1,13) -> (14,13) -> (14,2)
+          for (k,l) in list(zip(i_,j_)):
+            unit[k,l]  = el
 
     return unit
 
