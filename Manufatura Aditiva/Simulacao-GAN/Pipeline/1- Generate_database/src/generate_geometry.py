@@ -337,12 +337,12 @@ class Generator(object):
 
   def create_arrange(self,unit):
     cols = rows = int(sqrt(self.units))
-    arch = np.ones((cols*self.unit_size,cols*self.unit_size))
+    arrange = np.ones((cols*self.unit_size,cols*self.unit_size))
     h,w = unit.shape
     for i in range(h):
       for j in range(w):
         for k in range(rows):
           for l in range(cols):
-            arch[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
+            arrange[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
 
-    return arch
+    return arrange
