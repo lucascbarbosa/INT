@@ -248,7 +248,7 @@ class Generator(object):
             new_voids_coords = contour_coords[new_voids_coords_idxs,:]
             for new_void_coords in new_voids_coords:
               element[new_void_coords[0],new_void_coords[1]] = 1.
-              element[self.size-new_void_coords[1]-1,self.size-new_void_coords[0]-1] = 1.
+              element[new_void_coords[1],new_void_coords[0]] = 1.
               to_add -= 2
               if to_add < 1:
                 break
