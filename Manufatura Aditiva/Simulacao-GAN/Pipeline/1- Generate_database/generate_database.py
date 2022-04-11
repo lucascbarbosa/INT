@@ -2,6 +2,20 @@ from src.generate_geometry import Generator
 import sys
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+
+def plot_geom(element, unit, arrange):
+  fig,ax = plt.subplots(1,3)
+  fig.set_size_inches((16,5))
+  ax[0].imshow(element,cmap='Greys');
+  # ax[0].axis('off')
+
+  ax[1].imshow(unit,cmap='Greys');
+  # ax[1].axis('off')
+
+  ax[2].imshow(arrange,cmap='Greys');
+  # ax[2].axis('off')
+  plt.show()
 
 # Input hyperparameters
 
@@ -19,8 +33,8 @@ if os.getcwd().split('\\')[2] == 'lucas':
 else:
   arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
 
-plot = False
-save_array = False
+plot = False # -p
+save_array = False # -s
 
 try:
   data = sys.argv[7]
@@ -43,15 +57,13 @@ correct_samples = 0
 while correct_samples < samples:
   element = gen.create_element()
   unit = gen.create_unit(element)
-  # passed, element = gen.check_unit(unit,porosity*0.1)
-  # porosity = np.float32(gen.get_porosity(element)).round(4)
-  # arch = gen.create_arch(unit)
-  passed = True
+  passed, element = gen.check_unit(unit,porosity*0.1)
+  porosity = np.float32(gen.get_porosity(element)).round(4)
+  arrange = gen.create_arrange(unit)
+  # passed = True
   if passed:
     if plot:
-      gen.show_img(element)
-      gen.show_img(unit)
-      # gen.show_img(arch)
+      plot_geom(element, unit, arrange)
     if save_array:
       gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
     correct_samples += 1

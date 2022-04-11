@@ -3,14 +3,6 @@ import numpy as np
 import os
 import sys
 
-# ////////////////////////////////////////
-
-origin = sys.argv[1]
-dimension = sys.argv[2]
-simmetry = sys.argv[3]
-score = sys.argv[4]
-idx = int(sys.argv[5])-1
-origins = {'-r':'RTGA','-g':'GAN'}
 
 def get_score_filename(origin,dimension,simmetry,score):
     origins = {'-r':'RTGA','-g':'GAN'}
@@ -50,24 +42,35 @@ def create_arrange(unit,rows,cols):
   
   return arrange
 
+def plot_geom(origin, dimension, simmetry, score_value):
+  geom = data[idx,1:-1]
+  element = geom.reshape((int(len(geom)**0.5),int(len(geom)**0.5)))
+  unit = create_unit(element, element.shape[1], simmetry)
+  arrange = create_arrange(unit, 3, 3)
+  fig,ax = plt.subplots(1,3)
+  fig.set_size_inches((16,5))
+  fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
+  ax[0].imshow(element,cmap='Greys');
+  # ax[0].axis('off')
+
+  ax[1].imshow(unit,cmap='Greys');
+  # ax[1].axis('off')
+
+  ax[2].imshow(arrange,cmap='Greys');
+  # ax[2].axis('off')
+  plt.show()
+
+
+# ////////////////////////////////////////
+
+origin = sys.argv[1]
+dimension = sys.argv[2]
+simmetry = sys.argv[3]
+score = sys.argv[4]
+idx = int(sys.argv[5])-1
+origins = {'-r':'RTGA','-g':'GAN'}
+
 score_filename = get_score_filename(origin,dimension,simmetry,score)
 data = np.loadtxt(score_filename,delimiter=',')
 score_value = np.round(data[idx,-1],2)
-
-geom = data[idx,1:-1]
-element = geom.reshape((int(len(geom)**0.5),int(len(geom)**0.5)))
-unit = create_unit(element, element.shape[1], simmetry)
-arrange = create_arrange(unit, 3, 3)
-
-fig,ax = plt.subplots(1,3)
-fig.set_size_inches((16,5))
-fig.suptitle(f'Origin:{origins[origin]} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
-ax[0].imshow(element,cmap='Greys');
-# ax[0].axis('off')
-
-ax[1].imshow(unit,cmap='Greys');
-# ax[1].axis('off')
-
-ax[2].imshow(arrange,cmap='Greys');
-# ax[2].axis('off')
-plt.show()
+plot_geom(origin, dimension, simmetry, score_value) 

@@ -333,9 +333,9 @@ class Generator(object):
     else:
       passed = False
 
-    return passed, unit[:int(unit.shape[0]/2),:int(unit.shape[0]/2)]
+    return passed, unit[int(unit.shape[0]/2):,:int(unit.shape[0]/2)]
 
-  def create_arch(self,unit):
+  def create_arrange(self,unit):
     cols = rows = int(sqrt(self.units))
     arch = np.ones((cols*self.unit_size,cols*self.unit_size))
     h,w = unit.shape
