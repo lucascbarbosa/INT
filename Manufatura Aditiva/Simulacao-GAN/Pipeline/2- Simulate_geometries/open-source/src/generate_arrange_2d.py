@@ -47,7 +47,7 @@ def generate_mesh(simmetry, filename):
         # generate unit with specific simmetry
         void_pixels = []
         for k in range(elements_per_row): #row of element
-            for l in range(1): #column of element
+            for l in range(elements_per_row): #column of element
                 for i in range(len(array)): #row of pixel
                     for j in range(len(array)): #column of pixel
                         if array[i,j] == 0:

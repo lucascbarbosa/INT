@@ -23,7 +23,7 @@ units = int(sys.argv[1]) #9
 simmetry = sys.argv[2] #p4/m/g
 size = int(sys.argv[3]) #16
 porosity = float(sys.argv[4])  #0.5
-num_seeds = int(sys.argv[5]) #3/4
+num_seeds = int(sys.argv[5]) 
 samples = int(sys.argv[6]) #10'000
 
 if os.getcwd().split('\\')[2] == 'lucas':
