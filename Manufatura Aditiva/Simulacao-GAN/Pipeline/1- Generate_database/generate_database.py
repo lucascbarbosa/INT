@@ -35,11 +35,13 @@ else:
 
 plot = False # -p
 save_array = False # -s
+plot_hist = False # -h
 
 try:
   data = sys.argv[7]
   if data == '-p': plot = True
   elif data == '-s': save_array = True
+  elif data == '-h': plot_hist = True
 except:
   pass
 
@@ -47,11 +49,22 @@ try:
   data = sys.argv[8]
   if data == '-p': plot = True
   elif data == '-s': save_array = True
+  elif data == '-h': plot_hist = True
+except:
+  pass
+
+try:
+  data = sys.argv[9]
+  if data == '-p': plot = True
+  elif data == '-s': save_array = True
+  elif data == '-h': plot_hist = True
 except:
   pass
 
 gen = Generator(units, simmetry, size, porosity, num_seeds)
 start = len(os.listdir(arrays_dir+simmetry))
+
+porosities = []
 
 correct_samples = 0
 while correct_samples < samples:
@@ -62,8 +75,13 @@ while correct_samples < samples:
   arrange = gen.create_arrange(unit)
   # passed = True
   if passed:
+    porosities.append(porosity)
     if plot:
       plot_geom(element, unit, arrange)
     if save_array:
       gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
     correct_samples += 1
+
+if plot_hist:
+  plt.hist(porosities, bins=10)
+  plt.show()
