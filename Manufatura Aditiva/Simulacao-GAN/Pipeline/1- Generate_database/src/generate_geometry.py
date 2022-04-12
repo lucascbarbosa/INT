@@ -83,7 +83,9 @@ class Generator(object):
   
     
   def create_element(self):
+
     if self.simmetry == 'p4':
+      
       element = np.ones((self.size,self.size))
       seeds_x = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
       seeds_y = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
@@ -101,9 +103,16 @@ class Generator(object):
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
 
+      to_remove = self.remove_isolated(element,1.0)
+      
+      try:
+        element[to_remove[:,0],to_remove[:,1]] = 0.0
+      except:
+        pass
+
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
-      print('>before')
-      print('to_remove = ',to_remove)
+      # print('>before')
+      # print('to_remove = ',to_remove)
     
       while to_remove > 1:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
@@ -121,7 +130,7 @@ class Generator(object):
               break
 
       to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
-      print('to_add = ',to_add)
+      # print('to_add = ',to_add)
 
       while to_add > 1:
         contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
@@ -138,9 +147,9 @@ class Generator(object):
             if to_add < 1:
               break
 
-      print('>after')
-      print('to_remove = ',to_remove)
-      print('to_add = ',to_add)
+      # print('>after')
+      # print('to_remove = ',to_remove)
+      # print('to_add = ',to_add)
     
     if self.simmetry == 'p4m':
       element = np.ones((self.size,self.size))
@@ -162,6 +171,13 @@ class Generator(object):
             element[new_void_coords[0],new_void_coords[1]] = 0.
             element[self.size-new_void_coords[1]-1,self.size-new_void_coords[0]-1] = 0.
       
+      to_remove = self.remove_isolated(element,1.0)
+      
+      try:
+        element[to_remove[:,0],to_remove[:,1]] = 0.0
+      except:
+        pass
+
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
 
       while to_remove > 1:
@@ -218,6 +234,13 @@ class Generator(object):
             element[new_void_coords[0],new_void_coords[1]] = 0.
             element[new_void_coords[1],new_void_coords[0]] = 0.
       
+      to_remove = self.remove_isolated(element,1.0)
+      
+      try:
+        element[to_remove[:,0],to_remove[:,1]] = 0.0
+      except:
+        pass
+
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
 
       while to_remove > 1:
@@ -253,16 +276,7 @@ class Generator(object):
             to_add -= 2
             if to_add < 1:
               break
-    print('>final')
-    print(to_remove)
-    print(to_add, '\n')
-    # remove 1s
-    to_remove = self.remove_isolated(element,1.0)
-    try:
-      element[to_remove[:,0],to_remove[:,1]] = 0.0
-    except:
-      pass
-    
+
     return element
 
   def create_unit(self,element):
