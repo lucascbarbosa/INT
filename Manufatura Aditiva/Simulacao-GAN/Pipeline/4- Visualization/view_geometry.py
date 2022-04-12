@@ -3,6 +3,9 @@ import numpy as np
 import os
 import sys
 
+from sklearn.metrics import precision_score
+from sklearn.model_selection import permutation_test_score
+
 
 def get_score_filename(origin,dimension,simmetry,score):
     origins = {'-r':'RTGA','-g':'GAN'}
@@ -57,15 +60,18 @@ def create_arrange(unit, units, unit_size):
 
   return arrange
 
-def plot_geom(origin, dimension, simmetry, score_value):
-  geom = data[idx,1:-1]
-  element = geom.reshape((int(len(geom)**0.5),int(len(geom)**0.5)))
+def plot_geom(origin, dimension, simmetry, element, score, score_value):
   unit = create_unit(element, element.shape[1], simmetry)
   arrange = create_arrange(unit, units, unit_size)
-  
+
   fig,ax = plt.subplots(1,3)
   fig.set_size_inches((16,5))
-  fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
+
+  if score:
+    fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
+  else:
+    fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry}',fontsize=16)
+
   ax[0].imshow(element,cmap='Greys');
   # ax[0].axis('off')
 
@@ -83,16 +89,45 @@ dimension = sys.argv[1]
 origin = sys.argv[2]
 simmetry = sys.argv[3]
 units = int(sys.argv[4])
-score = sys.argv[5]
-idx = int(sys.argv[6])-1
+idx = int(sys.argv[5])
+
+try:
+  score = sys.argv[6]
+  print_score = True
+except:
+  print_score = False
 
 origins = {'-r':'RTGA','-g':'GAN'}
 
-score_filename = get_score_filename(origin,dimension,simmetry,score)
-data = np.loadtxt(score_filename,delimiter=',')
+if print_score:
+  score_filename = get_score_filename(origin,dimension,simmetry,score)
+  score_data = np.loadtxt(score_filename,delimiter=',')
+  score_value = score_data[np.where(score_data[:,0] == idx)[0][0]][-1]
+  score_value = np.round(score_value,2)
+else: 
+  score = None
+  score_value = None
 
-element_size = int(np.sqrt(data.shape[1]-2))
-unit_size = int(2*element_size)
+if origin == "-g":
+  if os.getcwd().split('\\')[2] == 'lucas':
+    arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+  else:
+    arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+    
+else:
+  if os.getcwd().split('\\')[2] == 'lucas':
+    arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/" % simmetry
+  else:
+    arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/" % simmetry
 
-score_value = np.round(data[idx,-1],2)
-plot_geom(origin, dimension, simmetry, score_value) 
+arrays_filename = os.listdir(arrays_dir)
+array_filename = arrays_filename[idx]
+print(idx)
+
+with open(os.path.join(arrays_dir,array_filename),'r') as f:
+  element = np.array(f.readlines()).astype(float)
+  element_size = int(np.sqrt(element.shape[0]))
+  element = element.reshape((int(element_size),int(element_size)))
+  unit_size = int(2*element_size)
+
+plot_geom(origins[origin], dimension, simmetry, element, score, score_value) 

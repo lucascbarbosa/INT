@@ -111,10 +111,9 @@ origin = sys.argv[1]
 simmetry = sys.argv[2]
 units = int(sys.argv[3])
 size = int(sys.argv[4])
-idx = int(sys.argv[5])
+idx = int(sys.argv[5])-1
 theta = int(sys.argv[6])
 
-    
 if origin == "-g":
     score = sys.argv[7]
     if os.getcwd().split('\\')[2] == 'lucas':
