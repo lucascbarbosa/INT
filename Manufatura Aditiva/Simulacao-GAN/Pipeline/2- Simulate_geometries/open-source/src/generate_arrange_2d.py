@@ -20,7 +20,16 @@ def idx2coord(simmetry,i,j,k,l):
         loc_x = locs_element_x[element_idx]
         loc_y = locs_element_y[element_idx]
     
-    
+    if simmetry in ['p4m', 'p4g']:
+        loc_y = np.round(-(i+0.5)*pixel_size,5)
+        loc_x = np.round((j+0.5)*pixel_size - element_size,5)
+        
+        locs_element_x = [loc_x,loc_x,-loc_x,-loc_x]
+        locs_element_y = [loc_y,-loc_y,-loc_y,loc_y]
+        element_idx = k*2 + l
+        loc_x = locs_element_x[element_idx]
+        loc_y = locs_element_y[element_idx]
+
     return loc_x,loc_y
 
 def generate_mesh(simmetry, filename):
@@ -36,22 +45,21 @@ def generate_mesh(simmetry, filename):
         )
 
         # generate unit with specific simmetry
-        if simmetry[:2] == 'p4':
-            void_pixels = []
-            for k in range(elements_per_row): #row of element
-                for l in range(elements_per_row): #column of element
-                    for i in range(len(array)): #row of pixel
-                        for j in range(len(array)): #column of pixel
-                            if array[i,j] == 0:
-                                loc_x,loc_y = idx2coord(simmetry,i,j,k,l)
-                                void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
-                                void_pixels.append(void_pixel)
+        void_pixels = []
+        for k in range(elements_per_row): #row of element
+            for l in range(1): #column of element
+                for i in range(len(array)): #row of pixel
+                    for j in range(len(array)): #column of pixel
+                        if array[i,j] == 0:
+                            loc_x,loc_y = idx2coord(simmetry,i,j,k,l)
+                            void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
+                            void_pixels.append(void_pixel)
 
-            units = []
-                    
-            unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
-            units.append(unit[0])
-            
+        units = []
+                
+        unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
+        units.append(unit[0])
+        
         #     for i in range(units_per_row+2):
         #         for j in range(units_per_row+2):
         #             if [i,j] != [int(units_per_row/2),int(units_per_row/2)]:

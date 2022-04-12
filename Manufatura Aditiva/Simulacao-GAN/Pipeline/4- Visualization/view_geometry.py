@@ -121,8 +121,7 @@ else:
     arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/" % simmetry
 
 arrays_filename = os.listdir(arrays_dir)
-array_filename = arrays_filename[idx]
-print(idx)
+array_filename = arrays_filename[idx-1]
 
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
   element = np.array(f.readlines()).astype(float)
