@@ -38,10 +38,11 @@ class Generator(object):
   def save_array(self,array,array_path, delimiter):
     np.savetxt(array_path, array.ravel(), delimiter=delimiter)
 
-  def get_porosity(self,element):
-    voids = np.where(element == 0.0)[0].shape[0]
+  def get_porosity(self,geom):
+    voids = np.where(geom == 0.0)[0].shape[0]
 
-    return voids/(self.size**2)
+    return voids/(geom.shape[0]**2)
+
   def remove_isolated(self,arr,isolated):
 
     coords = []
@@ -310,7 +311,7 @@ class Generator(object):
 
     return unit
 
-  def check_unit(self,unit,tol):
+  def check_unit(self,unit,desired_porosity,tol):
     labels = measure.label(unit,connectivity=1)
     main_label = 0
     main_label_count = 0
@@ -322,7 +323,16 @@ class Generator(object):
         main_label = label
         main_label_count = label_count
 
-    if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] >(1.0-tol)*unit.shape[0]*unit.shape[0]:
+    void_count = 0
+    for label in range(1,len(np.unique(labels))):
+      if label not in [0,main_label]:
+        void_count += np.where(labels==label)[0].shape[0]
+        unit[np.where(labels==label)] = 0.
+    
+    porosity = self.get_porosity(unit)
+
+    if porosity > desired_porosity - tol and porosity < desired_porosity + tol:
+    # if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] > (1.0-tol)*unit.shape[0]*unit.shape[0]:
       for label in range(1,len(np.unique(labels))):
         if label not in [0,main_label]:
           unit[np.where(labels==label)] = 0.

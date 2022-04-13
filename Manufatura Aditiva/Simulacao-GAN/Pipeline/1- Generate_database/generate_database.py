@@ -20,9 +20,9 @@ def plot_geom(element, unit, arrange):
 # Input hyperparameters
 
 units = int(sys.argv[1]) #9
-simmetry = sys.argv[2] #p4/m/g
+simmetry = sys.argv[2] 
 size = int(sys.argv[3]) #16
-porosity = float(sys.argv[4])  #0.5
+desired_porosity = float(sys.argv[4]) 
 num_seeds = int(sys.argv[5]) 
 tol = float(sys.argv[6]) #0.02
 samples = int(sys.argv[7]) #10'000
@@ -62,7 +62,7 @@ try:
 except:
   pass
 
-gen = Generator(units, simmetry, size, porosity, num_seeds)
+gen = Generator(units, simmetry, size, desired_porosity, num_seeds)
 start = len(os.listdir(arrays_dir+simmetry))
 
 porosities = []
@@ -71,10 +71,9 @@ correct_samples = 0
 while correct_samples < samples:
   element = gen.create_element()
   unit = gen.create_unit(element)
-  passed, element = gen.check_unit(unit,tol)
+  passed, element = gen.check_unit(unit,desired_porosity,tol)
   porosity = np.float32(gen.get_porosity(element)).round(4)
   arrange = gen.create_arrange(unit)
-  # passed = True
   if passed:
     porosities.append(porosity)
     if plot:
