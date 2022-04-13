@@ -9,10 +9,10 @@ import time
 from multiprocessing import Process, freeze_support, Array
 import sys
 
-def simulation(simmetry, score, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin, dimension):
+def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin):
 
     stl_filename, vtk_filename = preproc(
-        vtk_dir, array_dir, score, idx_array, idx_file, simmetry, origin, dimension)
+        vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, score, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
+                    dimension, simmetry, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    simmetry, score, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, dimension,))
+                    dimension, simmetry, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
                 processes.append(process)
                 process.start()
                 process_count += 1
