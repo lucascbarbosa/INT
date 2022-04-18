@@ -94,7 +94,6 @@ class Generator(object):
       center_x = size_x // 2
       center_y = size_y // 2
 
-
       element = np.ones((size_y, size_x))
       ext_voids = 0
 
@@ -116,6 +115,8 @@ class Generator(object):
       for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
         element[seed_y,seed_x] = 0.
 
+      self.set_pixels(idxs[0].shape[0])
+
       while np.where(element==0)[0].shape[0] < self.num_void_pixels + ext_voids:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
@@ -134,6 +135,8 @@ class Generator(object):
 
       for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
         element[seed_x,seed_y] = 0.
+
+      self.set_pixels(element.shape[0]*element.shape[1])
       
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
