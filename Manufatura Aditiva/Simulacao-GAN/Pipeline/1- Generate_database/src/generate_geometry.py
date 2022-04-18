@@ -72,18 +72,6 @@ class Generator(object):
 
     return np.unique(np.array(coords),axis=0)
 
-  def filter_edge(self,arr):
-    arr_ = np.zeros(arr.shape)
-    for i in range(arr.shape[0]):
-        if arr[i,0] != 0 and arr[i,0] != 15 and arr[i,1] != 0 and arr[i,1] != 15:
-          arr_[i,:]= arr[i,:]
-
-    arr_ = arr_[np.where(arr_ != 0)]
-    arr_ = arr_.astype(np.uint8)
-    arr_ = arr_.reshape((int(arr_.shape[0]/2),2))
-    return arr_
-  
-    
   def create_element(self):
 
     if self.simmetry == 'p3':
@@ -95,7 +83,6 @@ class Generator(object):
       center_y = size_y // 2
 
       element = np.ones((size_y, size_x))
-      ext_voids = 0
 
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
@@ -104,7 +91,6 @@ class Generator(object):
 
           if pos_y > pos_x*np.sqrt(3)/3:
             element[i,j] = 0.
-            ext_voids += 1
 
       idxs = np.where(element==1)
       idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
@@ -117,7 +103,7 @@ class Generator(object):
 
       self.set_pixels(idxs[0].shape[0])
 
-      while np.where(element==0)[0].shape[0] < self.num_void_pixels + ext_voids:
+      while np.where(element==1)[0].shape[0] > self.num_solid_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
@@ -127,6 +113,45 @@ class Generator(object):
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
 
+      to_remove = self.remove_isolated(element,1.0)
+
+      try:
+        element[to_remove[:,0],to_remove[:,1]] = 0.0
+      except:
+        pass
+
+      to_remove = np.where(element==1)[0].shape[0] - self.num_solid_pixels
+
+      while to_remove > 1:
+        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(int)
+          contour_coords = np.unique(contour_coords, axis=0)
+          size = contour_coords.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 0.
+            to_remove -= 1
+            if to_remove < 1:
+              break
+      
+      to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
+
+      while to_add > 1:
+        contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(int)
+          contour_coords = np.unique(contour_coords, axis=0)
+          size = contour_coords.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 1.
+            to_add -= 1
+            if to_add < 1:
+              break
+      
     if self.simmetry == 'p4':
       
       element = np.ones((self.size,self.size))
@@ -162,7 +187,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -179,7 +203,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -223,7 +246,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -241,7 +263,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -286,7 +307,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -304,7 +324,6 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
-          contour_coords = self.filter_edge(contour_coords)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -318,6 +337,7 @@ class Generator(object):
     return element
 
   def create_unit(self,element):
+    if self.simmetry in ['p3']:
     if self.simmetry in ['p4']:
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
@@ -412,4 +432,3 @@ class Generator(object):
 
 gen = Generator(9, 'p3', 16, 0.5, 4)
 element = gen.create_element()
-gen.show_img(element, (6*np.sqrt(3),6))
