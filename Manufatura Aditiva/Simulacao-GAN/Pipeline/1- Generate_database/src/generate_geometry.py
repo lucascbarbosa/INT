@@ -338,6 +338,7 @@ class Generator(object):
 
   def create_unit(self,element):
     if self.simmetry in ['p3']:
+      
     if self.simmetry in ['p4']:
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
