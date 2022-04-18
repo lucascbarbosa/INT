@@ -6,7 +6,7 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
     angle = [0,45][idx_file]
     units = 9
     size = 16
-    
+
     if dimension == 2:
         command_vtk = "python src/generate_arrange_2d.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
         os.system(command_vtk)

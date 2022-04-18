@@ -143,16 +143,16 @@ arrays_filename = os.listdir(arrays_dir)
 
 units_per_row = int(np.sqrt(units))
 elements_per_row = int(np.sqrt(int(simmetry[1])))
-resolution = 16.
 thickness =  2.5e-3 # m
 
 arrange_size = 48e-3 # m
 unit_size = float(arrange_size/units_per_row) # m
 element_size = float(unit_size/elements_per_row) # m
-pixel_size = float(element_size/resolution)
+pixel_size = float(element_size/size)
 mag = int(log(len(arrays_filename),10)+3)
 
-array_filename = arrays_filename[idx]
+array_filename = arrays_filename[idx+1]
+
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array_dir = array_filename.split('_')[0]
     try:
@@ -160,7 +160,6 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     except:
         pass
     array = np.array(f.readlines()).astype(float)
-    array = array.reshape((int(resolution),int(resolution)))
-    # filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
-    filename = 'test.vtk'
+    array = array.reshape((int(size),int(size)))
+    filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
     generate_mesh(simmetry, filename)

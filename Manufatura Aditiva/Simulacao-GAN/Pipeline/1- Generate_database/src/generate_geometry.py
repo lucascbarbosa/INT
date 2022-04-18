@@ -11,18 +11,15 @@ from math import sqrt
 import sys
 
 class Generator(object):
-
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
     self.units = units
     self.simmetry = simmmetry
     self.size = size
     self.porosity = porosity
-    num_pixels = size**2
-    self.num_void_pixels = int(num_pixels*self.porosity)
-    self.num_solid_pixels = num_pixels-self.num_void_pixels
     self.num_seeds = num_seeds
 
-  def show_img(self,imgdata):
+  def show_img(self,imgdata, figsize):
+    plt.figure(figsize=figsize)
     plt.imshow(imgdata,cmap='Greys')
     plt.show()
 
@@ -34,6 +31,10 @@ class Generator(object):
     ax.imshow(imgdata,cmap='Greys')
     fig.savefig(img_path)
     plt.close(fig)
+
+  def set_pixels(self, total_pixels):
+    self.num_void_pixels = int(total_pixels*self.porosity)
+    self.num_solid_pixels = total_pixels-self.num_void_pixels
 
   def save_array(self,array,array_path, delimiter):
     np.savetxt(array_path, array.ravel(), delimiter=delimiter)
@@ -85,6 +86,46 @@ class Generator(object):
     
   def create_element(self):
 
+    if self.simmetry == 'p3':
+      
+      size_x = int(self.size*np.sqrt(3))
+      size_y = self.size
+
+      center_x = size_x // 2
+      center_y = size_y // 2
+
+
+      element = np.ones((size_y, size_x))
+      ext_voids = 0
+
+      for i in range(element.shape[0]):
+        for j in range(element.shape[1]):
+          pos_x = np.min([j, np.abs(size_x - j)])
+          pos_y = np.abs(center_y - i)
+
+          if pos_y > pos_x*np.sqrt(3)/3:
+            element[i,j] = 0.
+            ext_voids += 1
+
+      idxs = np.where(element==1)
+      idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
+      
+      seeds_y = idxs[0][idxs_choice]
+      seeds_x = idxs[1][idxs_choice]
+
+      for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
+        element[seed_y,seed_x] = 0.
+
+      while np.where(element==0)[0].shape[0] < self.num_void_pixels + ext_voids:
+        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
+          size = contour.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
+          new_voids_coords = contour_coords[new_voids_coords_idxs]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 0.
+
     if self.simmetry == 'p4':
       
       element = np.ones((self.size,self.size))
@@ -105,16 +146,14 @@ class Generator(object):
             element[new_void_coords[0],new_void_coords[1]] = 0.
 
       to_remove = self.remove_isolated(element,1.0)
-      
+
       try:
         element[to_remove[:,0],to_remove[:,1]] = 0.0
       except:
         pass
 
       to_remove = self.num_void_pixels - np.where(element==0)[0].shape[0]
-      # print('>before')
-      # print('to_remove = ',to_remove)
-    
+
       while to_remove > 1:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
@@ -131,7 +170,6 @@ class Generator(object):
               break
 
       to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
-      # print('to_add = ',to_add)
 
       while to_add > 1:
         contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
@@ -148,10 +186,6 @@ class Generator(object):
             if to_add < 1:
               break
 
-      # print('>after')
-      # print('to_remove = ',to_remove)
-      # print('to_add = ',to_add)
-    
     if self.simmetry == 'p4m':
       element = np.ones((self.size,self.size))
       seeds_x = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
@@ -372,3 +406,7 @@ class Generator(object):
             arrange[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
 
     return arrange
+
+gen = Generator(9, 'p3', 16, 0.5, 4)
+element = gen.create_element()
+gen.show_img(element, (6*np.sqrt(3),6))
