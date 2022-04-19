@@ -338,7 +338,28 @@ class Generator(object):
 
   def create_unit(self,element):
     if self.simmetry in ['p3']:
-      
+      size_x = int(self.size*np.sqrt(3))
+      size_y = 2*self.size      
+
+      center_x = size_x // 2
+      center_y = size_y //2 
+      print(center_x, center_y)
+      unit = np.zeros((size_y,size_x))
+      for i in range(element.shape[0]):
+        for j in range(element.shape[1]):
+          unit[i+size_y//2-1,j] = element[i,j]
+
+          vec = np.array([[j - center_x], [i]]) 
+          c1 = np.cos(2*np.pi/3)
+          s1 = np.sin(2*np.pi/3)
+          R1 = np.array([[c1, -s1],[s1,c1]])
+          vec1 = np.matmul(R1,vec)
+
+          i1 = int(np.round(vec1[1,0]) + center_y)
+          j1 = int(np.round(vec1[0,0]) + center_x)
+          
+          unit[i1,j1] = element[i,j]
+
     if self.simmetry in ['p4']:
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
@@ -433,3 +454,6 @@ class Generator(object):
 
 gen = Generator(9, 'p3', 16, 0.5, 4)
 element = gen.create_element()
+gen.show_img(element,(6*np.sqrt(3),6))
+unit = gen.create_unit(element)
+gen.show_img(unit,(6*np.sqrt(3),6))
