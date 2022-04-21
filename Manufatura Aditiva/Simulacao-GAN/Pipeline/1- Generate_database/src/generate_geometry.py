@@ -84,14 +84,16 @@ class Generator(object):
 
     return np.unique(np.array(coords),axis=0)
   
-  def get_ext_voids(self,size_x,center_y,i,j):
-      pos_x = np.min([j, np.abs(size_x - j)])
-      pos_y = np.abs(center_y - i)
-
-      if pos_y > pos_x*np.sqrt(3)/3:
-        return True
+  def get_ext_voids(self,center, size_x):
+      
+      if center[0] < 0:
+        pos = center - np.array([-size_x / 2, 0])
       else:
-        return False
+        pos = center - np.array([size_x / 2, 0])
+      
+      q = np.rad2deg(np.arctan(pos[1]/pos[0]))
+      
+      return np.abs(q) >= 30
 
   def create_element(self):
 
@@ -105,9 +107,22 @@ class Generator(object):
 
       element = np.ones((size_y, size_x))
 
+      hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+
+
+      size_x = np.round(max(hex_centers[:,0]) - min(hex_centers[:,0]),1)
+      size_y = np.round(max(hex_centers[:,1]) - min(hex_centers[:,1]),1)
+
+      origin = np.array(
+        [(max(hex_centers[:,0]) + min(hex_centers[:,0]))/2, 
+        (max(hex_centers[:,1]) + min(hex_centers[:,1]))/2])
+
+
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
-          if self.get_ext_voids(size_x, center_y, i, j):
+          idx = i*element.shape[1] + j
+          center = hex_centers[idx] - origin
+          if self.get_ext_voids(center, size_x):
             element[i,j] = 0.
 
       # idxs = np.where(element==1)
@@ -365,18 +380,16 @@ class Generator(object):
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
           if not self.get_ext_voids(size_x, self.size // 2, i, j):
-            unit[i,j] = element[i,j]
-            vec = np.array([[j - center_x], [i]]) 
-            c1 = np.cos(2*np.pi/3)
-            s1 = np.sin(2*np.pi/3)
+            # unit[i,j] = element[i,j]
+            vec = np.array([[j - center_x], [i - center_y]]) 
+            q = 2*np.pi/3
+            c1 = np.cos(q)
+            s1 = np.sin(q)
             R1 = np.array([[c1, -s1],[s1,c1]])
             vec1 = np.matmul(R1,vec)
-
-            i1 = int(np.ceil(vec1[1,0]) + center_y)
-            j1 = int(np.ceil(vec1[0,0]) + center_x)
-            
-            # unit[i1,j1] = element[i,j]
-      unit[0,0] = 0.0
+            j1 = int(np.ceil(vec1[0,0]) + center_x - 1)
+            i1 = int(np.ceil(vec1[1,0]) + center_y - 1)
+            unit[i1,j1] = element[i,j]
     if self.simmetry[:2] in ['p4']:
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
@@ -472,6 +485,6 @@ class Generator(object):
 gen = Generator(9, 'p3', 16, 0.5, 4)
 element = gen.create_element()
 gen.show_img(element,(6*np.sqrt(3),6))
-unit = gen.create_unit(element)
-gen.show_img(unit,(6*np.sqrt(3),6))
+# unit = gen.create_unit(element)
+# gen.show_img(unit,(6*np.sqrt(3),6))
 plt.show()
