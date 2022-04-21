@@ -308,8 +308,10 @@ class Generator(object):
     return arrange
 
 gen = Generator(9, 'p3', 16, 0.5, 6)
-element, centers_element = gen.create_element()
-gen.show_img(element,(6*np.sqrt(3),6))
-unit = gen.create_unit(element, centers_element)
-gen.show_img(unit,(6*np.sqrt(3),6))
-plt.show()
+for i in range(10):
+  element, centers_element = gen.create_element()
+  # gen.show_img(element,(6*np.sqrt(3),6))
+  unit = gen.create_unit(element, centers_element)
+  gen.show_img(unit,(6*np.sqrt(3),6))
+  plt.show()
+
