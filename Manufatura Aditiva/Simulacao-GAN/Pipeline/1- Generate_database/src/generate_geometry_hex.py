@@ -119,7 +119,7 @@ class Generator(object):
     s = np.sin(q)
     R = np.array([[c, -s],[s,c]])
     return R
-    
+
   def create_element(self):
 
     if self.simmetry == 'p3':
@@ -131,13 +131,13 @@ class Generator(object):
 
       hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
 
-      size, origin = self.get_size_origin(hex_centers)
+      element_size, element_origin = self.get_size_origin(hex_centers)
 
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
           idx = i*element.shape[1] + j
-          center = hex_centers[idx] - origin
-          if self.get_ext_voids(center, size[0]):
+          center = hex_centers[idx] - element_origin
+          if self.get_ext_voids(center, element_size[0]):
             element[i,j] = 0.
 
       idxs = np.where(element==1)
@@ -191,6 +191,16 @@ class Generator(object):
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(int)
           contour_coords = np.unique(contour_coords, axis=0)
+          # print(np.where(self.get_ext_voids(contour_coords,element_size[0])))
+          contour_coords_ = []
+          for contour_coord in contour_coords:
+            idx = contour_coord[0]*element.shape[1] + contour_coord[1]
+            center = hex_centers[idx] - element_origin
+            if not self.get_ext_voids(center, element_size[0]):
+              contour_coords_.append(contour_coord)
+          
+          contour_coords_ = np.array(contour_coords_).reshape((len(contour_coords_),2))
+          
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
           new_voids_coords = contour_coords[new_voids_coords_idxs,:]
@@ -200,7 +210,6 @@ class Generator(object):
             if to_add < 1:
               break
       
-
     return element, hex_centers
 
   def create_unit(self,element, centers_element):
@@ -221,12 +230,19 @@ class Generator(object):
           if not self.get_ext_voids(center_element, element_size[0]):
             unit[i,j] = element[i,j]
             center_unit = center_element  - centers_offset + unit_origin
+            
             q1 = 2*np.pi/3
             R1 = self.get_R(q1)
             center_unit1 = np.matmul(R1,center_unit)
             i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
             unit[i1,j1] = element[i,j]
 
+            q2 = -2*np.pi/3
+            R2 = self.get_R(q2)
+            center_unit2 = np.matmul(R2,center_unit)
+            i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
+            unit[i2,j2] = element[i,j]
+  
     return unit
 
   def check_unit(self,unit,desired_porosity,tol):
