@@ -22,12 +22,17 @@ class Generator(object):
   def show_img(self,imgdata, figsize):
     hex_centers,h_ax = create_hex_grid(nx=imgdata.shape[1], ny=imgdata.shape[0])
     arr = imgdata.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+
+    data_size, data_origin = self.get_size_origin(hex_centers)
+    
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [np.ones((1,3))*(int(self.get_ext_voids(hex_centers[i]-data_origin,data_size[0]))) for i in range(arr.shape[0])]
+
     plot_single_lattice_custom_colors(
         hex_centers[:, 0], 
         hex_centers[:, 1], 
-        face_color=colors,
-        edge_color=colors,
+        face_color=colors_face,
+        edge_color=colors_edge,
         min_diam=1.,
         plotting_gap=0,
         rotate_deg=0)
@@ -124,7 +129,7 @@ class Generator(object):
 
     if self.simmetry == 'p3':
       
-      size_x = int(self.size*np.sqrt(3))
+      size_x = int(self.size*np.sqrt(3)) - 4
       size_y = self.size
 
       element = np.ones((size_y, size_x))
@@ -132,6 +137,7 @@ class Generator(object):
       hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
 
       element_size, element_origin = self.get_size_origin(hex_centers)
+      print(element_size[0]/element_size[1])
 
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
@@ -140,75 +146,75 @@ class Generator(object):
           if self.get_ext_voids(center, element_size[0]):
             element[i,j] = 0.
 
-      idxs = np.where(element==1)
-      idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
+      # idxs = np.where(element==1)
+      # idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
       
-      seeds_y = idxs[0][idxs_choice]
-      seeds_x = idxs[1][idxs_choice]
+      # seeds_y = idxs[0][idxs_choice]
+      # seeds_x = idxs[1][idxs_choice]
 
-      for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
-        element[seed_y,seed_x] = 0.
+      # for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
+      #   element[seed_y,seed_x] = 0.
 
-      self.set_pixels(idxs[0].shape[0])
+      # self.set_pixels(idxs[0].shape[0])
 
-      while np.where(element==1)[0].shape[0] > self.num_solid_pixels:
-        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
-        for _, contour in enumerate(contours):
-          contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
-          size = contour.shape[0]
-          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
-          new_voids_coords = contour_coords[new_voids_coords_idxs]
-          for new_void_coords in new_voids_coords:
-            element[new_void_coords[0],new_void_coords[1]] = 0.
+      # while np.where(element==1)[0].shape[0] > self.num_solid_pixels:
+      #   contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+      #   for _, contour in enumerate(contours):
+      #     contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
+      #     size = contour.shape[0]
+      #     new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
+      #     new_voids_coords = contour_coords[new_voids_coords_idxs]
+      #     for new_void_coords in new_voids_coords:
+      #       element[new_void_coords[0],new_void_coords[1]] = 0.
 
-      to_remove = self.remove_isolated(element,1.0)
+      # to_remove = self.remove_isolated(element,1.0)
 
-      try:
-        element[to_remove[:,0],to_remove[:,1]] = 0.0
-      except:
-        pass
+      # try:
+      #   element[to_remove[:,0],to_remove[:,1]] = 0.0
+      # except:
+      #   pass
 
-      to_remove = np.where(element==1)[0].shape[0] - self.num_solid_pixels
+      # to_remove = np.where(element==1)[0].shape[0] - self.num_solid_pixels
 
-      while to_remove > 1:
-        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
-        for _, contour in enumerate(contours):
-          contour_coords = np.around(contour.astype(np.double)).astype(int)
-          contour_coords = np.unique(contour_coords, axis=0)
-          size = contour_coords.shape[0]
-          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
-          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
-          for new_void_coords in new_voids_coords:
-            element[new_void_coords[0],new_void_coords[1]] = 0.
-            to_remove -= 1
-            if to_remove < 1:
-              break
+      # while to_remove > 1:
+      #   contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+      #   for _, contour in enumerate(contours):
+      #     contour_coords = np.around(contour.astype(np.double)).astype(int)
+      #     contour_coords = np.unique(contour_coords, axis=0)
+      #     size = contour_coords.shape[0]
+      #     new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+      #     new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+      #     for new_void_coords in new_voids_coords:
+      #       element[new_void_coords[0],new_void_coords[1]] = 0.
+      #       to_remove -= 1
+      #       if to_remove < 1:
+      #         break
       
-      to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
+      # to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
 
-      while to_add > 1:
-        contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
-        for _, contour in enumerate(contours):
-          contour_coords = np.around(contour.astype(np.double)).astype(int)
-          contour_coords = np.unique(contour_coords, axis=0)
-          # print(np.where(self.get_ext_voids(contour_coords,element_size[0])))
-          contour_coords_ = []
-          for contour_coord in contour_coords:
-            idx = contour_coord[0]*element.shape[1] + contour_coord[1]
-            center = hex_centers[idx] - element_origin
-            if not self.get_ext_voids(center, element_size[0]):
-              contour_coords_.append(contour_coord)
+      # while to_add > 1:
+      #   contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+      #   for _, contour in enumerate(contours):
+      #     contour_coords = np.around(contour.astype(np.double)).astype(int)
+      #     contour_coords = np.unique(contour_coords, axis=0)
+      #     # print(np.where(self.get_ext_voids(contour_coords,element_size[0])))
+      #     contour_coords_ = []
+      #     for contour_coord in contour_coords:
+      #       idx = contour_coord[0]*element.shape[1] + contour_coord[1]
+      #       center = hex_centers[idx] - element_origin
+      #       if not self.get_ext_voids(center, element_size[0]):
+      #         contour_coords_.append(contour_coord)
           
-          contour_coords_ = np.array(contour_coords_).reshape((len(contour_coords_),2))
+      #     contour_coords_ = np.array(contour_coords_).reshape((len(contour_coords_),2))
           
-          size = contour_coords.shape[0]
-          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
-          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
-          for new_void_coords in new_voids_coords:
-            element[new_void_coords[0],new_void_coords[1]] = 1.
-            to_add -= 1
-            if to_add < 1:
-              break
+      #     size = contour_coords.shape[0]
+      #     new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+      #     new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+      #     for new_void_coords in new_voids_coords:
+      #       element[new_void_coords[0],new_void_coords[1]] = 1.
+      #       to_add -= 1
+      #       if to_add < 1:
+      #         break
       
     return element, hex_centers
 
@@ -244,6 +250,54 @@ class Generator(object):
             unit[i2,j2] = element[i,j]
   
     return unit
+  
+  def check_element(self, element, centers_element):
+    edge_left = 0.
+    edge_rigth = 0.
+    idxs_bl = []
+    idxs_br = []
+    idxs_tl = []
+    idxs_tr = []
+
+    element_size, element_origin = self.get_size_origin(centers_element)
+
+    for i in range(element.shape[0]):
+      for j in range(element.shape[1]):
+        edge_left = edge_rigth
+        idx = i*element.shape[1] + j
+        center = centers_element[idx] - element_origin
+        if self.get_ext_voids(center, element_size[0]):
+          edge_rigth = 0.
+        else:
+          edge_rigth = 1.
+        if edge_left + edge_rigth == 1:
+          if center[0] < element_origin[0] and center[1] < element_origin[1]:
+            idxs_bl.append([i,j])
+          if center[0] > element_origin[0] and center[1] < element_origin[1]:
+            idxs_br.append([i,j])
+          if center[0] < element_origin[0] and center[1] > element_origin[1]:
+            idxs_tl.append([i,j])
+          if center[0] > element_origin[0] and center[1] > element_origin[1]:
+            idxs_tr.append([i,j])
+
+    solids_tl = 0
+    solids_tr = 0
+    solids_bl = 0
+    solids_br = 0
+
+    for idx_tl in idxs_tl:
+      solids_tl += element[idx_tl[0], idx_tl[1]]
+    for idx_tr in idxs_tr:
+      solids_tr += element[idx_tr[0], idx_tr[1]]
+    for idx_bl in idxs_bl:
+      solids_bl += element[idx_bl[0], idx_bl[1]]
+    for idx_br in idxs_br:
+      solids_br += element[idx_br[0], idx_br[1]]
+    
+    print(solids_tl)
+    print(solids_tr)
+    print(solids_bl)
+    print(solids_br)
 
   def check_unit(self,unit,desired_porosity,tol):
     labels = measure.label(unit,connectivity=1)
@@ -308,10 +362,11 @@ class Generator(object):
     return arrange
 
 gen = Generator(9, 'p3', 16, 0.5, 6)
-for i in range(10):
+for i in range(1):
   element, centers_element = gen.create_element()
-  # gen.show_img(element,(6*np.sqrt(3),6))
-  unit = gen.create_unit(element, centers_element)
-  gen.show_img(unit,(6*np.sqrt(3),6))
+  gen.show_img(element,(6*np.sqrt(3),6))
+  gen.check_element(element, centers_element)
+  # unit = gen.create_unit(element, centers_element)
+  # gen.show_img(unit,(6*np.sqrt(3),6))
   plt.show()
 
