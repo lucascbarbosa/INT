@@ -275,13 +275,18 @@ class Generator(object):
           edge_filter[2] = 1.
         if sum(edge_filter) in [1, 2]:
           print(edge_filter)
+          print(center)
           if center[0] < element_origin[0] and center[1] < element_origin[1]:
+            print('bl')
             idxs_bl.append([i,j])
           if center[0] > element_origin[0] and center[1] < element_origin[1]:
+            print('br')
             idxs_br.append([i,j])
           if center[0] < element_origin[0] and center[1] > element_origin[1]:
+            print('tl')
             idxs_tl.append([i,j])
           if center[0] > element_origin[0] and center[1] > element_origin[1]:
+            print('tr')
             idxs_tr.append([i,j])
 
     solids_tl = 0
