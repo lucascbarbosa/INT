@@ -261,16 +261,20 @@ class Generator(object):
 
     element_size, element_origin = self.get_size_origin(centers_element)
 
+    edge_filter = [0, 0, 0]
+
     for i in range(element.shape[0]):
       for j in range(element.shape[1]):
-        edge_left = edge_rigth
+        edge_filter[0] = edge_filter[1]
+        edge_filter[1] = edge_filter[2]
         idx = i*element.shape[1] + j
         center = centers_element[idx] - element_origin
         if self.get_ext_voids(center, element_size[0]):
-          edge_rigth = 0.
+          edge_filter[2] = 0.
         else:
-          edge_rigth = 1.
-        if edge_left + edge_rigth == 1:
+          edge_filter[2] = 1.
+        if sum(edge_filter) in [1, 2]:
+          print(edge_filter)
           if center[0] < element_origin[0] and center[1] < element_origin[1]:
             idxs_bl.append([i,j])
           if center[0] > element_origin[0] and center[1] < element_origin[1]:
@@ -288,13 +292,18 @@ class Generator(object):
     for idx_tl in idxs_tl:
       solids_tl += element[idx_tl[0], idx_tl[1]]
     for idx_tr in idxs_tr:
-      solids_tr += element[idx_tr[0], idx_tr[1]]
+      solids_tr += element[idx_tr[0]-1, idx_tr[1]]
     for idx_bl in idxs_bl:
       solids_bl += element[idx_bl[0], idx_bl[1]]
     for idx_br in idxs_br:
-      solids_br += element[idx_br[0], idx_br[1]]
+      solids_br += element[idx_br[0]+1, idx_br[1]]
     
-    print(solids_tl)
+    # print(idxs_tl)
+    # print(idxs_tr)
+    # print(idxs_bl)
+    # print(idxs_br)
+  
+    print(solids_tl)  
     print(solids_tr)
     print(solids_bl)
     print(solids_br)
