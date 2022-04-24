@@ -269,14 +269,16 @@ class Generator(object):
         edge_filter[1] = edge_filter[2]
         idx = i*element.shape[1] + j
         center = centers_element[idx] - element_origin
+        
         if self.get_ext_voids(center, element_size[0]):
           edge_filter[2] = 0.
         else:
           edge_filter[2] = 1.
+
         if sum(edge_filter) in [1, 2]:
           print(edge_filter)
-          print(center)
           if center[0] < element_origin[0] and center[1] < element_origin[1]:
+            print(center)
             print('bl')
             idxs_bl.append([i,j])
           if center[0] > element_origin[0] and center[1] < element_origin[1]:
