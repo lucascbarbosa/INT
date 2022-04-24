@@ -137,7 +137,6 @@ class Generator(object):
       hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
 
       element_size, element_origin = self.get_size_origin(hex_centers)
-      print(element_size[0]/element_size[1])
 
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
@@ -205,7 +204,7 @@ class Generator(object):
             if not self.get_ext_voids(center, element_size[0]):
               contour_coords_.append(contour_coord)
           
-          contour_coords_ = np.array(contour_coords_).reshape((len(contour_coords_),2))
+          contour_coords = np.array(contour_coords_).reshape((len(contour_coords_),2))
           
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
@@ -252,8 +251,6 @@ class Generator(object):
     return unit
   
   def check_element(self, element, centers_element):
-    edge_left = 0.
-    edge_rigth = 0.
     idxs_bl = []
     idxs_br = []
     idxs_tl = []
@@ -308,10 +305,13 @@ class Generator(object):
     for idx_br in idxs_br:
       solids_br += element[idx_br[0], idx_br[1]]
     
+    print(idxs_bl)
+    print(idxs_br)
+    
     print('tl = %s' %solids_tl)  
     print('tr = %s' %solids_tr)
     print('bl = %s' %solids_bl)
-    print('br = %s' %solids_br)
+    print('br = %s\n' %solids_br)
 
   def check_unit(self,unit,desired_porosity,tol):
     labels = measure.label(unit,connectivity=1)
@@ -376,7 +376,7 @@ class Generator(object):
     return arrange
 
 gen = Generator(9, 'p3', 16, 0.5, 6)
-for i in range(1):
+for i in range(10):
   element, centers_element = gen.create_element()
   gen.show_img(element,(6*np.sqrt(3),6))
   gen.check_element(element, centers_element)
