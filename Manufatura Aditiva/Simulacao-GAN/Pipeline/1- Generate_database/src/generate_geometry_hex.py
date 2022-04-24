@@ -275,21 +275,31 @@ class Generator(object):
         else:
           edge_filter[2] = 1.
 
-        if sum(edge_filter) in [1, 2]:
-          print(edge_filter)
+        if sum(edge_filter) in [1,2]:
+          if edge_filter[0]  == 0:
+            coords = [i, j]
+            idx = i*element.shape[1] + j
+          elif edge_filter[0] == 1:
+            coords = [i-2, j]
+            idx = (i-2)*element.shape[1] + j
+          
+          center = centers_element[idx] - element_origin
+          
           if center[0] < element_origin[0] and center[1] < element_origin[1]:
-            print(center)
             print('bl')
-            idxs_bl.append([i,j])
+            idxs_bl.append(coords)
           if center[0] > element_origin[0] and center[1] < element_origin[1]:
             print('br')
-            idxs_br.append([i,j])
+            idxs_br.append(coords)
           if center[0] < element_origin[0] and center[1] > element_origin[1]:
             print('tl')
-            idxs_tl.append([i,j])
+            idxs_tl.append(coords)
           if center[0] > element_origin[0] and center[1] > element_origin[1]:
             print('tr')
-            idxs_tr.append([i,j])
+            idxs_tr.append(coords)
+            
+          print(edge_filter)
+          print(center)
 
     solids_tl = 0
     solids_tr = 0
