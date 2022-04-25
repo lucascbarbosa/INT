@@ -57,7 +57,7 @@ class Generator(object):
     np.savetxt(array_path, array.ravel(), delimiter=delimiter)
 
   def get_porosity(self,geom, total_pixels):
-    voids = np.where(geom == 0.0)[0].shape[0]
+    voids = total_pixels - np.where(geom == 1)[0].shape[0]
 
     return voids/total_pixels
 
@@ -89,8 +89,8 @@ class Generator(object):
 
     return np.unique(np.array(coords),axis=0)
   
-  def get_ext_voids(self,center, size_x):
-      
+  def get_ext_voids(self,center, size_x, hierarchy):
+    if hierarchy == 'element':
       if center[0] < 0:
         pos = center - np.array([-size_x / 2, 0])
       else:
@@ -99,6 +99,9 @@ class Generator(object):
       q = np.rad2deg(np.arctan(pos[1]/pos[0]))
       
       return np.abs(q) >= 30
+    
+    elif hierarchy == 'unit':
+      radius = size_x // 2
 
   def get_size_origin(self,centers):
     size = np.array(
@@ -129,7 +132,7 @@ class Generator(object):
 
     if self.simmetry == 'p3':
       
-      size_x = int(self.size*np.sqrt(3)) - 4
+      size_x = int(self.size*np.sqrt(3)) - 2
       size_y = self.size
 
       element = np.ones((size_y, size_x))
@@ -154,7 +157,6 @@ class Generator(object):
       for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
         element[seed_y,seed_x] = 0.
 
-      print(idxs[0].shape[0]/(element.shape[0]*element.shape[1]))
       self.set_pixels(idxs[0].shape[0])
 
       while np.where(element==1)[0].shape[0] > self.num_solid_pixels:
@@ -167,8 +169,7 @@ class Generator(object):
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
       
-      porosity = self.get_porosity(element)
-      print(porosity)
+      porosity = self.get_porosity(element, idxs[0].shape[0])
       
       to_remove = self.remove_isolated(element,1.0)
 
@@ -219,10 +220,7 @@ class Generator(object):
             if to_add < 1:
               break
     
-    porosity = self.get_porosity(element)
-    print(porosity)
-      
-    return element, hex_centers
+    return element, hex_centers, idxs[0].shape[0]
 
   def create_unit(self,element, centers_element):
     if self.simmetry[:2] in ['p3']:
@@ -255,14 +253,14 @@ class Generator(object):
             i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
             unit[i2,j2] = element[i,j]
   
-    return unit
+    return unit, centers_unit
   
-  def check_element(self, element, centers_element):
+  def check_element(self, element, centers_element, total_pixels, desired_porosity, tol=0.02):
 
     labels = measure.label(element,connectivity=1)
     main_label = 0
     main_label_count = 0
-    passed = True
+    passed = False
 
     for label in range(1,len(np.unique(labels))):
       label_count = np.where(labels==label)[0].shape[0]
@@ -270,8 +268,7 @@ class Generator(object):
         main_label = label
         main_label_count = label_count
     
-    # porosity = self.get_porosity(element)
-    # print(porosity)
+    porosity = self.get_porosity(element, total_pixels)
 
     void_count = 0
     for label in range(1,len(np.unique(labels))):
@@ -279,105 +276,65 @@ class Generator(object):
         void_count += np.where(labels==label)[0].shape[0]
         element[np.where(labels==label)] = 0.
     
-    # porosity = self.get_porosity(element)
-    # print(porosity)
+    porosity = self.get_porosity(element,  total_pixels)
 
-    idxs_tl = []
-    idxs_tr = []
+    if porosity <= desired_porosity + tol and porosity >= desired_porosity - tol:
+      idxs_tl = []
+      idxs_tr = []
 
-    element_size, element_origin = self.get_size_origin(centers_element)
+      element_size, element_origin = self.get_size_origin(centers_element)
 
-    edge_filter = [0, 0, 0]
+      edge_filter = [0, 0, 0]
 
-    for i in range(element.shape[0]):
-      for j in range(element.shape[1]):
-        edge_filter[0] = edge_filter[1]
-        edge_filter[1] = edge_filter[2]
-        idx = i*element.shape[1] + j
-        center = centers_element[idx] - element_origin
-        
-        if self.get_ext_voids(center, element_size[0]):
-          edge_filter[2] = 0.
-        else:
-          edge_filter[2] = 1.
-
-        if sum(edge_filter) in [1,2]:
-          if edge_filter[0]  == 0:
-            coords = [i, j]
-            idx = i*element.shape[1] + j
-          elif edge_filter[0] == 1:
-            coords = [i, j-2]
-            idx = i*element.shape[1] + j - 2
-          
+      for i in range(element.shape[0]):
+        for j in range(element.shape[1]):
+          edge_filter[0] = edge_filter[1]
+          edge_filter[1] = edge_filter[2]
+          idx = i*element.shape[1] + j
           center = centers_element[idx] - element_origin
           
-          if center[0] < element_origin[0] and center[1] > element_origin[1]:
-            idxs_tl.append(coords)
-          if center[0] > element_origin[0] and center[1] > element_origin[1]:
-            idxs_tr.append(coords)
+          if self.get_ext_voids(center, element_size[0]):
+            edge_filter[2] = 0.
+          else:
+            edge_filter[2] = 1.
 
-    idxs_tl = np.array(idxs_tl).reshape((len(idxs_tl),2))
-    idxs_tr = np.array(idxs_tr).reshape((len(idxs_tr),2))
+          if sum(edge_filter) in [1,2]:
+            if edge_filter[0]  == 0:
+              coords = [i, j]
+              idx = i*element.shape[1] + j
+            elif edge_filter[0] == 1:
+              coords = [i, j-2]
+              idx = i*element.shape[1] + j - 2
+            
+            center = centers_element[idx] - element_origin
+            
+            if center[0] < element_origin[0] and center[1] > element_origin[1]:
+              idxs_tl.append(coords)
+            if center[0] > element_origin[0] and center[1] > element_origin[1]:
+              idxs_tr.append(coords)
 
-    passed = False
+      idxs_tl = np.array(idxs_tl).reshape((len(idxs_tl),2))
+      idxs_tr = np.array(idxs_tr).reshape((len(idxs_tr),2))
 
-    for i in range(element.shape[0]//2,element.shape[0]-1):
-      idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
-      idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
-      if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
-        passed = True
+      passed = False
 
-    return passed
-
-  def check_unit(self,unit,desired_porosity,tol):
-    labels = measure.label(unit,connectivity=1)
-    main_label = 0
-    main_label_count = 0
-    passed = True
-
-    for label in range(1,len(np.unique(labels))):
-      label_count = np.where(labels==label)[0].shape[0]
-      if label_count > main_label_count:
-        main_label = label
-        main_label_count = label_count
-
-    void_count = 0
-    for label in range(1,len(np.unique(labels))):
-      if label not in [0,main_label]:
-        void_count += np.where(labels==label)[0].shape[0]
-        unit[np.where(labels==label)] = 0.
-    
-    porosity = self.get_porosity(unit)
-
-    if porosity > desired_porosity - tol and porosity < desired_porosity + tol:
-    # if np.where(labels==0)[0].shape[0]+np.where(labels==main_label)[0].shape[0] > (1.0-tol)*unit.shape[0]*unit.shape[0]:
-      for label in range(1,len(np.unique(labels))):
-        if label not in [0,main_label]:
-          unit[np.where(labels==label)] = 0.
-
-      if unit[0,:].sum() > 0 and unit[:,0].sum() > 0:
-        # check if there is connectivity right-left
-        connections_rl = 0
-        for i in range(unit.shape[0]):
-          if (unit[i,0] == 1 and unit[i,-1] == 1):
-            connections_rl += 1
-
-        # check if there is connectivity top-bottom
-        connections_tb = 0
-        for j in range(unit.shape[1]):
-          if (unit[0,j] == 1 and unit[i,-1] == 1):
-            connections_tb += 1
-
-        if connections_rl == 0 or connections_tb == 0:
-          passed = False
-        
-      else:
-        passed = False
-        
+      for i in range(element.shape[0]//2,element.shape[0]-1):
+        idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
+        idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
+        if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
+          passed = True
     else:
       passed = False
 
-    return passed, unit[int(unit.shape[0]/2):,:int(unit.shape[0]/2)]
+    return passed
+
+  def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
+   
+    unit_size, unit_origin = self.get_size_origin(centers_unit)
+    print(unit_size)
+
+    edge_filter = [0, 0, 0]
+    # return passed, unit[int(unit.shape[0]/2):,:int(unit.shape[0]/2)]
 
   def create_arrange(self,unit):
     cols = rows = int(sqrt(self.units))
@@ -391,16 +348,23 @@ class Generator(object):
 
     return arrange
 
-gen = Generator(9, 'p3', 16, 0.5, 6)
-size = 10
+units = 9
+simmetry = 'p3'
+size =  16
+desired_porosity = 0.5
+seeds = 6
+gen = Generator(units, simmetry, size, desired_porosity, seeds)
+
+size = 1
 for i in range(size):
   passed = False
   while passed == False:
-    element, centers_element = gen.create_element()
-    passed = gen.check_element(element, centers_element)
+    element, centers_element, total_pixels = gen.create_element()
+    passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
 
-  unit = gen.create_unit(element, centers_element)
-  gen.show_img(element,(6*np.sqrt(3),6))
+  unit, centers_unit= gen.create_unit(element, centers_element)
+  gen.check_unit(unit, centers_unit, desired_porosity)
+  # gen.show_img(element,(6*np.sqrt(3),6))
   gen.show_img(unit,(6*np.sqrt(3),6))
   plt.show()
 
