@@ -26,7 +26,7 @@ class Generator(object):
     data_size, data_origin = self.get_size_origin(hex_centers)
     
     colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    # colors_edge = [np.ones((1,3))*(int(self.get_ext_voids(hex_centers[i]-data_origin,data_size[0]))) for i in range(arr.shape[0])]
+    colors_edge = [np.ones((1,3))*(int(self.get_ext_voids(hex_centers[i]-data_origin,data_size[0]))) for i in range(arr.shape[0])]
 
     plot_single_lattice_custom_colors(
         hex_centers[:, 0], 
@@ -129,11 +129,9 @@ class Generator(object):
     if self.simmetry == 'p3':
       
       self.element_shape = np.array([
-        int(self.size*np.sqrt(3)) - 4,
-        self.size
+        self.size,
+        int(self.size*np.sqrt(3)) - 4
       ])
-
-      print(self.element_shape)
 
       element = np.ones((self.element_shape[0], self.element_shape[1]))
 
@@ -227,7 +225,6 @@ class Generator(object):
       
       unit = np.zeros((2*element.shape[0],element.shape[1]))
       self.unit_shape = unit.shape
-      print(self.unit_shape)
 
       centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
 
@@ -265,11 +262,12 @@ class Generator(object):
     labels = measure.label(element,connectivity=1)
     main_label = 0
     main_label_count = 0
-    passed = False
     idxs_tl = []
     idxs_tr = []
     idxs_bl = []
     idxs_br = []
+    passed_top = False
+    passed_bottom = False
 
     for label in range(1,len(np.unique(labels))):
       label_count = np.where(labels==label)[0].shape[0]
@@ -330,21 +328,21 @@ class Generator(object):
       idxs_bl = np.array(idxs_bl).reshape((len(idxs_bl),2))
       idxs_br = np.array(idxs_br).reshape((len(idxs_br),2))
 
-      passed = False
+      for i in range(1, element.shape[0]//2):
+        idxs_bl_ = idxs_bl[np.where(idxs_bl[:,0] == i)]
+        idxs_br_ = idxs_br[np.where(idxs_br[:,0] == i)]
+        #  the bottom r-l connection must be satisfied to validate the unit
+        if element[idxs_bl_[0,0],idxs_bl_[0,1]] == 1 and element[idxs_br_[-1,0],idxs_br_[-1,1]] == 1:
+          passed_bottom = True
 
       for i in range(element.shape[0]//2,element.shape[0]-1):
         idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
         idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
-        # the top r-l connection must be satisfied to validate the element. the bottom r-l connection must be satisfied to validate the unit
-        idxs_bl_ = idxs_bl[np.where(idxs_bl[:,0] == i)]
-        idxs_br_ = idxs_br[np.where(idxs_br[:,0] == i)]
-        # if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1 and element[idxs_bl_[0,0],idxs_bl_[0,1]] == 1 and element[idxs_br_[-1,0],idxs_br_[-1,1]] == 1:
+        # the top r-l connection must be satisfied to validate the element
         if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
-          passed = True
-    else:
-      passed = False
+          passed_top = True
 
-    return passed
+    return passed_top and passed_bottom
 
   # def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
 
@@ -358,7 +356,7 @@ class Generator(object):
       for j in range(w):
         for k in range(rows):
           for l in range(cols):
-            arrange[i+k*unit.shape[0],j+l*unit.shape[1]] = unit[i,j]
+            arrange[i+k*self.unit_shape[0],j+l*self.unit_shape[1]] = unit[i,j]
 
     return arrange
 
@@ -376,11 +374,12 @@ for i in range(size):
     element, centers_element, total_pixels = gen.create_element()
     passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
 
+  gen.show_img(element,(6*np.sqrt(3),6))
+  
   unit, centers_unit= gen.create_unit(element, centers_element)
-  arrange = gen.create_arrange(unit, units)
-  # gen.check_unit(unit, centers_unit, desired_porosity)
-  # gen.show_img(element,(6*np.sqrt(3),6))
   gen.show_img(unit,(6*np.sqrt(3),6))
+
+  arrange = gen.create_arrange(unit, units)
   gen.show_img(arrange,(6*np.sqrt(3),6))
   plt.show()
 
