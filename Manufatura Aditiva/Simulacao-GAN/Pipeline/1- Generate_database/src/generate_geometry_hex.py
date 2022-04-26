@@ -218,7 +218,7 @@ class Generator(object):
     
     return element, hex_centers, idxs[0].shape[0]
 
-  def create_unit(self, element, centers_element, idxs_bl, idxs_br):
+  def create_unit(self, element, centers_element):
     if self.simmetry[:2] in ['p3']:
       
       element_size, element_origin = self.get_size_origin(centers_element)
@@ -331,23 +331,21 @@ class Generator(object):
       for i in range(element.shape[0]//2,element.shape[0]-1):
         idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
         idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
+        # the top r-l connection must be satisfied to validate the element. the bottom r-l connection must be satisfied to validate the unit
+        idxs_bl_ = idxs_bl[np.where(idxs_bl[:,0] == i)]
+        idxs_br_ = idxs_br[np.where(idxs_br[:,0] == i)]
+        # if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1 and element[idxs_bl_[0,0],idxs_bl_[0,1]] == 1 and element[idxs_br_[-1,0],idxs_br_[-1,1]] == 1:
         if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
           passed = True
     else:
       passed = False
 
-    return passed, idxs_br, idxs_bl
+    return passed
 
-  def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
-   
-    unit_size, unit_origin = self.get_size_origin(centers_unit)
-    print(unit_size)
+  # def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
 
-    edge_filter = [0, 0, 0]
-    # return passed, unit[int(unit.shape[0]/2):,:int(unit.shape[0]/2)]
-
-  def create_arrange(self,unit):
-    cols = rows = int(sqrt(self.units))
+  def create_arrange(self, unit, units):
+    
     arrange = np.ones((cols*self.unit_size,cols*self.unit_size))
     h,w = unit.shape
     for i in range(h):
@@ -370,11 +368,11 @@ for i in range(size):
   passed = False
   while passed == False:
     element, centers_element, total_pixels = gen.create_element()
-    passed, idxs_br, idxs_bl = gen.check_element(element, centers_element, total_pixels, desired_porosity)
-    print(idxs_br,idxs_bl)
+    passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
+    print(passed)
 
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.check_unit(unit, centers_unit, desired_porosity, idxs_bl,  idxs_br)
+  # gen.check_unit(unit, centers_unit, desired_porosity)
   # gen.show_img(element,(6*np.sqrt(3),6))
   gen.show_img(unit,(6*np.sqrt(3),6))
   plt.show()
