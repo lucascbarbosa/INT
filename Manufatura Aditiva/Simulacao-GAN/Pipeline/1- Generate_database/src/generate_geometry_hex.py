@@ -128,10 +128,14 @@ class Generator(object):
 
     if self.simmetry == 'p3':
       
-      size_x = int(self.size*np.sqrt(3)) - 2
-      size_y = self.size
+      self.element_shape = np.array([
+        int(self.size*np.sqrt(3)) - 4,
+        self.size
+      ])
 
-      element = np.ones((size_y, size_x))
+      print(self.element_shape)
+
+      element = np.ones((self.element_shape[0], self.element_shape[1]))
 
       hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
 
@@ -164,8 +168,6 @@ class Generator(object):
           new_voids_coords = contour_coords[new_voids_coords_idxs]
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
-      
-      porosity = self.get_porosity(element, idxs[0].shape[0])
       
       to_remove = self.remove_isolated(element,1.0)
 
@@ -224,6 +226,8 @@ class Generator(object):
       element_size, element_origin = self.get_size_origin(centers_element)
       
       unit = np.zeros((2*element.shape[0],element.shape[1]))
+      self.unit_shape = unit.shape
+      print(self.unit_shape)
 
       centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
 
@@ -345,14 +349,16 @@ class Generator(object):
   # def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
 
   def create_arrange(self, unit, units):
+    rows = int(np.sqrt(units)) + 1
+    cols = int(np.sqrt(units)) + 1
     
-    arrange = np.ones((cols*self.unit_size,cols*self.unit_size))
+    arrange = np.ones((rows*self.unit_shape[0],cols*self.unit_shape[1]))
     h,w = unit.shape
     for i in range(h):
       for j in range(w):
         for k in range(rows):
           for l in range(cols):
-            arrange[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
+            arrange[i+k*unit.shape[0],j+l*unit.shape[1]] = unit[i,j]
 
     return arrange
 
@@ -363,17 +369,18 @@ desired_porosity = 0.5
 seeds = 6
 gen = Generator(units, simmetry, size, desired_porosity, seeds)
 
-size = 1
+size = 10
 for i in range(size):
   passed = False
   while passed == False:
     element, centers_element, total_pixels = gen.create_element()
     passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
-    print(passed)
 
   unit, centers_unit= gen.create_unit(element, centers_element)
+  arrange = gen.create_arrange(unit, units)
   # gen.check_unit(unit, centers_unit, desired_porosity)
   # gen.show_img(element,(6*np.sqrt(3),6))
   gen.show_img(unit,(6*np.sqrt(3),6))
+  gen.show_img(arrange,(6*np.sqrt(3),6))
   plt.show()
 
