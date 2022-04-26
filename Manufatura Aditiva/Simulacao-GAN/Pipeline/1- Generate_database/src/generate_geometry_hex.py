@@ -89,20 +89,16 @@ class Generator(object):
 
     return np.unique(np.array(coords),axis=0)
   
-  def get_ext_voids(self,center, size_x, hierarchy):
-    if hierarchy == 'element':
-      if center[0] < 0:
-        pos = center - np.array([-size_x / 2, 0])
-      else:
-        pos = center - np.array([size_x / 2, 0])
-      
-      q = np.rad2deg(np.arctan(pos[1]/pos[0]))
-      
-      return np.abs(q) >= 30
+  def get_ext_voids(self,center, size_x):
+    if center[0] < 0:
+      pos = center - np.array([-size_x / 2, 0])
+    else:
+      pos = center - np.array([size_x / 2, 0])
     
-    elif hierarchy == 'unit':
-      radius = size_x // 2
-
+    q = np.rad2deg(np.arctan(pos[1]/pos[0]))
+    
+    return np.abs(q) >= 30
+  
   def get_size_origin(self,centers):
     size = np.array(
         [np.round(max(centers[:,0]) - min(centers[:,0]),1),
@@ -222,7 +218,7 @@ class Generator(object):
     
     return element, hex_centers, idxs[0].shape[0]
 
-  def create_unit(self,element, centers_element):
+  def create_unit(self, element, centers_element, idxs_bl, idxs_br):
     if self.simmetry[:2] in ['p3']:
       
       element_size, element_origin = self.get_size_origin(centers_element)
@@ -232,6 +228,11 @@ class Generator(object):
       centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
 
       unit_size, unit_origin =  self.get_size_origin(centers_unit)
+
+      idx_external = []
+
+      edge_filter = [0, 0, 0]
+
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
           idx = i*element.shape[1] + j
@@ -261,6 +262,10 @@ class Generator(object):
     main_label = 0
     main_label_count = 0
     passed = False
+    idxs_tl = []
+    idxs_tr = []
+    idxs_bl = []
+    idxs_br = []
 
     for label in range(1,len(np.unique(labels))):
       label_count = np.where(labels==label)[0].shape[0]
@@ -279,8 +284,6 @@ class Generator(object):
     porosity = self.get_porosity(element,  total_pixels)
 
     if porosity <= desired_porosity + tol and porosity >= desired_porosity - tol:
-      idxs_tl = []
-      idxs_tr = []
 
       element_size, element_origin = self.get_size_origin(centers_element)
 
@@ -312,9 +315,16 @@ class Generator(object):
               idxs_tl.append(coords)
             if center[0] > element_origin[0] and center[1] > element_origin[1]:
               idxs_tr.append(coords)
+            if center[0] < element_origin[0] and center[1] < element_origin[1]:
+              idxs_bl.append(coords)
+            if center[0] > element_origin[0] and center[1] < element_origin[1]:
+              idxs_br.append(coords)
+            
 
       idxs_tl = np.array(idxs_tl).reshape((len(idxs_tl),2))
       idxs_tr = np.array(idxs_tr).reshape((len(idxs_tr),2))
+      idxs_bl = np.array(idxs_bl).reshape((len(idxs_bl),2))
+      idxs_br = np.array(idxs_br).reshape((len(idxs_br),2))
 
       passed = False
 
@@ -326,7 +336,7 @@ class Generator(object):
     else:
       passed = False
 
-    return passed
+    return passed, idxs_br, idxs_bl
 
   def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
    
@@ -360,10 +370,11 @@ for i in range(size):
   passed = False
   while passed == False:
     element, centers_element, total_pixels = gen.create_element()
-    passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
+    passed, idxs_br, idxs_bl = gen.check_element(element, centers_element, total_pixels, desired_porosity)
+    print(idxs_br,idxs_bl)
 
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.check_unit(unit, centers_unit, desired_porosity)
+  gen.check_unit(unit, centers_unit, desired_porosity, idxs_bl,  idxs_br)
   # gen.show_img(element,(6*np.sqrt(3),6))
   gen.show_img(unit,(6*np.sqrt(3),6))
   plt.show()
