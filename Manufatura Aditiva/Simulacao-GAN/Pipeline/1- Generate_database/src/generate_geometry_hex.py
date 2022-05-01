@@ -344,19 +344,22 @@ class Generator(object):
 
     return passed_top and passed_bottom
 
-  # def check_unit(self, unit, centers_unit, desired_porosity, tol=0.02):
-
   def create_arrange(self, unit, units):
-    rows = int(np.sqrt(units)) + 1
-    cols = int(np.sqrt(units)) + 1
+    rows = int(np.sqrt(units))
+    cols = int(np.sqrt(units))
     
-    arrange = np.ones((rows*self.unit_shape[0],cols*self.unit_shape[1]))
+    arrange = np.zeros((rows*self.unit_shape[0],cols*self.unit_shape[1]))
     h,w = unit.shape
+
     for i in range(h):
       for j in range(w):
         for k in range(rows):
           for l in range(cols):
-            arrange[i+k*self.unit_shape[0],j+l*self.unit_shape[1]] = unit[i,j]
+            if unit[i,j]:
+              try:
+                arrange[int(i+k*(3*self.unit_shape[0]/4))-1,int(j+l*self.unit_shape[1]+(k%2)*self.unit_shape[1]/2)-1] = unit[i,j]
+              except:
+                pass
 
     return arrange
 
@@ -374,10 +377,10 @@ for i in range(size):
     element, centers_element, total_pixels = gen.create_element()
     passed = gen.check_element(element, centers_element, total_pixels, desired_porosity)
 
-  gen.show_img(element,(6*np.sqrt(3),6))
+  # gen.show_img(element,(6*np.sqrt(3),6))
   
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.show_img(unit,(6*np.sqrt(3),6))
+  # gen.show_img(unit,(6*np.sqrt(3),6))
 
   arrange = gen.create_arrange(unit, units)
   gen.show_img(arrange,(6*np.sqrt(3),6))
