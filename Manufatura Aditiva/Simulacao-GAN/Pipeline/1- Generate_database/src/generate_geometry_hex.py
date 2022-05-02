@@ -345,8 +345,8 @@ class Generator(object):
     return passed_top and passed_bottom
 
   def create_arrange(self, unit, units):
-    rows = int(np.sqrt(units))
-    cols = int(np.sqrt(units))
+    rows = int(np.sqrt(units)) + 2
+    cols = int(np.sqrt(units)) + 2
     
     arrange = np.zeros((rows*self.unit_shape[0],cols*self.unit_shape[1]))
     h,w = unit.shape
@@ -357,7 +357,7 @@ class Generator(object):
           for l in range(cols):
             if unit[i,j]:
               try:
-                arrange[int(i+k*(3*self.unit_shape[0]/4))-1,int(j+l*self.unit_shape[1]+(k%2)*self.unit_shape[1]/2)-1] = unit[i,j]
+                arrange[int(i+k*(3*self.unit_shape[0]/4 - 1)),int(j+l*self.unit_shape[1]+(k%2)*self.unit_shape[1]/2)] = unit[i,j]
               except:
                 pass
 
