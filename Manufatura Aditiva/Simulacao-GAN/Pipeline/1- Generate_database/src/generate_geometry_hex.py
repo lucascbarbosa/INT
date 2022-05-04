@@ -383,7 +383,10 @@ for i in range(size):
   unit, centers_unit= gen.create_unit(element, centers_element)
   gen.show_img(unit,(6*np.sqrt(3),6))
 
-  # arrange = gen.create_arrange(unit, units)
-  # gen.show_img(arrange,(6*np.sqrt(3),6))
+  arrange = gen.create_arrange(unit, units)
+  porosity = gen.get_porosity(arrange, (int(np.sqrt(units)) + 2)*(int(np.sqrt(units)) + 2)*3*total_pixels)
+  print(porosity)
+  gen.show_img(arrange,(6*np.sqrt(3),6))
+  
   plt.show()
 
