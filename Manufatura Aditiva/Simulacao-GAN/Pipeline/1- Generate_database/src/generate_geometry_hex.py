@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from math import sqrt
 import sys
 from hexalattice.hexalattice import *
+from sklearn.covariance import MinCovDet
 
 class Generator(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
@@ -258,7 +259,7 @@ class Generator(object):
   
     return unit, centers_unit
   
-  def check_element(self, element, centers_element, total_pixels, desired_porosity, tol=0.02):
+  def check_element(self, element, centers_element, total_pixels, desired_porosity, tol=0.02, min_connections=1):
 
     labels = measure.label(element,connectivity=1)
     main_label = 0
@@ -267,8 +268,6 @@ class Generator(object):
     idxs_tr = []
     idxs_bl = []
     idxs_br = []
-    passed_top = False
-    passed_bottom = False
 
     for label in range(1,len(np.unique(labels))):
       label_count = np.where(labels==label)[0].shape[0]
@@ -329,21 +328,26 @@ class Generator(object):
       idxs_bl = np.array(idxs_bl).reshape((len(idxs_bl),2))
       idxs_br = np.array(idxs_br).reshape((len(idxs_br),2))
 
+      connections_top = 0
+      connections_bot = 0
+
       for i in range(1, element.shape[0]//2):
         idxs_bl_ = idxs_bl[np.where(idxs_bl[:,0] == i)]
         idxs_br_ = idxs_br[np.where(idxs_br[:,0] == i)]
         #  the bottom r-l connection must be satisfied to validate the unit
         if element[idxs_bl_[0,0],idxs_bl_[0,1]] == 1 and element[idxs_br_[-1,0],idxs_br_[-1,1]] == 1:
-          passed_bottom = True
+          connections_bot += 1
 
       for i in range(element.shape[0]//2,element.shape[0]-1):
         idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
         idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
         # the top r-l connection must be satisfied to validate the element
         if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
-          passed_top = True
+          connections_top += 1
+    
+      print(connections_bot,connections_top)
 
-    return passed_top and passed_bottom
+    return connections_top > min_connections and connections_bot > min_connections
 
   def create_arrange(self, unit, units, centers_unit):
     rows = int(np.sqrt(units)) + 2
@@ -359,7 +363,7 @@ class Generator(object):
       for j in range(w):
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [rows*unit_size[0]/2, cols*unit_size[1]/2]
+        centers_offset = [(rows-1)*unit_size[0]/2, (cols-1)*unit_size[1]/2]
         center_arrange = center_unit  - centers_offset + unit_origin
         for k in range(rows):
           for l in range(cols):
@@ -394,7 +398,7 @@ for i in range(size):
   # gen.show_img(element,(6*np.sqrt(3),6))
 
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.show_img(unit,(6*np.sqrt(3),6))
+  # gen.show_img(unit,(6*np.sqrt(3),6))
 
   arrange = gen.create_arrange(unit, units, centers_unit)
   gen.show_img(arrange,(6*np.sqrt(3),6))
