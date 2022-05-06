@@ -348,10 +348,10 @@ class Generator(object):
     return passed_bot and passed_top
 
   def create_arrange(self, unit, units, centers_unit):
-    rows = int(np.sqrt(units)) + 2
-    cols = int(np.sqrt(units)) + 2 
+    rows = int(np.sqrt(units)) 
+    cols = int(np.sqrt(units)) 
     
-    arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),cols*self.unit_shape[1]))
+    arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),int((cols+0.5)*self.unit_shape[1])))
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
     arrange_size, arrange_origin =  self.get_size_origin(centers_arrange)
 
@@ -364,14 +364,13 @@ class Generator(object):
       for j in range(w):
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [(rows-1)*unit_size[1]/2, (cols-1)*unit_size[0]/2]
+        centers_offset = [rows*unit_size[1]/4, cols*unit_size[0]/4]
         center_arrange = center_unit  - centers_offset + arrange_origin
-        print(center_unit)
 
         for k in range(rows):
           for l in range(cols):
             disp = np.array([
-              l*unit_size[0]+(k%2)*unit_size[0]/2,
+              l*unit_size[0]-(k%2)*unit_size[0]/2,
               k*3*unit_size[1]/4
               ])
             center = center_arrange + disp 
