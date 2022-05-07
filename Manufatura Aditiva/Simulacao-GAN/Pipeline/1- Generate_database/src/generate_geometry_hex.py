@@ -34,7 +34,7 @@ class Generator(object):
         hex_centers[:, 0], 
         hex_centers[:, 1], 
         face_color=colors_face,
-        edge_color=colors_edge,
+        edge_color=colors_face,
         min_diam=1.,
         plotting_gap=0,
         rotate_deg=0)
@@ -354,10 +354,9 @@ class Generator(object):
   
     return unit, centers_unit
   
-
   def create_arrange(self, unit, units, centers_unit):
-    rows = int(np.sqrt(units)) 
-    cols = int(np.sqrt(units)) 
+    rows = int(np.sqrt(units)) + 1
+    cols = int(np.sqrt(units)) + 1
     
     arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),int((cols+0.5)*self.unit_shape[1])))
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
@@ -365,8 +364,6 @@ class Generator(object):
 
     h,w = unit.shape
     unit_size, unit_origin =  self.get_size_origin(centers_unit)
-
-    # unit_size += [-2.0, 0.0]
 
     for i in range(h):
       for j in range(w):
