@@ -93,13 +93,13 @@ class Generator(object):
   
   def get_ext_voids(self,center, size_x):
     if center[0] < 0:
-      pos = center - np.array([-size_x / 2, 0])
+      pos = center - np.array([-size_x/2-1, 0])
     else:
-      pos = center - np.array([size_x / 2, 0])
+      pos = center - np.array([size_x/2+1, 0])
     
     q = np.rad2deg(np.arctan(pos[1]/pos[0]))
     
-    return np.abs(q) >= 30
+    return np.abs(q) > 30
   
   def get_size_origin(self,centers):
     size = np.array(
@@ -131,11 +131,11 @@ class Generator(object):
     if self.simmetry == 'p3':
       
       self.element_shape = np.array([
-        self.size,
-        int(self.size*np.sqrt(3)) - 2
+        self.size, 
+        int(self.size*np.sqrt(3)) - 4
       ])
 
-      element = np.ones((self.element_shape[0], self.element_shape[1]))
+      element = np.ones(self.element_shape)
 
       hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
 
@@ -220,41 +220,6 @@ class Generator(object):
 
     return element, hex_centers, idxs[0].shape[0]
 
-  def create_unit(self, element, centers_element):
-    if self.simmetry[:2] in ['p3']:
-      
-      element_size, element_origin = self.get_size_origin(centers_element)
-      
-      unit = np.zeros((2*element.shape[0],element.shape[1]))
-      self.unit_shape = unit.shape
-
-      centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
-
-      unit_size, unit_origin =  self.get_size_origin(centers_unit)
-
-      for i in range(element.shape[0]):
-        for j in range(element.shape[1]):
-          idx = i*element.shape[1] + j
-          center_element = centers_element[idx] - element_origin
-          centers_offset = [0, unit_size[1]/4]
-          if not self.get_ext_voids(center_element, element_size[0]):
-            unit[i,j] = element[i,j]
-            center_unit = center_element  - centers_offset + unit_origin
-            
-            q1 = 2*np.pi/3
-            R1 = self.get_R(q1)
-            center_unit1 = np.matmul(R1,center_unit)
-            i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
-            unit[i1,j1] = element[i,j]
-
-            q2 = -2*np.pi/3
-            R2 = self.get_R(q2)
-            center_unit2 = np.matmul(R2,center_unit)
-            i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
-            unit[i2,j2] = element[i,j]
-  
-    return unit, centers_unit
-  
   def check_element(self, element, centers_element, total_pixels, desired_porosity, tol=0.02, min_connections=1):
 
     labels = measure.label(element,connectivity=1)
@@ -347,6 +312,42 @@ class Generator(object):
     # return connections_top > min_connections and connections_bot > min_connections
     return passed_bot and passed_top
 
+  def create_unit(self, element, centers_element):
+    if self.simmetry[:2] in ['p3']:
+      
+      element_size, element_origin = self.get_size_origin(centers_element)
+      
+      unit = np.zeros((2*element.shape[0]-1,element.shape[1]))
+      self.unit_shape = unit.shape
+
+      centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+
+      unit_size, unit_origin =  self.get_size_origin(centers_unit)
+
+      for i in range(element.shape[0]):
+        for j in range(element.shape[1]):
+          idx = i*element.shape[1] + j
+          center_element = centers_element[idx] - element_origin
+          centers_offset = [0, unit_size[1]/4]
+          if not self.get_ext_voids(center_element, element_size[0]):
+            unit[i,j] = element[i,j]
+            center_unit = center_element  - centers_offset + unit_origin
+            
+            q1 = 2*np.pi/3
+            R1 = self.get_R(q1)
+            center_unit1 = np.matmul(R1,center_unit)
+            i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
+            unit[i1,j1] = element[i,j]
+
+            q2 = -2*np.pi/3
+            R2 = self.get_R(q2)
+            center_unit2 = np.matmul(R2,center_unit)
+            i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
+            unit[i2,j2] = element[i,j]
+  
+    return unit, centers_unit
+  
+
   def create_arrange(self, unit, units, centers_unit):
     rows = int(np.sqrt(units)) 
     cols = int(np.sqrt(units)) 
@@ -358,13 +359,13 @@ class Generator(object):
     h,w = unit.shape
     unit_size, unit_origin =  self.get_size_origin(centers_unit)
 
-    unit_size += [-2.0, 0.0]
+    # unit_size += [-2.0, 0.0]
 
     for i in range(h):
       for j in range(w):
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [rows*unit_size[1]/4, cols*unit_size[0]/4]
+        centers_offset = [cols*unit_size[0]/4, rows*unit_size[1]/4]
         center_arrange = center_unit  - centers_offset + arrange_origin
 
         for k in range(rows):
@@ -375,8 +376,6 @@ class Generator(object):
               ])
             center = center_arrange + disp 
             i_, j_ = self.center2idx(arrange.shape[1], centers_arrange, center)
-            if (i,j) == (0,0):
-              print(center)
 
             if unit[i,j]:
               try:
@@ -398,8 +397,8 @@ for i in range(size):
   passed = False
   while passed == False:
     element, centers_element, total_pixels = gen.create_element()
-    # passed = gen.check_element(element, centers_element, total_pixels, desired_porosity, min_connections=1)
-    passed = True
+    passed = gen.check_element(element, centers_element, total_pixels, desired_porosity, min_connections=1)
+    # passed = True
   # gen.show_img(element,(6*np.sqrt(3),6))
 
   unit, centers_unit= gen.create_unit(element, centers_element)
