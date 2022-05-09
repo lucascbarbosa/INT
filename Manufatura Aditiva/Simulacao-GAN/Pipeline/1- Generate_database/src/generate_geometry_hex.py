@@ -34,7 +34,7 @@ class Generator(object):
         hex_centers[:, 0], 
         hex_centers[:, 1], 
         face_color=colors_face,
-        edge_color=colors_edge,
+        edge_color=colors_face,
         min_diam=1.,
         plotting_gap=0,
         rotate_deg=0)
@@ -369,7 +369,7 @@ class Generator(object):
       for j in range(w):
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [((cols-1)*3/8)*unit_size[0], ((2*rows-3)/4)*unit_size[1]]
+        centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
         center_arrange = center_unit  - centers_offset + arrange_origin
 
         for k in range(rows):
@@ -402,7 +402,6 @@ for i in range(size):
   while passed == False:
     element, centers_element = gen.create_element()
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-    # passed = True
   # gen.show_img(element,(6*np.sqrt(3),6))
 
   unit, centers_unit= gen.create_unit(element, centers_element)
