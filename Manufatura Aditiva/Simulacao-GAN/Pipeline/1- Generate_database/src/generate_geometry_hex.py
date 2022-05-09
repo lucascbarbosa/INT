@@ -34,7 +34,7 @@ class Generator(object):
         hex_centers[:, 0], 
         hex_centers[:, 1], 
         face_color=colors_face,
-        edge_color=colors_face,
+        edge_color=colors_edge,
         min_diam=1.,
         plotting_gap=0,
         rotate_deg=0)
@@ -355,8 +355,8 @@ class Generator(object):
     return unit, centers_unit
   
   def create_arrange(self, unit, units, centers_unit):
-    rows = int(np.sqrt(units)) + 1
-    cols = int(np.sqrt(units)) + 1
+    rows = int(np.sqrt(units)) - 1
+    cols = int(np.sqrt(units)) - 1
     
     arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),int((cols+0.5)*self.unit_shape[1])))
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
@@ -369,7 +369,7 @@ class Generator(object):
       for j in range(w):
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [cols*unit_size[0]/4, rows*unit_size[1]/4]
+        centers_offset = [((cols-1)*3/8)*unit_size[0], ((2*rows-3)/4)*unit_size[1]]
         center_arrange = center_unit  - centers_offset + arrange_origin
 
         for k in range(rows):
@@ -406,7 +406,7 @@ for i in range(size):
   # gen.show_img(element,(6*np.sqrt(3),6))
 
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.show_img(unit,(6*np.sqrt(3),6))
+  # gen.show_img(unit,(6*np.sqrt(3),6))
 
   arrange = gen.create_arrange(unit, units, centers_unit)
   gen.show_img(arrange,(6*np.sqrt(3),6))
