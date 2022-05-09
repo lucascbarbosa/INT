@@ -355,8 +355,8 @@ class Generator(object):
     return unit, centers_unit
   
   def create_arrange(self, unit, units, centers_unit):
-    rows = int(np.sqrt(units)) - 1
-    cols = int(np.sqrt(units)) - 1
+    rows = int(np.sqrt(units))
+    cols = int(np.sqrt(units))
     
     arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),int((cols+0.5)*self.unit_shape[1])))
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
