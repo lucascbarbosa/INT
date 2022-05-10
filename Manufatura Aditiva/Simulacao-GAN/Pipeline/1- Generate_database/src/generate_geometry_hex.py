@@ -252,6 +252,68 @@ class Generator(object):
 
       self.set_pixels(idxs[0].shape[0])
 
+      while np.where(element==1)[0].shape[0] > self.num_solid_pixels:
+        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
+          size = contour.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
+          new_voids_coords = contour_coords[new_voids_coords_idxs]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 0.
+            element[new_void_coords[0],element.shape[1]-1-new_void_coords[1]] = 0.
+
+      to_remove = self.remove_isolated(element,1.0)
+
+      try:
+        element[to_remove[:,0],to_remove[:,1]] = 0.0
+      except:
+        pass
+
+      to_remove = np.where(element==1)[0].shape[0] - self.num_solid_pixels
+
+      while to_remove > 1:
+        contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(int)
+          contour_coords = np.unique(contour_coords, axis=0)
+          size = contour_coords.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 0.
+            element[new_void_coords[0],element.shape[1]-1-new_void_coords[1]] = 0.
+            to_remove -= 1
+            if to_remove < 1:
+              break
+      
+      to_add = self.num_solid_pixels - np.where(element==1)[0].shape[0]
+
+      while to_add > 1:
+        contours = np.array(find_contours(1-element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
+        for _, contour in enumerate(contours):
+          contour_coords = np.around(contour.astype(np.double)).astype(int)
+          contour_coords = np.unique(contour_coords, axis=0)
+          # print(np.where(self.get_ext_voids(contour_coords,element_size[0])))
+          contour_coords_ = []
+          for contour_coord in contour_coords:
+            idx = contour_coord[0]*element.shape[1] + contour_coord[1]
+            center = hex_centers[idx] - element_origin
+            if not self.get_ext_voids(center, element_size[0]):
+              contour_coords_.append(contour_coord)
+          
+          contour_coords = np.array(contour_coords_).reshape((len(contour_coords_),2))
+          
+          size = contour_coords.shape[0]
+          new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
+          new_voids_coords = contour_coords[new_voids_coords_idxs,:]
+          for new_void_coords in new_voids_coords:
+            element[new_void_coords[0],new_void_coords[1]] = 1.
+            element[new_void_coords[0],element.shape[1]-1-new_void_coords[1]] = 1.
+            to_add -= 1
+            if to_add < 1:
+              break
+            
     return element, hex_centers
 
   def check_element(self, element, centers_element, desired_porosity, tol=0.02, min_connections=1):
