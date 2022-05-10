@@ -241,9 +241,16 @@ class Generator(object):
 
       idxs = np.where(element==1)
       self.element_total_pixels = idxs[0].shape[0]
-      idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
+      idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds//2)
       
-      
+      seeds_y = idxs[0][idxs_choice]
+      seeds_x = idxs[1][idxs_choice]
+
+      for seed_y,seed_x in list(zip(seeds_y,seeds_x)):
+        element[seed_y,seed_x] = 0.
+        element[seed_y, element.shape[1]-1-seed_x] = 0.
+
+      self.set_pixels(idxs[0].shape[0])
 
     return element, hex_centers
 
@@ -428,14 +435,15 @@ for i in range(size):
   passed = False
   while passed == False:
     element, centers_element = gen.create_element()
-    passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-  # gen.show_img(element,(6*np.sqrt(3),6))
+    # passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
+    passed = True
+  gen.show_img(element,(6*np.sqrt(3),6))
 
-  unit, centers_unit= gen.create_unit(element, centers_element)
+  # unit, centers_unit= gen.create_unit(element, centers_element)
   # gen.show_img(unit,(6*np.sqrt(3),6))
 
-  arrange = gen.create_arrange(unit, units, centers_unit)
-  gen.show_img(arrange,(6*np.sqrt(3),6))
+  # arrange = gen.create_arrange(unit, units, centers_unit)
+  # gen.show_img(arrange,(6*np.sqrt(3),6))
   
   plt.show()
 
