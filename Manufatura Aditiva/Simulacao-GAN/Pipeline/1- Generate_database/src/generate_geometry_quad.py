@@ -337,10 +337,3 @@ class Generator(object):
             arrange[i+k*self.unit_size,j+l*self.unit_size] = unit[i,j]
 
     return arrange
-
-gen = Generator(9, 'p3', 16, 0.5, 6)
-element = gen.create_element()
-gen.show_img(element,(6*np.sqrt(3),6))
-# unit = gen.create_unit(element)
-# gen.show_img(unit,(6*np.sqrt(3),6))
-plt.show()

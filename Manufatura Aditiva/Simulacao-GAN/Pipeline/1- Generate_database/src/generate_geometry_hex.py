@@ -218,6 +218,33 @@ class Generator(object):
             to_add -= 1
             if to_add < 1:
               break
+    
+    if self.simmetry == 'p3m1':
+
+      self.element_shape = np.array([
+        self.size, 
+        int(self.size*np.sqrt(3)) - 4
+      ])
+
+      element = np.ones(self.element_shape)
+
+      hex_centers,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+
+      element_size, element_origin = self.get_size_origin(hex_centers)
+
+      for i in range(element.shape[0]):
+        for j in range(element.shape[1]):
+          idx = i*element.shape[1] + j
+          center = hex_centers[idx] - element_origin
+          if self.get_ext_voids(center, element_size[0]):
+            element[i,j] = 0.
+
+      idxs = np.where(element==1)
+      self.element_total_pixels = idxs[0].shape[0]
+      idxs_choice= np.random.choice(np.arange(idxs[0].shape[0]),self.num_seeds)
+      
+      
+
     return element, hex_centers
 
   def check_element(self, element, centers_element, desired_porosity, tol=0.02, min_connections=1):
@@ -390,7 +417,7 @@ class Generator(object):
     return arrange
 
 units = 9
-simmetry = 'p3'
+simmetry = 'p3m1'
 size =  16
 desired_porosity = 0.5
 seeds = 6
