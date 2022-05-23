@@ -1,4 +1,5 @@
-from src.generate_geometry import Generator
+from src.generate_geometry_hex import GeneratorHex
+from src.generate_geometry_quad import GeneratorQuad
 from hexalattice.hexalattice import *
 import sys
 import numpy as np

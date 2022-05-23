@@ -11,7 +11,7 @@ from math import sqrt
 import sys
 from hexalattice.hexalattice import *
 
-class Generator(object):
+class GeneratorQuad(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
     self.units = units
     self.simmetry = simmmetry
