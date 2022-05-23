@@ -21,19 +21,20 @@ def plot_geom(element, unit, arrange, simmetry):
     # ax[2].axis('off')
   
   if simmetry[:2] in ['p3','p6']:
-    hex_centers,h_ax = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+    centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
     arr = element.ravel()
     colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
     plot_single_lattice_custom_colors(
-        hex_centers[:, 0], 
-        hex_centers[:, 1], 
-        face_color=colors,
-        edge_color=colors,
-        min_diam=1.,
-        plotting_gap=0,
-        rotate_deg=0)
+      centers_element[:, 0], 
+      centers_element[:, 1], 
+      face_color=colors,
+      edge_color=colors,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
     
-  plt.show()
+    plt.show()
 
 # Input hyperparameters
 units = int(sys.argv[1]) #9
@@ -83,7 +84,6 @@ if simmetry[:2] in ['p3','p6']:
   gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
   start = len(os.listdir(arrays_dir+simmetry))
   porosities = []
-
   correct_samples = 0
   while correct_samples < samples:
     element, centers_element = gen.create_element()
@@ -94,7 +94,7 @@ if simmetry[:2] in ['p3','p6']:
     if passed:
       porosities.append(porosity)
       if plot:
-        plot_geom(element, unit, arrange)
+        plot_geom(element, unit, arrange, simmetry)
       if save_array:
         gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
       correct_samples += 1
@@ -104,6 +104,7 @@ if simmetry[:2] in ['p3','p6']:
     plt.show()
 
 if simmetry[:2] in ['p4']:
+  print('bar')
   gen = GeneratorQuad(units, simmetry, size, desired_porosity, num_seeds)
   start = len(os.listdir(arrays_dir+simmetry))
   porosities = []
@@ -118,7 +119,7 @@ if simmetry[:2] in ['p4']:
     if passed:
       porosities.append(porosity)
       if plot:
-        plot_geom(element, unit, arrange)
+        plot_geom(element, unit, arrange, simmetry)
       if save_array:
         gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
       correct_samples += 1

@@ -1,15 +1,7 @@
-from re import L, S
-from grpc import protos_and_services
 import numpy as np
-from PIL import Image
-from numpy.core.defchararray import array
-from scipy.ndimage import sobel,measurements
-from scipy.spatial.transform import Rotation as R
 from skimage import measure
 from skimage.measure import find_contours
 import matplotlib.pyplot as plt
-from math import sqrt
-import sys
 from hexalattice.hexalattice import *
 
 class GeneratorHex(object):
@@ -500,11 +492,11 @@ for i in range(size):
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
   gen.show_img(element,(6*np.sqrt(3),6))
 
-  # unit, centers_unit= gen.create_unit(element, centers_element)
-  # gen.show_img(unit,(6*np.sqrt(3),6))
+  unit, centers_unit= gen.create_unit(element, centers_element)
+  gen.show_img(unit,(6*np.sqrt(3),6))
 
-  # arrange = gen.create_arrange(unit, units, centers_unit)
-  # gen.show_img(arrange,(6*np.sqrt(3),6))
+  arrange = gen.create_arrange(unit, units, centers_unit)
+  gen.show_img(arrange,(6*np.sqrt(3),6))
   
   plt.show()
 

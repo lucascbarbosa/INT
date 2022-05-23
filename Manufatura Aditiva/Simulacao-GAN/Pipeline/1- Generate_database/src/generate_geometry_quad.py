@@ -1,15 +1,7 @@
-from re import L
 import numpy as np
-from PIL import Image
-from numpy.core.defchararray import array
-from scipy.ndimage import sobel,measurements
-from scipy.spatial.transform import Rotation as R
 from skimage import measure
 from skimage.measure import find_contours
-import matplotlib.pyplot as plt
 from math import sqrt
-import sys
-from hexalattice.hexalattice import *
 
 class GeneratorQuad(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
