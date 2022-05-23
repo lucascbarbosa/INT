@@ -7,7 +7,6 @@ import os
 import matplotlib.pyplot as plt
 
 def plot_geom(element, unit, arrange, simmetry):
-  print(simmetry)
   if simmetry[:2] in ['p4','p4m','p4g']:
     fig,ax = plt.subplots(1,3)
     fig.set_size_inches((16,5))
@@ -33,8 +32,34 @@ def plot_geom(element, unit, arrange, simmetry):
       plotting_gap=0,
       rotate_deg=0
     )
+
+    centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+    arr = unit.ravel()
+    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_unit[:, 0], 
+      centers_unit[:, 1], 
+      face_color=colors,
+      edge_color=colors,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
+
+    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    arr = arrange.ravel()
+    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_arrange[:, 0], 
+      centers_arrange[:, 1], 
+      face_color=colors,
+      edge_color=colors,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
     
-    plt.show()
+  plt.show()
 
 # Input hyperparameters
 units = int(sys.argv[1]) #9
@@ -104,7 +129,6 @@ if simmetry[:2] in ['p3','p6']:
     plt.show()
 
 if simmetry[:2] in ['p4']:
-  print('bar')
   gen = GeneratorQuad(units, simmetry, size, desired_porosity, num_seeds)
   start = len(os.listdir(arrays_dir+simmetry))
   porosities = []
