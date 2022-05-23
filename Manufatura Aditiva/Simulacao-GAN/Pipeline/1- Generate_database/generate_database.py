@@ -7,7 +7,8 @@ import os
 import matplotlib.pyplot as plt
 
 def plot_geom(element, unit, arrange, simmetry):
-  if simmetry[:2] == 'p4':
+  print(simmetry)
+  if simmetry[:2] in ['p4','p4m','p4g']:
     fig,ax = plt.subplots(1,3)
     fig.set_size_inches((16,5))
     ax[0].imshow(element,cmap='Greys');
@@ -32,30 +33,6 @@ def plot_geom(element, unit, arrange, simmetry):
         plotting_gap=0,
         rotate_deg=0)
     
-    hex_centers,h_ax = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
-    arr = unit.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-        hex_centers[:, 0], 
-        hex_centers[:, 1], 
-        face_color=colors,
-        edge_color=colors,
-        min_diam=1.,
-        plotting_gap=0,
-        rotate_deg=0)
-
-    hex_centers,h_ax = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
-    arr = arrange.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-        hex_centers[:, 0], 
-        hex_centers[:, 1], 
-        face_color=colors,
-        edge_color=colors,
-        min_diam=1.,
-        plotting_gap=0,
-        rotate_deg=0)
-        
   plt.show()
 
 # Input hyperparameters
@@ -102,26 +79,50 @@ try:
 except:
   pass
 
-gen = Generator(units, simmetry, size, desired_porosity, num_seeds)
-start = len(os.listdir(arrays_dir+simmetry))
+if simmetry[:2] in ['p3','p6']:
+  gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
+  start = len(os.listdir(arrays_dir+simmetry))
+  porosities = []
 
-porosities = []
+  correct_samples = 0
+  while correct_samples < samples:
+    element, centers_element = gen.create_element()
+    passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
+    unit, centers_unit= gen.create_unit(element, centers_element)
+    porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
+    arrange = gen.create_arrange(unit, units, centers_unit)
+    if passed:
+      porosities.append(porosity)
+      if plot:
+        plot_geom(element, unit, arrange)
+      if save_array:
+        gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
+      correct_samples += 1
 
-correct_samples = 0
-while correct_samples < samples:
-  element = gen.create_element()
-  unit = gen.create_unit(element)
-  passed, element = gen.check_unit(unit,desired_porosity,tol)
-  porosity = np.float32(gen.get_porosity(element)).round(4)
-  arrange = gen.create_arrange(unit)
-  if passed:
-    porosities.append(porosity)
-    if plot:
-      plot_geom(element, unit, arrange)
-    if save_array:
-      gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
-    correct_samples += 1
+  if plot_hist:
+    plt.hist(porosities, bins=10)
+    plt.show()
 
-if plot_hist:
-  plt.hist(porosities, bins=10)
-  plt.show()
+if simmetry[:2] in ['p4']:
+  gen = GeneratorQuad(units, simmetry, size, desired_porosity, num_seeds)
+  start = len(os.listdir(arrays_dir+simmetry))
+  porosities = []
+
+  correct_samples = 0
+  while correct_samples < samples:
+    element = gen.create_element()
+    unit = gen.create_unit(element)
+    passed, element = gen.check_unit(unit,desired_porosity,tol)
+    porosity = np.float32(gen.get_porosity(element)).round(4)
+    arrange = gen.create_arrange(unit)
+    if passed:
+      porosities.append(porosity)
+      if plot:
+        plot_geom(element, unit, arrange)
+      if save_array:
+        gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
+      correct_samples += 1
+
+  if plot_hist:
+    plt.hist(porosities, bins=10)
+    plt.show()
