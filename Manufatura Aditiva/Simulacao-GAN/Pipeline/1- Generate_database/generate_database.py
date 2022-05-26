@@ -1,3 +1,4 @@
+from sympy import E
 from src.generate_geometry_hex import GeneratorHex
 from src.generate_geometry_quad import GeneratorQuad
 from hexalattice.hexalattice import *
@@ -106,32 +107,23 @@ try:
 except:
   pass
 
+start = time()
+
 if simmetry[:2] in ['p3','p6']:
   gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
   start = len(os.listdir(arrays_dir+simmetry))
   porosities = []
   correct_samples = 0
   while correct_samples < samples:
-    start1 = time()
     element, centers_element = gen.create_element()
-    end1 = time()
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-    end2 = time()
-    unit, centers_unit= gen.create_unit(element, centers_element)
-    end3 = time()
     porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
-    end4 = time()
-    arrange = gen.create_arrange(element, unit, units, centers_unit)
-    end5 = time()
-    print('create element: %.4f'%(end1-start1))
-    print('check element: %.4f'%(end2-end1))
-    print('create unit: %.4f'%(end3-end2))
-    print('get porosity: %.4f'%(end4-end3))
-    print('create arrange: %.4f\n'%(end5-end4))
-
     if passed:
+      print(passed)
       porosities.append(porosity)
       if plot:
+        unit, centers_unit= gen.create_unit(element, centers_element)
+        arrange = gen.create_arrange(element, unit, units, centers_unit)
         plot_geom(element, unit, arrange, simmetry)
       if save_array:
         gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
@@ -152,10 +144,10 @@ if simmetry[:2] in ['p4']:
     unit = gen.create_unit(element)
     passed, element = gen.check_unit(unit,desired_porosity,tol)
     porosity = np.float32(gen.get_porosity(element)).round(4)
-    arrange = gen.create_arrange(unit)
     if passed:
       porosities.append(porosity)
       if plot:
+        arrange = gen.create_arrange(unit)
         plot_geom(element, unit, arrange, simmetry)
       if save_array:
         gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
@@ -164,3 +156,8 @@ if simmetry[:2] in ['p4']:
   if plot_hist:
     plt.hist(porosities, bins=10)
     plt.show()
+
+end = time()
+print(start)
+print(end)
+print('TET: %f'%(end-start))

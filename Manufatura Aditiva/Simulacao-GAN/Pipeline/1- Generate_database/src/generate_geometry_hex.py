@@ -3,7 +3,7 @@ from skimage import measure
 from skimage.measure import find_contours
 import matplotlib.pyplot as plt
 from hexalattice.hexalattice import *
-
+from time import time
 class GeneratorHex(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
     self.units = units
@@ -443,8 +443,8 @@ class GeneratorHex(object):
     return unit, centers_unit
   
   def create_arrange(self, element, unit, units, centers_unit):
-    rows = int(np.sqrt(units)) + 2
-    cols = int(np.sqrt(units)) + 2
+    rows = int(np.sqrt(units))
+    cols = int(np.sqrt(units))
     
     arrange = np.zeros((int((1+(rows-1)*3/4)*self.unit_shape[0]),int((cols+0.5)*self.unit_shape[1])))
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
@@ -452,12 +452,12 @@ class GeneratorHex(object):
 
     h,w = unit.shape
     unit_size, unit_origin =  self.get_size_origin(centers_unit)
-
+    centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
     for i in range(h):
       for j in range(w):
+        start = time()
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
-        centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
         center_arrange = center_unit  - centers_offset + arrange_origin
 
         for k in range(rows):
@@ -474,7 +474,7 @@ class GeneratorHex(object):
                 arrange[i_,j_] = unit[i,j]
               except:
                 pass
-
+        end = time()
     return arrange
 
 # units = 9
