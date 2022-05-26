@@ -122,6 +122,8 @@ class GeneratorQuad(object):
         element[seed_x,seed_y] = 0.
         element[self.size-seed_y-1,self.size-seed_x-1] = 0.
 
+      self.set_pixels(element.shape[0]*element.shape[1])
+
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
@@ -182,6 +184,8 @@ class GeneratorQuad(object):
       for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
         element[seed_x,seed_y] = 0.
         element[seed_y,seed_x] = 0.
+
+      self.set_pixels(element.shape[0]*element.shape[1])
 
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)

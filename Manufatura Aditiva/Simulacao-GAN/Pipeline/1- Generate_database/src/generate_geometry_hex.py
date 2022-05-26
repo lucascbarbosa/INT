@@ -442,7 +442,7 @@ class GeneratorHex(object):
   
     return unit, centers_unit
   
-  def create_arrange(self, unit, units, centers_unit):
+  def create_arrange(self, element, unit, units, centers_unit):
     rows = int(np.sqrt(units)) + 2
     cols = int(np.sqrt(units)) + 2
     

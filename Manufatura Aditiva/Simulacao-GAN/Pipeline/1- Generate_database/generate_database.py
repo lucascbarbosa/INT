@@ -5,9 +5,10 @@ import sys
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from time import time
 
 def plot_geom(element, unit, arrange, simmetry):
-  if simmetry[:2] in ['p4','p4m','p4g']:
+  if simmetry[:2] in ['p4']:
     fig,ax = plt.subplots(1,3)
     fig.set_size_inches((16,5))
     ax[0].imshow(element,cmap='Greys');
@@ -111,11 +112,23 @@ if simmetry[:2] in ['p3','p6']:
   porosities = []
   correct_samples = 0
   while correct_samples < samples:
+    start1 = time()
     element, centers_element = gen.create_element()
+    end1 = time()
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
+    end2 = time()
     unit, centers_unit= gen.create_unit(element, centers_element)
+    end3 = time()
     porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
-    arrange = gen.create_arrange(unit, units, centers_unit)
+    end4 = time()
+    arrange = gen.create_arrange(element, unit, units, centers_unit)
+    end5 = time()
+    print('create element: %.4f'%(end1-start1))
+    print('check element: %.4f'%(end2-end1))
+    print('create unit: %.4f'%(end3-end2))
+    print('get porosity: %.4f'%(end4-end3))
+    print('create arrange: %.4f\n'%(end5-end4))
+
     if passed:
       porosities.append(porosity)
       if plot:
