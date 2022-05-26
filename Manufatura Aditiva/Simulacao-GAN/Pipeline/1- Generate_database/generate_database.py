@@ -24,42 +24,42 @@ def plot_geom(element, unit, arrange, simmetry):
   if simmetry[:2] in ['p3','p6']:
     centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
     arr = element.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
     plot_single_lattice_custom_colors(
       centers_element[:, 0], 
       centers_element[:, 1], 
-      face_color=colors,
-      edge_color=colors,
+      face_color=colors_face,
+      edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
       rotate_deg=0
     )
 
-    centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
-    arr = unit.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-      centers_unit[:, 0], 
-      centers_unit[:, 1], 
-      face_color=colors,
-      edge_color=colors,
-      min_diam=1.,
-      plotting_gap=0,
-      rotate_deg=0
-    )
+    # centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+    # arr = unit.ravel()
+    # colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    # plot_single_lattice_custom_colors(
+    #   centers_unit[:, 0], 
+    #   centers_unit[:, 1], 
+    #   face_color=colors,
+    #   edge_color=colors,
+    #   min_diam=1.,
+    #   plotting_gap=0,
+    #   rotate_deg=0
+    # )
 
-    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
-    arr = arrange.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-      centers_arrange[:, 0], 
-      centers_arrange[:, 1], 
-      face_color=colors,
-      edge_color=colors,
-      min_diam=1.,
-      plotting_gap=0,
-      rotate_deg=0
-    )
+    # centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    # arr = arrange.ravel()
+    # colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    # plot_single_lattice_custom_colors(
+    #   centers_arrange[:, 0], 
+    #   centers_arrange[:, 1], 
+    #   face_color=colors,
+    #   edge_color=colors,
+    #   min_diam=1.,
+    #   plotting_gap=0,
+    #   rotate_deg=0
+    # )
     
   plt.show()
 
@@ -107,7 +107,7 @@ try:
 except:
   pass
 
-start = time()
+start_time = time()
 
 if simmetry[:2] in ['p3','p6']:
   gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
@@ -157,7 +157,5 @@ if simmetry[:2] in ['p4']:
     plt.hist(porosities, bins=10)
     plt.show()
 
-end = time()
-print(start)
-print(end)
-print('TET: %f'%(end-start))
+end_time = time()
+print('TET: %f'%(end_time-start_time))
