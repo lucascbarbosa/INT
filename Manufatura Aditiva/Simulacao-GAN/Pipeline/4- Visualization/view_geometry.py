@@ -85,7 +85,7 @@ def plot_geom(origin, dimension, simmetry, element, score, score_value):
 
 # ////////////////////////////////////////
 
-dimension = sys.argv[1]
+dimension = sys.argv[1] 
 origin = sys.argv[2]
 simmetry = sys.argv[3]
 units = int(sys.argv[4])
@@ -124,8 +124,13 @@ arrays_filename = os.listdir(arrays_dir)
 array_filename = arrays_filename[idx-1]
 
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
-  element = np.array(f.readlines()).astype(float)
-  element_size = int(np.sqrt(element.shape[0]))
+  array = np.array(f.readlines()).astype(float)
+  element_size = array[0]
+  element = array[1:]
+  
+  if simmetry[:2] == 'p4':
+    element_size = int(np.sqrt(element.shape[0]))
+  # if 
   element = element.reshape((int(element_size),int(element_size)))
   unit_size = int(2*element_size)
 

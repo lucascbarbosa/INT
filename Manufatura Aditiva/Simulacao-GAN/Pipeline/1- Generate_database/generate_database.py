@@ -64,8 +64,8 @@ def plot_geom(element, unit, arrange, simmetry):
   plt.show()
 
 # Input hyperparameters
-units = int(sys.argv[1]) #9
-simmetry = sys.argv[2] 
+simmetry = sys.argv[1] 
+units = int(sys.argv[2]) #9
 size = int(sys.argv[3]) #16
 desired_porosity = float(sys.argv[4]) 
 num_seeds = int(sys.argv[5]) 
@@ -119,14 +119,13 @@ if simmetry[:2] in ['p3','p6']:
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
     porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
     if passed:
-      print(passed)
       porosities.append(porosity)
       if plot:
         unit, centers_unit= gen.create_unit(element, centers_element)
         arrange = gen.create_arrange(element, unit, units, centers_unit)
         plot_geom(element, unit, arrange, simmetry)
       if save_array:
-        gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
+        gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity), ' ') 
       correct_samples += 1
 
   if plot_hist:
@@ -150,7 +149,7 @@ if simmetry[:2] in ['p4']:
         arrange = gen.create_arrange(unit)
         plot_geom(element, unit, arrange, simmetry)
       if save_array:
-        gen.save_array(element,arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1,porosity),' ') 
+        gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
       correct_samples += 1
 
   if plot_hist:

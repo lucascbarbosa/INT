@@ -15,8 +15,12 @@ class GeneratorQuad(object):
     self.num_void_pixels = int(total_pixels*self.porosity)
     self.num_solid_pixels = total_pixels-self.num_void_pixels
 
-  def save_array(self,array,array_path, delimiter):
-    np.savetxt(array_path, array.ravel(), delimiter=delimiter)
+  def save_array(self, element_size, array, array_path, delimiter):
+    array_ = []
+    array_.append(element_size)
+    array_ += list(array.ravel())[:]
+    array = np.array(array_)
+    np.savetxt(array_path, array, delimiter=delimiter)
 
   def get_porosity(self,geom):
     voids = np.where(geom == 0.0)[0].shape[0]

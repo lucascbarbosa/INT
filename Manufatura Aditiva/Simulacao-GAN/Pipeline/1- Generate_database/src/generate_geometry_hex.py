@@ -47,8 +47,12 @@ class GeneratorHex(object):
     self.num_void_pixels = int(total_pixels*self.porosity)
     self.num_solid_pixels = total_pixels-self.num_void_pixels
 
-  def save_array(self, array, array_path, delimiter):
-    np.savetxt(array_path, array.ravel(), delimiter=delimiter)
+  def save_array(self, element_size, array, array_path, delimiter):
+    array_ = []
+    array_.append(element_size)
+    array_ += list(array.ravel())[:]
+    array = np.array(array_)
+    np.savetxt(array_path, array, delimiter=delimiter)
 
   def get_porosity(self, geom, total_pixels):
     voids = total_pixels - np.where(geom == 1)[0].shape[0]
@@ -455,7 +459,6 @@ class GeneratorHex(object):
     centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
     for i in range(h):
       for j in range(w):
-        start = time()
         idx = i*element.shape[1] + j
         center_unit = centers_unit[idx] - unit_origin
         center_arrange = center_unit  - centers_offset + arrange_origin
@@ -474,7 +477,6 @@ class GeneratorHex(object):
                 arrange[i_,j_] = unit[i,j]
               except:
                 pass
-        end = time()
     return arrange
 
 # units = 9
