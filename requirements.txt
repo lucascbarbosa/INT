@@ -2,7 +2,7 @@ akinator.py==4.1.0
 altgraph==0.17
 appdirs==1.4.4
 apptools==5.1.0
-bottle==0.12.19
+bottle==0.12.20
 brotlipy==0.7.0
 cached-property @ file:///home/conda/feedstock_root/build_artifacts/cached_property_1615209429212/work
 certifi==2020.12.5
