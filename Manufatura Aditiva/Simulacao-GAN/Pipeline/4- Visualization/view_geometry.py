@@ -17,7 +17,7 @@ def get_score_filename(origin,dimension,simmetry,score):
     return score_filename
 
 def create_unit(element, element_size, simmetry):
-  if simmetry in ['p4']:
+  if simmetry == 'p4':
     unit_size = 2*element_size
     # fold_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
@@ -44,6 +44,38 @@ def create_unit(element, element_size, simmetry):
         # (1,2)-> (1,13) -> (14,13) -> (14,2)
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
+
+  if simmetry == 'p3':
+    element_size, element_origin = self.get_size_origin(centers_element)
+    
+    unit = np.zeros((2*element.shape[0]-1,element.shape[1]))
+    self.unit_shape = unit.shape
+
+    centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+
+    unit_size, unit_origin =  self.get_size_origin(centers_unit)
+
+    for i in range(element.shape[0]):
+      for j in range(element.shape[1]):
+        idx = i*element.shape[1] + j
+        center_element = centers_element[idx] - element_origin
+        centers_offset = [0, unit_size[1]/4]
+        if not self.get_ext_voids(center_element, element_size[0]):
+          unit[i,j] = element[i,j]
+          center_unit = center_element  - centers_offset + unit_origin
+          
+          q1 = 2*np.pi/3
+          R1 = self.get_R(q1)
+          center_unit1 = np.matmul(R1,center_unit)
+          i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
+          unit[i1,j1] = element[i,j]
+
+          q2 = -2*np.pi/3
+          R2 = self.get_R(q2)
+          center_unit2 = np.matmul(R2,center_unit)
+          i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
+          unit[i2,j2] = element[i,j]
+
 
   return unit
 
@@ -125,13 +157,14 @@ array_filename = arrays_filename[idx-1]
 
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
   array = np.array(f.readlines()).astype(float)
-  element_size = array[0]
   element = array[1:]
-  
+  element_size = [array[0],int(element.shape[0]/array[0])]
+  element = element.reshape(element_size)
   if simmetry[:2] == 'p4':
-    element_size = int(np.sqrt(element.shape[0]))
-  # if 
-  element = element.reshape((int(element_size),int(element_size)))
-  unit_size = int(2*element_size)
+    unit_size = 2*element_size
+  if simmetry[:2] == 'p3':
+    unit_size = [element_size[0],2*element_size[1]]
+
+  unit = create_unit(element, element_size, simmetry)
 
 plot_geom(origins[origin], dimension, simmetry, element, score, score_value) 
