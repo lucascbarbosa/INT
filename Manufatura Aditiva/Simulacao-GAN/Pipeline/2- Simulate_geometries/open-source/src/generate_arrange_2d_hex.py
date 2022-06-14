@@ -145,7 +145,7 @@ elements_per_unit = int(simmetry[1])
 
 thickness =  2.5e-3 # m
 arrange_size = 48e-3 # m
-unit_radius = float(arrange_size/(((units_per_col-1)*0.75+1)*2)) # m
+unit_radius = np.round(float(arrange_size/(((units_per_col-1)*0.75+1)*2)),4) # m
 mag = int(log(len(arrays_filename),10)+3)
 
 array_filename = arrays_filename[idx+1]
@@ -163,7 +163,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array = array[1:]
     
     element_size = [unit_radius*np.sqrt(3),unit_radius] # m
-    pixel_radius = float(element_size[0]/size)
+    pixel_radius = np.round(float(element_size[1]/size),4)
     array = array.reshape((int(size),int(array.shape[0]/size)))
 
     print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
