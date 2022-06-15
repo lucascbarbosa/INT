@@ -166,7 +166,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     pixel_radius = np.round(float(element_size[1]/size),4)
     array = array.reshape((int(size),int(array.shape[0]/size)))
 
-    print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
+    # print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
     
     filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
     generate_mesh(simmetry, 'test.vtk')
