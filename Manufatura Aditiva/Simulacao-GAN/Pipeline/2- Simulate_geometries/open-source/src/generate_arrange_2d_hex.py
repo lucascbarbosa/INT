@@ -12,11 +12,11 @@ warnings.filterwarnings('ignore')
 def idx2coord(simmetry,i,j,k):
     if simmetry == 'p3':
         if i % 2 == 0:
-            loc_y = np.round(-(i+0.5)*0.9999*pixel_radius*1.5 + element_size[1],5)
-            loc_x = np.round((j+0.5)*0.9999*pixel_radius*np.sqrt(3) - element_size[0],5)
+            loc_x = np.round(j*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
+            loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
         else:
-            loc_y = np.round(-(i+0.5)*0.9999*pixel_radius*1.5 + element_size[1],5)
-            loc_x = np.round((j+1.0)*0.9999*pixel_radius*np.sqrt(3) - element_size[0],5)
+            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
+            loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
 
         loc = np.array([loc_x, loc_y])
         # select pixel from k th element
@@ -37,12 +37,13 @@ def generate_mesh(simmetry, filename):
 
         # generate unit with specific simmetry
         void_pixels = []
-        for k in range(elements_per_unit):
-            for i in range(len(array)): #row of pixel
-                for j in range(len(array)): #column of pixel
-                    if array[i,j] == 0:
+        for i in range(len(array)): #row of pixel
+            for j in range(len(array)): #column of pixel
+                if array[i,j] == 0 and i in range(5):
+                    for k in range(elements_per_unit):
                         loc_x,loc_y = idx2coord(simmetry,i,j,k)
-                        pixel_edges = [[loc_x+pixel_radius*np.cos(q),loc_y+pixel_radius*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
+                        print(i,j,loc_x,loc_y)
+                        pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
                         # print(pixel_edges)
                         void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
                         void_pixels.append(void_pixel)
@@ -148,7 +149,7 @@ arrange_size = 48e-3 # m
 unit_radius = np.round(float(arrange_size/(((units_per_col-1)*0.75+1)*2)),4) # m
 mag = int(log(len(arrays_filename),10)+3)
 
-array_filename = arrays_filename[idx+1]
+array_filename = arrays_filename[idx-1]
 
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array_dir = array_filename.split('_')[0]
@@ -162,11 +163,12 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     size = array[0]
     array = array[1:]
     
-    element_size = [unit_radius*np.sqrt(3),unit_radius] # m
-    pixel_radius = np.round(float(element_size[1]/size),4)
+    element_size = [unit_radius*np.sqrt(3), unit_radius] # m
+    pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),4)
     array = array.reshape((int(size),int(array.shape[0]/size)))
-
-    # print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
+    unit_radius = np.round(pixel_radius*(array.shape[1]-0.5),4)
+    
+    print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
     
     filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
     generate_mesh(simmetry, 'test.vtk')

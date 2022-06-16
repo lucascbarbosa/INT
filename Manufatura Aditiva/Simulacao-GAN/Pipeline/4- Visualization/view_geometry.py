@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from hexalattice.hexalattice import *
+
 import numpy as np
 import os
 import sys
@@ -7,16 +9,51 @@ from sklearn.metrics import precision_score
 from sklearn.model_selection import permutation_test_score
 
 
-def get_score_filename(origin,dimension,simmetry,score):
-    origins = {'-r':'RTGA','-g':'GAN'}
-    if os.getcwd().split('\\')[2] == 'lucas':
-        score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/%s/%sD/%s/%s.csv' %(origins[origin],dimension,simmetry,score)
-    else:
-        score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/%s/%sD/%s/%s.csv' %(origins[origin],dimension,simmetry,score)
+def get_score_filename(origin, dimension, simmetry, score):
+  origins = {'-r':'RTGA','-g':'GAN'}
+  if os.getcwd().split('\\')[2] == 'lucas':
+      score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/%s/%sD/%s/%s.csv' %(origins[origin],dimension,simmetry,score)
+  else:
+      score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/%s/%sD/%s/%s.csv' %(origins[origin],dimension,simmetry,score)
 
-    return score_filename
+  return score_filename
 
-def create_unit(element, element_size, simmetry):
+def get_ext_voids(center, size_x):
+  if center[0] < 0:
+    pos = center - np.array([-size_x/2-1, 0])
+  else:
+    pos = center - np.array([size_x/2+1, 0])
+  
+  q = np.rad2deg(np.arctan(pos[1]/pos[0]))
+  
+  return np.abs(q) > 30
+
+def get_R(q):
+  c = np.cos(q)
+  s = np.sin(q)
+  R = np.array([[c, -s],[s,c]])
+  return R
+
+def center2idx(size, centers, center):
+  dists = centers - center
+  dists = np.sqrt(dists[:,0]**2 + dists[:,1]**2)
+  idx = np.argmin(dists,axis=0)
+  i = idx // size
+  j = idx % size
+  return i,j
+
+def get_size_origin(centers):
+  size = np.array(
+      [np.round(max(centers[:,0]) - min(centers[:,0]),1),
+      np.round(max(centers[:,1]) - min(centers[:,1]),1)])
+
+  origin = np.array(
+      [(max(centers[:,0]) + min(centers[:,0]))/2, 
+      (max(centers[:,1]) + min(centers[:,1]))/2])
+  
+  return size, origin
+
+def create_unit(element, element_shape, simmetry):
   if simmetry == 'p4':
     unit_size = 2*element_size
     # fold_size = np.random.choice(4,1)[0]
@@ -46,36 +83,36 @@ def create_unit(element, element_size, simmetry):
           unit[k,l]  = el
 
   if simmetry == 'p3':
-    element_size, element_origin = self.get_size_origin(centers_element)
+    centers_element,_ = create_hex_grid(nx=element_shape[1], ny=element_shape[0])
+    element_size, element_origin = get_size_origin(centers_element)
     
     unit = np.zeros((2*element.shape[0]-1,element.shape[1]))
-    self.unit_shape = unit.shape
+    unit_shape = unit.shape
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
 
-    unit_size, unit_origin =  self.get_size_origin(centers_unit)
+    unit_size, unit_origin =  get_size_origin(centers_unit)
 
     for i in range(element.shape[0]):
       for j in range(element.shape[1]):
         idx = i*element.shape[1] + j
         center_element = centers_element[idx] - element_origin
         centers_offset = [0, unit_size[1]/4]
-        if not self.get_ext_voids(center_element, element_size[0]):
+        if not get_ext_voids(center_element, element_size[0]):
           unit[i,j] = element[i,j]
           center_unit = center_element  - centers_offset + unit_origin
           
           q1 = 2*np.pi/3
-          R1 = self.get_R(q1)
+          R1 = get_R(q1)
           center_unit1 = np.matmul(R1,center_unit)
-          i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
+          i1,j1 = center2idx(unit.shape[1],centers_unit, center_unit1)
           unit[i1,j1] = element[i,j]
 
           q2 = -2*np.pi/3
-          R2 = self.get_R(q2)
+          R2 = get_R(q2)
           center_unit2 = np.matmul(R2,center_unit)
-          i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
+          i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
           unit[i2,j2] = element[i,j]
-
 
   return unit
 
@@ -92,26 +129,57 @@ def create_arrange(unit, units, unit_size):
 
   return arrange
 
-def plot_geom(origin, dimension, simmetry, element, score, score_value):
-  unit = create_unit(element, element.shape[1], simmetry)
-  arrange = create_arrange(unit, units, unit_size)
+def plot_geom(origin, dimension, simmetry, element, unit, score, score_value):
+  if simmetry[:2] in ['p4']:
 
-  fig,ax = plt.subplots(1,3)
-  fig.set_size_inches((16,5))
+    unit = create_unit(element, element.shape[1], simmetry)
+    arrange = create_arrange(unit, units, unit_size)
 
-  if score:
-    fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
-  else:
-    fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry}',fontsize=16)
+    fig,ax = plt.subplots(1,3)
+    fig.set_size_inches((16,5))
 
-  ax[0].imshow(element,cmap='Greys');
-  # ax[0].axis('off')
+    if score:
+      fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry} {score}:{score_value}',fontsize=16)
+    else:
+      fig.suptitle(f'Origin:{origin} Dimension:{dimension}D Simmetry:{simmetry}',fontsize=16)
 
-  ax[1].imshow(unit,cmap='Greys');
-  # ax[1].axis('off')
+    ax[0].imshow(element,cmap='Greys');
+    # ax[0].axis('off')
 
-  ax[2].imshow(arrange,cmap='Greys');
-  # ax[2].axis('off')
+    ax[1].imshow(unit,cmap='Greys');
+    # ax[1].axis('off')
+
+    ax[2].imshow(arrange,cmap='Greys');
+    # ax[2].axis('off')
+  if simmetry[:2] in ['p3','p6']:
+    centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+    arr = element.ravel()
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_element[:, 0], 
+      centers_element[:, 1], 
+      face_color=colors_face,
+      edge_color=colors_edge,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
+
+    centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+    arr = unit.ravel()
+    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_unit[:, 0], 
+      centers_unit[:, 1], 
+      face_color=colors,
+      edge_color=colors_edge,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
+
   plt.show()
 
 
@@ -158,13 +226,13 @@ array_filename = arrays_filename[idx-1]
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
   array = np.array(f.readlines()).astype(float)
   element = array[1:]
-  element_size = [array[0],int(element.shape[0]/array[0])]
-  element = element.reshape(element_size)
+  element_shape = [int(array[0]),int(element.shape[0]/array[0])]
+  element = element.reshape(element_shape)
   if simmetry[:2] == 'p4':
-    unit_size = 2*element_size
+    unit_size = 2*element_shape
   if simmetry[:2] == 'p3':
-    unit_size = [element_size[0],2*element_size[1]]
+    unit_size = [element_shape[0],2*element_shape[1]]
 
-  unit = create_unit(element, element_size, simmetry)
+  unit = create_unit(element, element_shape, simmetry)
 
-plot_geom(origins[origin], dimension, simmetry, element, score, score_value) 
+plot_geom(origins[origin], dimension, simmetry, element, unit, score, score_value) 

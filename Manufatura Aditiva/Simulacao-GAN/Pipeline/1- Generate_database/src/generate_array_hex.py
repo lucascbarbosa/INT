@@ -26,7 +26,7 @@ class GeneratorHex(object):
         hex_centers[:, 0], 
         hex_centers[:, 1], 
         face_color=colors_face,
-        edge_color=colors_face,
+        edge_color=colors_edge,
         min_diam=1.,
         plotting_gap=0,
         rotate_deg=0)
@@ -479,26 +479,27 @@ class GeneratorHex(object):
                 pass
     return arrange
 
-# units = 9
-# simmetry = 'p3'
-# size =  16
-# desired_porosity = 0.5
-# seeds = 6
-# gen = GeneratorHex(units, simmetry, size, desired_porosity, seeds)
+units = 9
+simmetry = 'p3'
+size =  16
+desired_porosity = 0.5
+seeds = 6
+gen = GeneratorHex(units, simmetry, size, desired_porosity, seeds)
 
-# size = 10
-# for i in range(size):
-#   passed = False
-#   while passed == False:
-#     element, centers_element = gen.create_element()
-#     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-#   gen.show_img(element,(6*np.sqrt(3),6))
+size = 10
+for i in range(size):
+  passed = False
+  while passed == False:
+    element, centers_element = gen.create_element()
+    passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
+  print(i)
+  # gen.show_img(element,(6*np.sqrt(3),6))
 
-#   unit, centers_unit= gen.create_unit(element, centers_element)
-#   gen.show_img(unit,(6*np.sqrt(3),6))
+  # unit, centers_unit= gen.create_unit(element, centers_element)
+  # gen.show_img(unit,(6*np.sqrt(3),6))
 
-#   arrange = gen.create_arrange(unit, units, centers_unit)
-#   gen.show_img(arrange,(6*np.sqrt(3),6))
+  # arrange = gen.create_arrange(element, unit, units, centers_unit)
+  # gen.show_img(arrange,(6*np.sqrt(3),6))
   
-#   plt.show()
+  plt.show()
 
