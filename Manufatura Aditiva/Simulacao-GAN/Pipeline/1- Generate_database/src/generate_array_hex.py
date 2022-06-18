@@ -4,6 +4,7 @@ from skimage.measure import find_contours
 import matplotlib.pyplot as plt
 from hexalattice.hexalattice import *
 from time import time
+
 class GeneratorHex(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
     self.units = units

@@ -12,10 +12,10 @@ warnings.filterwarnings('ignore')
 def idx2coord(simmetry,i,j,k):
     if simmetry == 'p3':
         if i % 2 == 0:
-            loc_x = np.round(j*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
+            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
             loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
         else:
-            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
+            loc_x = np.round((j+1.0)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
             loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
 
         loc = np.array([loc_x, loc_y])
@@ -36,10 +36,11 @@ def generate_mesh(simmetry, filename):
         )
 
         # generate unit with specific simmetry
+        
         void_pixels = []
-        for i in range(len(array)): #row of pixel
-            for j in range(len(array)): #column of pixel
-                if array[i,j] == 0 and i in range(5):
+        for i in range(array.shape[0]): #row of pixel
+            for j in range(array.shape[1]): #column of pixel
+                if array[i,j] == 0 and i in range(10):
                     for k in range(elements_per_unit):
                         loc_x,loc_y = idx2coord(simmetry,i,j,k)
                         print(i,j,loc_x,loc_y)
@@ -166,7 +167,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     element_size = [unit_radius*np.sqrt(3), unit_radius] # m
     pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),4)
     array = array.reshape((int(size),int(array.shape[0]/size)))
-    unit_radius = np.round(pixel_radius*(array.shape[1]-0.5),4)
+    unit_radius = np.round(pixel_radius*(array.shape[1]+0.5),4)
     
     print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
     
