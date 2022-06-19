@@ -12,15 +12,15 @@ warnings.filterwarnings('ignore')
 def idx2coord(simmetry,i,j,k):
     if simmetry == 'p3':
         if i % 2 == 0:
-            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
-            loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
+            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2, 6)
+            loc_y = np.round((i+1.0)*pixel_radius*1.5 - unit_radius, 6)
         else:
-            loc_x = np.round((j+1.0)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2 ,5)
-            loc_y = np.round((i+0.8)*pixel_radius*1.5 - unit_radius,5)
+            loc_x = np.round((j+1.0)*pixel_radius*np.sqrt(3) - unit_radius*sqrt(3)/2, 6)
+            loc_y = np.round((i+1.0)*pixel_radius*1.5 - unit_radius, 6)
 
         loc = np.array([loc_x, loc_y])
         # select pixel from k th element
-        loc_x, loc_y = np.matmul(loc,np.array([[np.cos(k*2*np.pi/3), -np.sin(k*2*np.pi/3)],[np.sin(k*2*np.pi/3),np.cos(k*2*np.pi/3)]]))
+        loc_x, loc_y = np.round(np.matmul(loc,np.array([[np.cos(k*2*np.pi/3), -np.sin(k*2*np.pi/3)],[np.sin(k*2*np.pi/3),np.cos(k*2*np.pi/3)]])), 6)
         loc_x, loc_y 
 
     return loc_x,loc_y
@@ -28,30 +28,80 @@ def idx2coord(simmetry,i,j,k):
 def generate_mesh(simmetry, filename):
     
     with pygmsh.occ.Geometry()  as geom:
-        edges = [[(unit_radius-1e-5)*np.cos(q),(unit_radius-1e-5)*np.sin(q)] for q in np.arange(np.pi/6,2*np.pi,np.pi/3)]
+        edges = [
+            [np.round(-unit_radius*np.sqrt(3)/2,6),0],
+            [np.round(-unit_radius*np.sqrt(3)/2,6),np.round(-unit_radius,6)],
+            [np.round(unit_radius*np.sqrt(3)/2,6),np.round(-unit_radius,6)],
+            [np.round(unit_radius*np.sqrt(3)/2,6),0]
+        ]
+
+        edges = [
+            [np.round(-unit_radius*np.sqrt(3)/2,6),0],
+            [np.round(-unit_radius*np.sqrt(3)/2,6),np.round(-unit_radius,6)],
+            [np.round(unit_radius*np.sqrt(3)/2,6),np.round(-unit_radius,6)],
+            [np.round(unit_radius*np.sqrt(3)/2,6),0]
+        ]
         
-        unit = geom.add_polygon(
+        element = geom.add_polygon(
             edges,
             mesh_size=5e-4,
         )
 
         # generate unit with specific simmetry
-        
         void_pixels = []
         for i in range(array.shape[0]): #row of pixel
             for j in range(array.shape[1]): #column of pixel
-                if array[i,j] == 0 and i in range(10):
-                    for k in range(elements_per_unit):
+                if array[i,j] == 0:
+                    for k in range(1):
                         loc_x,loc_y = idx2coord(simmetry,i,j,k)
                         print(i,j,loc_x,loc_y)
                         pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
                         # print(pixel_edges)
                         void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
                         void_pixels.append(void_pixel)
+        
+        left_rect_edges = [
+            [np.round(-unit_radius*np.sqrt(3)/2 - pixel_radius*np.sqrt(3),6),0],
+            [np.round(-unit_radius*np.sqrt(3)/2 + pixel_radius*np.sqrt(3),6),0],
+            [np.round(-unit_radius*np.sqrt(3)/2 + pixel_radius*np.sqrt(3),6),np.round(-unit_radius,6)],
+            [np.round(-unit_radius*np.sqrt(3)/2 - pixel_radius*np.sqrt(3),6),np.round(-unit_radius,6)]
+        ]
 
-        # units = []
-                
-        unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
+        left_rect = geom.add_polygon(left_rect_edges,mesh_size=5e-4)
+        void_pixels.append(left_rect)
+
+        right_rect_edges = [
+            [np.round(unit_radius*np.sqrt(3)/2 - pixel_radius*np.sqrt(3), 6),0],
+            [np.round(unit_radius*np.sqrt(3)/2 + pixel_radius*np.sqrt(3), 6),0],
+            [np.round(unit_radius*np.sqrt(3)/2 + pixel_radius*np.sqrt(3), 6),np.round(-unit_radius, 6)],
+            [np.round(unit_radius*np.sqrt(3)/2 - pixel_radius*np.sqrt(3), 6),np.round(-unit_radius, 6)]
+        ]
+
+        right_rect = geom.add_polygon(right_rect_edges,mesh_size=5e-4)
+        void_pixels.append(right_rect)
+
+        bot_rect_edges = [
+            [np.round(unit_radius*np.sqrt(3)/2, 6),np.round(-unit_radius + pixel_radius*np.sqrt(3), 6)],
+            [np.round(unit_radius*np.sqrt(3)/2, 6),np.round(-unit_radius - pixel_radius*np.sqrt(3), 6)],
+            [np.round(-unit_radius*np.sqrt(3)/2, 6),np.round(-unit_radius - pixel_radius*np.sqrt(3), 6)],
+            [np.round(-unit_radius*np.sqrt(3)/2, 6),np.round(-unit_radius + pixel_radius*np.sqrt(3), 6)]
+        ]
+
+        bot_rect = geom.add_polygon(bot_rect_edges,mesh_size=5e-4)
+        void_pixels.append(bot_rect)
+
+        element = geom.boolean_difference(element, geom.boolean_union(void_pixels))
+        elements = []
+        elements.append(element[0])
+
+        for i in range(1,elements_per_unit):
+            element_ = geom.copy(element[0])
+            geom.rotate(element_,(0.0,0.0,0.0),i*2*np.pi/3,(0.0,0.0,1.0))
+            elements.append(element_)
+        
+        unit = geom.boolean_union(elements)
+        
+        # units  = []
         # units.append(unit[0])
         
         # for i in range(units_per_row+2):
@@ -165,7 +215,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array = array[1:]
     
     element_size = [unit_radius*np.sqrt(3), unit_radius] # m
-    pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),4)
+    pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),6)
     array = array.reshape((int(size),int(array.shape[0]/size)))
     unit_radius = np.round(pixel_radius*(array.shape[1]+0.5),4)
     
