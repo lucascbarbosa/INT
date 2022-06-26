@@ -12,10 +12,10 @@ warnings.filterwarnings('ignore')
 def idx2coord(simmetry,i,j):
     if simmetry == 'p3':
         if i % 2 == 0:
-            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3) - element_size[0]/2, 6)
+            loc_x = np.round((j+0.5)*pixel_radius*np.sqrt(3)*1.001 - element_size[0]/2, 6)
             loc_y = np.round((i+2/3)*pixel_radius*1.5 - element_size[1], 6)
         else:
-            loc_x = np.round((j+1.0)*pixel_radius*np.sqrt(3) - element_size[0]/2, 6)
+            loc_x = np.round((j+1.0)*pixel_radius*np.sqrt(3)*1.001 - element_size[0]/2, 6)
             loc_y = np.round((i+2/3)*pixel_radius*1.5 - element_size[1], 6)
 
     return loc_x,loc_y
@@ -47,41 +47,41 @@ def generate_mesh(simmetry, filename):
                     void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
                     void_pixels.append(void_pixel)
 
-        for i in range(-1,array.shape[0]+1):
-            loc_x,loc_y = idx2coord(simmetry, i, -1)
-            pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
-            void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
-            void_pixels.append(void_pixel)
+        # for i in range(-1,array.shape[0]+1):
+        #     loc_x,loc_y = idx2coord(simmetry, i, -1)
+        #     pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
+        #     void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
+        #     void_pixels.append(void_pixel)
             
-            loc_x,loc_y = idx2coord(simmetry, i, array.shape[1])
-            pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
-            void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
-            void_pixels.append(void_pixel)
+        #     loc_x,loc_y = idx2coord(simmetry, i, array.shape[1])
+        #     pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
+        #     void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
+        #     void_pixels.append(void_pixel)
         
-        for i in range(-1,array.shape[1]+1):
-            loc_x,loc_y = idx2coord(simmetry, -1, i)
-            pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
-            void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
-            void_pixels.append(void_pixel)
+        # for i in range(-1,array.shape[1]+1):
+        #     loc_x,loc_y = idx2coord(simmetry, -1, i)
+        #     pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
+        #     void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
+        #     void_pixels.append(void_pixel)
 
-            loc_x,loc_y = idx2coord(simmetry, array.shape[0], i)
-            pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
-            void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
-            void_pixels.append(void_pixel)
+        #     loc_x,loc_y = idx2coord(simmetry, array.shape[0], i)
+        #     pixel_edges = [[loc_x+pixel_radius*1.01*np.cos(q),loc_y+pixel_radius*1.01*np.sin(q)] for q in np.arange(np.pi/6, 2*np.pi, np.pi/3)]
+        #     void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
+        #     void_pixels.append(void_pixel)
         
 
-        element = geom.boolean_difference(element, geom.boolean_union(void_pixels))
-        # element = geom.boolean_union(void_pixels)
+        # element = geom.boolean_difference(element, geom.boolean_union(void_pixels))
+        element = geom.boolean_union(void_pixels)
 
-        elements = []
-        elements.append(element[0])
+        # elements = []
+        # elements.append(element[0])
 
-        for i in range(1,elements_per_unit):
-            element_ = geom.copy(element[0])
-            geom.rotate(element_,(0,-3*pixel_radius/4,0.0),i*2*np.pi/3,(0.0,0.0,1.0))
-            elements.append(element_)
+        # for i in range(1,elements_per_unit):
+        #     element_ = geom.copy(element[0])
+        #     geom.rotate(element_,(0,-3*pixel_radius/4,0.0),i*2*np.pi/3,(0.0,0.0,1.0))
+        #     elements.append(element_)
         
-        unit = geom.boolean_union(elements)
+        # unit = geom.boolean_union(elements)
         
         # units  = []
         # units.append(unit[0])
