@@ -1,6 +1,6 @@
 from sympy import E
-from src.generate_geometry_hex import GeneratorHex
-from src.generate_geometry_quad import GeneratorQuad
+from src.generate_array_hex import GeneratorHex
+from src.generate_array_quad import GeneratorQuad
 from hexalattice.hexalattice import *
 import sys
 import numpy as np
@@ -35,18 +35,18 @@ def plot_geom(element, unit, arrange, simmetry):
       rotate_deg=0
     )
 
-    # centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
-    # arr = unit.ravel()
-    # colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    # plot_single_lattice_custom_colors(
-    #   centers_unit[:, 0], 
-    #   centers_unit[:, 1], 
-    #   face_color=colors,
-    #   edge_color=colors,
-    #   min_diam=1.,
-    #   plotting_gap=0,
-    #   rotate_deg=0
-    # )
+    centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+    arr = unit.ravel()
+    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_unit[:, 0], 
+      centers_unit[:, 1], 
+      face_color=colors,
+      edge_color=colors,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
 
     # centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
     # arr = arrange.ravel()
