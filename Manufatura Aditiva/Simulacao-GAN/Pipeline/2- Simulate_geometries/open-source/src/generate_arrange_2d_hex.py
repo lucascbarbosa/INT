@@ -69,8 +69,6 @@ def generate_mesh(simmetry, filename):
             void_pixel = geom.add_polygon(pixel_edges,mesh_size=5e-4)
             void_pixels.append(void_pixel)
         
-
-        # element = geom.boolean_union(void_pixels)
         element = geom.boolean_difference(element, geom.boolean_union(void_pixels))
 
         elements = []
@@ -85,7 +83,7 @@ def generate_mesh(simmetry, filename):
         
         units  = []
         
-        for i in range(units_per_col+3):
+        for i in range(units_per_col+2):
             for j in range(units_per_row+2):
                 unit_ = geom.copy(unit[0])
                 if i % 2 == 0:
@@ -93,14 +91,13 @@ def generate_mesh(simmetry, filename):
                 else:
                     translate = [(j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
 
-                print(i, j, translate)
                 geom.translate(unit_, translate)
                 units.append(unit_)
 
         geom.remove(unit[0],recursive=True)
         arrange = geom.boolean_union(units)
 
-        geom.translate(arrange[0],[-(units_per_row-0.5)*element_size[0]*np.sqrt(3),0,0])
+        # geom.translate(arrange[0],[-(units_per_row+1.5)*element_size[1]*np.sqrt(3)*0.5,-(units_per_col+1)*0.75*element_size[1],0])
         
         # geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
@@ -152,6 +149,8 @@ def generate_mesh(simmetry, filename):
 # size = int(sys.argv[4])
 # idx = int(sys.argv[5])-1
 # theta = int(sys.argv[6])
+
+start_time = time.time()
 
 origin = '-r'
 simmetry = 'p3'
@@ -208,3 +207,6 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
     filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
     generate_mesh(simmetry, 'test.vtk')
+    end_time = time.time()
+
+print(end_time-start_time)
