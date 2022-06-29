@@ -84,20 +84,21 @@ def generate_mesh(simmetry, filename):
         unit = geom.boolean_union(elements)
         
         units  = []
-        units.append(unit[0])
         
-        for i in range(2):
-            for j in range(units_per_col+1):
-                if [i,j] != [0,0]:
-                    unit_ = geom.copy(unit[0])
-                    if i % 2 == 0:
-                        geom.translate(unit_, [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*element_size[1]*1.5+pixel_radius,0])
-                    else:
-                        geom.translate(unit_, [(j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.997,i*element_size[1]*1.5+2*pixel_radius,0])
+        for i in range(units_per_col+3):
+            for j in range(units_per_row+2):
+                unit_ = geom.copy(unit[0])
+                if i % 2 == 0:
+                    translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
+                else:
+                    translate = [(j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
 
-                    units.append(unit_)
+                print(i, j, translate)
+                geom.translate(unit_, translate)
+                units.append(unit_)
 
-        # arrange = geom.boolean_union(units)
+        geom.remove(unit[0],recursive=True)
+        arrange = geom.boolean_union(units)
 
         # geom.translate(arrange[0],[-unit_size,unit_size,0])
         
