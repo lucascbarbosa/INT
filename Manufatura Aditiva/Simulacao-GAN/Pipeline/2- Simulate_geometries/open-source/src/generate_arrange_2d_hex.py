@@ -100,7 +100,7 @@ def generate_mesh(simmetry, filename):
         geom.remove(unit[0],recursive=True)
         arrange = geom.boolean_union(units)
 
-        # geom.translate(arrange[0],[-unit_size,unit_size,0])
+        geom.translate(arrange[0],[-(units_per_row-0.5)*element_size[0]*np.sqrt(3),0,0])
         
         # geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
