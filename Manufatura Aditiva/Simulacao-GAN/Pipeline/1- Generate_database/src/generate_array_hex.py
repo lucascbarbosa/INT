@@ -437,14 +437,20 @@ class GeneratorHex(object):
             R1 = self.get_R(q1)
             center_unit1 = np.matmul(R1,center_unit)
             i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
-            unit[i1,j1] = element[i,j]
+            try:
+              unit[i1,j1] = element[i,j]
+            except:
+              pass
 
             q2 = -2*np.pi/3
             R2 = self.get_R(q2)
             center_unit2 = np.matmul(R2,center_unit)
             i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
-            unit[i2,j2] = element[i,j]
-  
+            try:
+              unit[i2,j2] = element[i,j]
+            except:
+              pass
+            
     return unit, centers_unit
   
   def create_arrange(self, element, unit, units, centers_unit):
@@ -480,27 +486,27 @@ class GeneratorHex(object):
                 pass
     return arrange
 
-# units = 9
-# simmetry = 'p3'
-# size =  16
-# desired_porosity = 0.5
-# seeds = 6
-# gen = GeneratorHex(units, simmetry, size, desired_porosity, seeds)
+units = 9
+simmetry = 'p3'
+size =  16
+desired_porosity = 0.5
+seeds = 6
+gen = GeneratorHex(units, simmetry, size, desired_porosity, seeds)
 
-# size = 10
-# for i in range(size):
-#   passed = False
-#   while passed == False:
-#     element, centers_element = gen.create_element()
-#     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-#   print(i)
-#   # gen.show_img(element,(6*np.sqrt(3),6))
-
-  # unit, centers_unit= gen.create_unit(element, centers_element)
-  # gen.show_img(unit,(6*np.sqrt(3),6))
-
-  # arrange = gen.create_arrange(element, unit, units, centers_unit)
-  # gen.show_img(arrange,(6*np.sqrt(3),6))
+size = 10
+for i in range(size):
+  passed = False
+  while passed == False:
+    element, centers_element = gen.create_element()
+    passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
   
-  # plt.show()
+  # gen.show_img(element,(6*np.sqrt(3),6))
+
+  unit, centers_unit= gen.create_unit(element, centers_element)
+  gen.show_img(unit,(6*np.sqrt(3),6))
+
+  arrange = gen.create_arrange(element, unit, units, centers_unit)
+  gen.show_img(arrange,(6*np.sqrt(3),6))
+  
+  plt.show()
 

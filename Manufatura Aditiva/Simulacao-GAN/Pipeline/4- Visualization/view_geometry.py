@@ -114,22 +114,45 @@ def create_unit(element, element_shape, simmetry):
           i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
           unit[i2,j2] = element[i,j]
 
-  return unit
+  return unit, centers_unit
 
 
-def create_arrange(unit, units, unit_size):
-  cols = rows = int(np.sqrt(units))
-  arrange = np.ones((cols*unit_size,cols*unit_size))
+def create_arrange(element, unit, units, centers_unit):
+  rows = int(np.sqrt(units))
+  cols = int(np.sqrt(units))
+  
+  arrange = np.zeros((int((1+(rows-1)*3/4)*unit.shape[0]),int((cols+0.5)*unit.shape[1])))
+  centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+  arrange_size, arrange_origin =  get_size_origin(centers_arrange)
+
   h,w = unit.shape
+  unit_size, unit_origin =  get_size_origin(centers_unit)
+  centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
   for i in range(h):
     for j in range(w):
+      idx = i*element.shape[1] + j
+      center_unit = centers_unit[idx] - unit_origin
+      center_arrange = center_unit  - centers_offset + arrange_origin
+
       for k in range(rows):
         for l in range(cols):
-          arrange[i+k*unit_size,j+l*unit_size] = unit[i,j]
+          disp = np.array([
+            l*unit_size[0]-(k%2)*unit_size[0]/2,
+            k*3*unit_size[1]/4
+            ])
+          center = center_arrange + disp 
+          i_, j_ = center2idx(arrange.shape[1], centers_arrange, center)
 
+          if unit[i,j]:
+            try:
+              arrange[i_,j_] = unit[i,j]
+            except:
+              pass
+  
   return arrange
 
-def plot_geom(origin, dimension, simmetry, element, unit, score, score_value):
+
+def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_value):
   if simmetry[:2] in ['p4']:
 
     unit = create_unit(element, element.shape[1], simmetry)
@@ -160,7 +183,7 @@ def plot_geom(origin, dimension, simmetry, element, unit, score, score_value):
       centers_element[:, 0], 
       centers_element[:, 1], 
       face_color=colors_face,
-      edge_color=colors_edge,
+      edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
       rotate_deg=0
@@ -168,13 +191,27 @@ def plot_geom(origin, dimension, simmetry, element, unit, score, score_value):
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
     arr = unit.ravel()
-    colors = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
     colors_edge = [(0,0,0) for i in range(arr.shape[0])]
     plot_single_lattice_custom_colors(
       centers_unit[:, 0], 
       centers_unit[:, 1], 
-      face_color=colors,
-      edge_color=colors_edge,
+      face_color=colors_face,
+      edge_color=colors_face,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
+
+    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    arr = arrange.ravel()
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_arrange[:, 0], 
+      centers_arrange[:, 1], 
+      face_color=colors_face,
+      edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
       rotate_deg=0
@@ -185,11 +222,17 @@ def plot_geom(origin, dimension, simmetry, element, unit, score, score_value):
 
 # ////////////////////////////////////////
 
-dimension = sys.argv[1] 
-origin = sys.argv[2]
-simmetry = sys.argv[3]
-units = int(sys.argv[4])
-idx = int(sys.argv[5])
+# dimension = sys.argv[1] 
+# origin = sys.argv[2]
+# simmetry = sys.argv[3]
+# units = int(sys.argv[4])
+# idx = int(sys.argv[5])
+
+dimension = 2 
+origin = "-r"
+simmetry = "p3"
+units = 9
+idx = 2
 
 try:
   score = sys.argv[6]
@@ -233,6 +276,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
   if simmetry[:2] == 'p3':
     unit_size = [element_shape[0],2*element_shape[1]]
 
-  unit = create_unit(element, element_shape, simmetry)
+  unit,centers_unit = create_unit(element, element_shape, simmetry)
+  arrange = create_arrange(element,  unit, units, centers_unit)
 
-plot_geom(origins[origin], dimension, simmetry, element, unit, score, score_value) 
+plot_geom(origins[origin], dimension, simmetry, element, unit, arrange, score, score_value) 
