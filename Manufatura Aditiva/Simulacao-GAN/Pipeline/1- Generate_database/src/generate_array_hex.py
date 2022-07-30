@@ -437,19 +437,15 @@ class GeneratorHex(object):
             R1 = self.get_R(q1)
             center_unit1 = np.matmul(R1,center_unit)
             i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
-            try:
+            if unit[i1,j1] == 0:
               unit[i1,j1] = element[i,j]
-            except:
-              pass
 
             q2 = -2*np.pi/3
             R2 = self.get_R(q2)
             center_unit2 = np.matmul(R2,center_unit)
             i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
-            try:
+            if unit[i2,j2] == 0:
               unit[i2,j2] = element[i,j]
-            except:
-              pass
             
     return unit, centers_unit
   

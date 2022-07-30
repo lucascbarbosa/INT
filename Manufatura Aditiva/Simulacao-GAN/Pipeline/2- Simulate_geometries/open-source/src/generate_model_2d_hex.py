@@ -152,7 +152,7 @@ start_time = time.time()
 origin = '-r'
 simmetry = 'p3'
 units = 9
-idx = 2
+idx = 1
 theta = 0
 
 if origin == "-g":
@@ -183,7 +183,7 @@ arrange_size = 48e-3 # m
 unit_radius = np.round(float(arrange_size/(((units_per_col-1)*0.75+1)*2)),4) # m
 mag = int(log(len(arrays_filename),10)+3)
 
-for idx in range(2,3):
+for idx in range(idx,idx+1):
     array_filename = arrays_filename[idx-1]
 
     with open(os.path.join(arrays_dir,array_filename),'r') as f:

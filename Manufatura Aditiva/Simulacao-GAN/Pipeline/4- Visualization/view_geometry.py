@@ -106,13 +106,15 @@ def create_unit(element, element_shape, simmetry):
           R1 = get_R(q1)
           center_unit1 = np.matmul(R1,center_unit)
           i1,j1 = center2idx(unit.shape[1],centers_unit, center_unit1)
-          unit[i1,j1] = element[i,j]
+          if unit[i1,j1] == 0:
+            unit[i1,j1] = element[i,j]
 
           q2 = -2*np.pi/3
           R2 = get_R(q2)
           center_unit2 = np.matmul(R2,center_unit)
           i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
-          unit[i2,j2] = element[i,j]
+          if unit[i2,j2] == 0:
+            unit[i2,j2] = element[i,j]
 
   return unit, centers_unit
 
@@ -203,19 +205,19 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
       rotate_deg=0
     )
 
-    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
-    arr = arrange.ravel()
-    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-      centers_arrange[:, 0], 
-      centers_arrange[:, 1], 
-      face_color=colors_face,
-      edge_color=colors_face,
-      min_diam=1.,
-      plotting_gap=0,
-      rotate_deg=0
-    )
+    # centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    # arr = arrange.ravel()
+    # colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    # colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    # plot_single_lattice_custom_colors(
+    #   centers_arrange[:, 0], 
+    #   centers_arrange[:, 1], 
+    #   face_color=colors_face,
+    #   edge_color=colors_face,
+    #   min_diam=1.,
+    #   plotting_gap=0,
+    #   rotate_deg=0
+    # )
 
   plt.show()
 
@@ -232,7 +234,7 @@ dimension = 2
 origin = "-r"
 simmetry = "p3"
 units = 9
-idx = 2
+idx = 1
 
 try:
   score = sys.argv[6]
