@@ -109,12 +109,12 @@ def create_unit(element, element_shape, simmetry):
           if unit[i1,j1] == 0:
             unit[i1,j1] = element[i,j]
 
-          q2 = -2*np.pi/3
-          R2 = get_R(q2)
-          center_unit2 = np.matmul(R2,center_unit)
-          i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
-          if unit[i2,j2] == 0:
-            unit[i2,j2] = element[i,j]
+          # q2 = -2*np.pi/3
+          # R2 = get_R(q2)
+          # center_unit2 = np.matmul(R2,center_unit)
+          # i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
+          # if unit[i2,j2] == 0:
+          #   unit[i2,j2] = element[i,j]
 
   return unit, centers_unit
 
@@ -234,7 +234,7 @@ dimension = 2
 origin = "-r"
 simmetry = "p3"
 units = 9
-idx = 1
+idx = 11
 
 try:
   score = sys.argv[6]
