@@ -83,20 +83,20 @@ def generate_mesh(simmetry, filename):
         
         units  = []
         
-        for i in range(2):
-            for j in range(2):
+        for i in range(2+1):
+            for j in range(2+1):
                 unit_ = geom.copy(unit[0])
                 if i % 2 == 0:
                     translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
                     # translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
                 else:
-                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
+                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
 
                 geom.translate(unit_, translate)
                 units.append(unit_)
 
         geom.remove(unit[0],recursive=True)
-        arrange = geom.boolean_union(units)
+        # arrange = geom.boolean_union(units)
 
         # geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
         
@@ -133,9 +133,9 @@ def generate_mesh(simmetry, filename):
 
         # geom.boolean_union([arrange,handle_bot,handle_top])
         
-        # geom.set_mesh_size_callback(
-        #     lambda dim, tag, x, y, z: pixel_radius
-        # )
+        geom.set_mesh_size_callback(
+            lambda dim, tag, x, y, z: pixel_radius*1.003
+        )
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
@@ -153,7 +153,7 @@ start_time = time.time()
 origin = '-r'
 simmetry = 'p3'
 units = 9
-idx = 1
+idx = 11
 theta = 0
 
 if origin == "-g":
@@ -203,7 +203,7 @@ for idx in range(idx,idx+1):
         pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),6)
         array = array.reshape((int(size),int(array.shape[0]/size)))
         element_size = [np.round(pixel_radius*np.sqrt(3)*(array.shape[1]+0.5),4), np.round(1.5*pixel_radius*(array.shape[0]-1)+2*pixel_radius,4)] # m
-        print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
+        # print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
         filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
         generate_mesh(simmetry, f'test_{idx}.vtk')
         end_time = time.time()
