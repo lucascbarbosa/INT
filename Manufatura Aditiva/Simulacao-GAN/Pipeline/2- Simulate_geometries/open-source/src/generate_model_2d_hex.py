@@ -83,55 +83,55 @@ def generate_mesh(simmetry, filename):
         
         units  = []
         
-        for i in range(2+1):
-            for j in range(2+1):
+        for i in range(units_per_col+1):
+            for j in range(units_per_row+1):
                 unit_ = geom.copy(unit[0])
                 if i % 2 == 0:
                     translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
                     # translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
                 else:
-                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2+pixel_radius*np.sqrt(3)*0.75)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2-pixel_radius*np.sqrt(3)*0.25)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
 
                 geom.translate(unit_, translate)
                 units.append(unit_)
 
         geom.remove(unit[0],recursive=True)
-        # arrange = geom.boolean_union(units)
+        arrange = geom.boolean_union(units)
 
-        # geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
+        geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
         
-        # geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
+        geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
-        # filter_out = geom.add_disk([0.0, 0.0], arrange_size*np.sqrt(2)*1.5/2, mesh_size=5e-4)
+        filter_out = geom.add_disk([0.0, 0.0], arrange_size*np.sqrt(2)*1.5/2, mesh_size=5e-4)
 
-        # filter_in = geom.add_polygon(
-        #     [
-        #         [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
-        #         [arrange_size/2-1e-4, -arrange_size/2+1e-4],
-        #         [arrange_size/2-1e-4, arrange_size/2-1e-4],
-        #         [-arrange_size/2+1e-4, arrange_size/2-1e-4],
-        #     ],
-        #     mesh_size=5e-4,
-        # )
+        filter_in = geom.add_polygon(
+            [
+                [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, arrange_size/2-1e-4],
+                [-arrange_size/2+1e-4, arrange_size/2-1e-4],
+            ],
+            mesh_size=5e-4,
+        )
 
-        # filter_boolean = geom.boolean_difference(filter_out,filter_in)
+        filter_boolean = geom.boolean_difference(filter_out,filter_in)
 
-        # arrange = geom.boolean_difference(arrange, filter_boolean)
+        arrange = geom.boolean_difference(arrange, filter_boolean)
 
-        # handle_top = geom.add_polygon(
-        #     [
-        #         [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
-        #         [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
-        #         [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
-        #         [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
-        #     ],
-        #     mesh_size=5e-4,
-        # )
+        handle_top = geom.add_polygon(
+            [
+                [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
+                [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
+            ],
+            mesh_size=5e-4,
+        )
         
-        # handle_bot = geom.copy(handle_top)
-        # geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
+        handle_bot = geom.copy(handle_top)
+        geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
 
-        # geom.boolean_union([arrange,handle_bot,handle_top])
+        geom.boolean_union([arrange,handle_bot,handle_top])
         
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_radius*1.003
@@ -153,7 +153,7 @@ start_time = time.time()
 origin = '-r'
 simmetry = 'p3'
 units = 9
-idx = 11
+idx = 1
 theta = 0
 
 if origin == "-g":
@@ -184,7 +184,7 @@ arrange_size = 48e-3 # m
 unit_radius = np.round(float(arrange_size/(((units_per_col-1)*0.75+1)*2)),4) # m
 mag = int(log(len(arrays_filename),10)+3)
 
-for idx in range(idx,idx+1):
+for idx in range(idx,idx+5):
     array_filename = arrays_filename[idx-1]
 
     with open(os.path.join(arrays_dir,array_filename),'r') as f:
