@@ -141,20 +141,19 @@ def generate_mesh(simmetry, filename):
         mesh.write(filename)
 # //////////////////////////////////////////////////////////////
 
-# origin = sys.argv[1]
-# simmetry = sys.argv[2]
-# units = int(sys.argv[3])
-# size = int(sys.argv[4])
-# idx = int(sys.argv[5])-1
-# theta = int(sys.argv[6])
+origin = sys.argv[1]
+simmetry = sys.argv[2]
+units = int(sys.argv[3])
+size = int(sys.argv[4])
+idx = int(sys.argv[5])
+theta = int(sys.argv[6])
 
-start_time = time.time()
-
-origin = '-r'
-simmetry = 'p3'
-units = 9
-idx = 1
-theta = 0
+# start_time = time.time()
+# origin = '-r'
+# simmetry = 'p3'
+# units = 9
+# idx = 1
+# theta = 0
 
 if origin == "-g":
     score = sys.argv[7]
@@ -182,11 +181,9 @@ elements_per_unit = int(simmetry[1])
 thickness =  2.5e-3 # m
 arrange_size = 48e-3 # m
 unit_radius = np.round(float(arrange_size/(((units_per_col-1)*0.75+1)*2)),4) # m
-mag = int(log(len(arrays_filename),10)+3)
 
-for idx in range(idx,idx+5):
-    array_filename = arrays_filename[idx-1]
-
+for idx in range(idx,idx+1):
+    array_filename = arrays_filename[idx]
     with open(os.path.join(arrays_dir,array_filename),'r') as f:
         array_dir = array_filename.split('_')[0]
         try:
@@ -204,8 +201,8 @@ for idx in range(idx,idx+5):
         array = array.reshape((int(size),int(array.shape[0]/size)))
         element_size = [np.round(pixel_radius*np.sqrt(3)*(array.shape[1]+0.5),4), np.round(1.5*pixel_radius*(array.shape[0]-1)+2*pixel_radius,4)] # m
         # print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
-        filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
-        generate_mesh(simmetry, f'test_{idx}.vtk')
-        end_time = time.time()
+        filename = vtks_dir+array_dir+'/'+array_dir+"_theta_%d.vtk"%theta
+        generate_mesh(simmetry, filename)
+        # end_time = time.time()
 
-    print(end_time-start_time)
+    # print(end_time-start_time)

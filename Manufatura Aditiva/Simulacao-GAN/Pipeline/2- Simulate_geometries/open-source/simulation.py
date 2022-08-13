@@ -3,7 +3,7 @@ import numpy as np
 from numpy.core.numeric import array_equal
 from numpy.lib import index_tricks
 from src.simulate_2d import Simulate2D
-from src.simulate_3d import Simulate3D
+# from src.simulate_3d import Simulate3D
 from src.preproc import preproc
 import time
 from multiprocessing import Process, freeze_support, Array
@@ -11,7 +11,7 @@ import sys
 
 def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin):
 
-    stl_filename, vtk_filename = preproc(
+    vtk_filename = preproc(
         vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension)
 
     # Titanium
@@ -30,7 +30,7 @@ def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_
         plane = 'strain'
 
     log_dir = log_dir + array_dir 
-    log_filename = stl_filename.split('/')[-1][:-4] + '.txt'
+    log_filename = vtk_filename.split('/')[-1][:-4] + '.txt'
     sim.quiet_log()
     start_sim = time.time()
     mesh, geom, cells, verts = sim.get_mesh(vtk_filename)
