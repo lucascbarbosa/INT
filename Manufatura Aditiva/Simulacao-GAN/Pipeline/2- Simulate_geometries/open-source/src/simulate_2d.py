@@ -150,7 +150,7 @@ class Simulate2D(object):
 
         pb = Problem('elasticity', equations=eqs)
 
-        # pb.save_regions_as_groups('regions')
+        pb.save_regions_as_groups('regions')
 
         pb.set_bcs(ebcs=Conditions(bcs))
 

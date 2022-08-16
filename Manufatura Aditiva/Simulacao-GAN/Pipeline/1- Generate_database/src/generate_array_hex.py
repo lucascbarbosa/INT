@@ -425,25 +425,28 @@ class GeneratorHex(object):
 
       unit_size, unit_origin =  self.get_size_origin(centers_unit)
 
+      pixel_size = (centers_unit[1,0]-centers_unit[0,0])/np.sqrt(3)
+
       for i in range(element.shape[0]):
         for j in range(element.shape[1]):
           idx = i*element.shape[1] + j
           center_element = centers_element[idx] - element_origin
           centers_offset = [0, unit_size[1]/4]
           if not self.get_ext_voids(center_element, element_size[0]):
-            unit[i,j] = element[i,j]
             center_unit = center_element  - centers_offset + unit_origin
+            i0,j0 = self.center2idx(unit.shape[1], centers_unit, center_unit)
+            unit[i0,j0] = element[i,j]
             
             q1 = 2*np.pi/3
             R1 = self.get_R(q1)
-            center_unit1 = np.matmul(R1,center_unit)
+            center_unit1 = np.matmul(R1,center_unit) + [0.5*pixel_size*np.sqrt(3), 1.5*pixel_size]
             i1,j1 = self.center2idx(unit.shape[1],centers_unit, center_unit1)
             if unit[i1,j1] == 0:
               unit[i1,j1] = element[i,j]
 
             q2 = -2*np.pi/3
             R2 = self.get_R(q2)
-            center_unit2 = np.matmul(R2,center_unit)
+            center_unit2 = np.matmul(R2,center_unit) + [-1*pixel_size*np.sqrt(3), 1.5*pixel_size]
             i2,j2 = self.center2idx(unit.shape[1],centers_unit, center_unit2)
             if unit[i2,j2] == 0:
               unit[i2,j2] = element[i,j]

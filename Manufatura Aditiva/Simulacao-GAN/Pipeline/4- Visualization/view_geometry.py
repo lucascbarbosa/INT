@@ -38,6 +38,9 @@ def center2idx(size, centers, center):
   dists = centers - center
   dists = np.sqrt(dists[:,0]**2 + dists[:,1]**2)
   idx = np.argmin(dists,axis=0)
+  if toprint:
+    print(np.argsort(dists)[:5])
+    print(centers[np.argsort(dists)[:5]])
   i = idx // size
   j = idx % size
   return i,j
@@ -53,8 +56,10 @@ def get_size_origin(centers):
   
   return size, origin
 
+toprint = False
+
 def create_unit(element, element_shape, simmetry):
-  if simmetry == 'p4':
+  if simmetry[1:] == '4':
     unit_size = 2*element_size
     # fold_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
@@ -67,7 +72,7 @@ def create_unit(element, element_shape, simmetry):
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
   
-  if simmetry in ['p4g','p4m']:
+  if simmetry[1:] in ['4g','4m']:
     unit_element_size = 2*element_size
     # fold_element_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
@@ -82,16 +87,19 @@ def create_unit(element, element_shape, simmetry):
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
 
-  if simmetry == 'p3':
+  if simmetry[1:] == '3':
     centers_element,_ = create_hex_grid(nx=element_shape[1], ny=element_shape[0])
     element_size, element_origin = get_size_origin(centers_element)
     
-    unit = np.zeros((2*element.shape[0]-1,element.shape[1]))
-    unit_shape = unit.shape
+    unit = np.zeros((2*element.shape[0],element.shape[1]+2))
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
+    # print(np.max(centers_unit[:,0]))
+    # print(np.min(centers_unit[:,0]))
 
     unit_size, unit_origin =  get_size_origin(centers_unit)
+
+    pixel_size = (centers_unit[1,0]-centers_unit[0,0])/np.sqrt(3)
 
     for i in range(element.shape[0]):
       for j in range(element.shape[1]):
@@ -99,22 +107,23 @@ def create_unit(element, element_shape, simmetry):
         center_element = centers_element[idx] - element_origin
         centers_offset = [0, unit_size[1]/4]
         if not get_ext_voids(center_element, element_size[0]):
-          unit[i,j] = element[i,j]
           center_unit = center_element  - centers_offset + unit_origin
-          
+          i0,j0 = center2idx(unit.shape[1], centers_unit, center_unit)
+          unit[i0,j0] = element[i,j]
+
           q1 = 2*np.pi/3
           R1 = get_R(q1)
-          center_unit1 = np.matmul(R1,center_unit)
-          i1,j1 = center2idx(unit.shape[1],centers_unit, center_unit1)
+          center_unit1 = np.matmul(R1,center_unit) + [0.5*pixel_size*np.sqrt(3), 1.5*pixel_size]
+          i1,j1 = center2idx(unit.shape[1], centers_unit, center_unit1)
           if unit[i1,j1] == 0:
             unit[i1,j1] = element[i,j]
-
-          # q2 = -2*np.pi/3
-          # R2 = get_R(q2)
-          # center_unit2 = np.matmul(R2,center_unit)
-          # i2,j2 = center2idx(unit.shape[1],centers_unit, center_unit2)
-          # if unit[i2,j2] == 0:
-          #   unit[i2,j2] = element[i,j]
+          
+          q2 = -2*np.pi/3
+          R2 = get_R(q2)
+          center_unit2 = np.matmul(R2,center_unit) + [-1*pixel_size*np.sqrt(3), 1.5*pixel_size]
+          i2,j2 = center2idx(unit.shape[1], centers_unit, center_unit2)
+          if unit[i2,j2] == 0:
+            unit[i2,j2] = element[i,j]
 
   return unit, centers_unit
 
@@ -177,19 +186,19 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
     ax[2].imshow(arrange,cmap='Greys');
     # ax[2].axis('off')
   if simmetry[:2] in ['p3','p6']:
-    centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
-    arr = element.ravel()
-    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
-      centers_element[:, 0], 
-      centers_element[:, 1], 
-      face_color=colors_face,
-      edge_color=colors_face,
-      min_diam=1.,
-      plotting_gap=0,
-      rotate_deg=0
-    )
+    # centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+    # arr = element.ravel()
+    # colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    # colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    # plot_single_lattice_custom_colors(
+    #   centers_element[:, 0], 
+    #   centers_element[:, 1], 
+    #   face_color=colors_face,
+    #   edge_color=colors_face,
+    #   min_diam=1.,
+    #   plotting_gap=0,
+    #   rotate_deg=0
+    # )
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
     arr = unit.ravel()

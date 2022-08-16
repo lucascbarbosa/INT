@@ -11,6 +11,7 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
             
 
         if not os.path.isdir(vtk_dir+array_dir):
+            print('fooooooooooooooooooo')
             os.mkdir(vtk_dir+array_dir)
 
         if simmetry[1] in ['3','6']:
@@ -20,10 +21,11 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
 
         os.system(command_vtk)
         vtk_filenames = os.listdir(vtk_dir + array_dir)
+        print(vtk_filenames)
         vtk_filename = vtk_filenames[idx_file]
         vtk_filename = vtk_dir + array_dir + vtk_filename
-        # command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
-        # os.system(command_convert)
+        command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
+        os.system(command_convert)
 
     # if dimension == 3:
     #     try:
