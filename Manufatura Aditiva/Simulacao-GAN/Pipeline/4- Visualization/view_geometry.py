@@ -8,7 +8,10 @@ import sys
 from sklearn.metrics import precision_score
 from sklearn.model_selection import permutation_test_score
 
-
+class Viewer(object):
+  def __init__(self):
+    pass
+  
 def get_score_filename(origin, dimension, simmetry, score):
   origins = {'-r':'RTGA','-g':'GAN'}
   if os.getcwd().split('\\')[2] == 'lucas':
@@ -94,8 +97,6 @@ def create_unit(element, element_shape, simmetry):
     unit = np.zeros((2*element.shape[0],element.shape[1]+2))
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
-    # print(np.max(centers_unit[:,0]))
-    # print(np.min(centers_unit[:,0]))
 
     unit_size, unit_origin =  get_size_origin(centers_unit)
 
@@ -138,18 +139,20 @@ def create_arrange(element, unit, units, centers_unit):
 
   h,w = unit.shape
   unit_size, unit_origin =  get_size_origin(centers_unit)
-  centers_offset = [((2*cols-3)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
+  centers_offset = [((2*cols-1)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
+  pixel_size = (centers_unit[1,0]-centers_unit[0,0])/np.sqrt(3)
+
   for i in range(h):
     for j in range(w):
-      idx = i*element.shape[1] + j
+      idx = i*unit.shape[1] + j
       center_unit = centers_unit[idx] - unit_origin
       center_arrange = center_unit  - centers_offset + arrange_origin
 
       for k in range(rows):
         for l in range(cols):
           disp = np.array([
-            l*unit_size[0]-(k%2)*unit_size[0]/2,
-            k*3*unit_size[1]/4
+            l*unit_size[0]+(k%2)*unit_size[0]/2-0.5*pixel_size*np.sqrt(3),
+            k*3*unit_size[1]/4 + (-1)**(l%2==0)*0.75*pixel_size
             ])
           center = center_arrange + disp 
           i_, j_ = center2idx(arrange.shape[1], centers_arrange, center)
@@ -186,19 +189,19 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
     ax[2].imshow(arrange,cmap='Greys');
     # ax[2].axis('off')
   if simmetry[:2] in ['p3','p6']:
-    # centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
-    # arr = element.ravel()
-    # colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    # colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    # plot_single_lattice_custom_colors(
-    #   centers_element[:, 0], 
-    #   centers_element[:, 1], 
-    #   face_color=colors_face,
-    #   edge_color=colors_face,
-    #   min_diam=1.,
-    #   plotting_gap=0,
-    #   rotate_deg=0
-    # )
+    centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
+    arr = element.ravel()
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_element[:, 0], 
+      centers_element[:, 1], 
+      face_color=colors_face,
+      edge_color=colors_face,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
     arr = unit.ravel()
@@ -214,19 +217,19 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
       rotate_deg=0
     )
 
-    # centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
-    # arr = arrange.ravel()
-    # colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    # colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    # plot_single_lattice_custom_colors(
-    #   centers_arrange[:, 0], 
-    #   centers_arrange[:, 1], 
-    #   face_color=colors_face,
-    #   edge_color=colors_face,
-    #   min_diam=1.,
-    #   plotting_gap=0,
-    #   rotate_deg=0
-    # )
+    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    arr = arrange.ravel()
+    colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
+    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+    plot_single_lattice_custom_colors(
+      centers_arrange[:, 0], 
+      centers_arrange[:, 1], 
+      face_color=colors_face,
+      edge_color=colors_face,
+      min_diam=1.,
+      plotting_gap=0,
+      rotate_deg=0
+    )
 
   plt.show()
 

@@ -74,29 +74,29 @@ def generate_mesh(simmetry, filename):
         elements = []
         elements.append(element[0])
 
-        for i in range(1,2):
+        for i in range(1,elements_per_unit):
             element_ = geom.copy(element[0])
             geom.rotate(element_,(pixel_radius*np.sqrt(3)/4,0,0.0),i*2*np.pi/3,(0.0,0.0,1.0))
             elements.append(element_)
         
         unit = geom.boolean_union(elements)
         
-        # units  = []
+        units  = []
         
-        # for i in range(units_per_col+1):
-        #     for j in range(units_per_row+1):
-        #         unit_ = geom.copy(unit[0])
-        #         if i % 2 == 0:
-        #             translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
-        #             # translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
-        #         else:
-        #             translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2-pixel_radius*np.sqrt(3)*0.25)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+        for i in range(units_per_col+1):
+            for j in range(units_per_row+1):
+                unit_ = geom.copy(unit[0])
+                if i % 2 == 0:
+                    translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+                    # translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
+                else:
+                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2-pixel_radius*np.sqrt(3)*0.25)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
 
-        #         geom.translate(unit_, translate)
-        #         units.append(unit_)
+                geom.translate(unit_, translate)
+                units.append(unit_)
 
-        # geom.remove(unit[0],recursive=True)
-        # arrange = geom.boolean_union(units)
+        geom.remove(unit[0],recursive=True)
+        arrange = geom.boolean_union(units)
 
         # geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
         
