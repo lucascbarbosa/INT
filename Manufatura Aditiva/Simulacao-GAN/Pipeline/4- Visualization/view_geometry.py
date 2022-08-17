@@ -11,7 +11,7 @@ from sklearn.model_selection import permutation_test_score
 class Viewer(object):
   def __init__(self):
     pass
-  
+
 def get_score_filename(origin, dimension, simmetry, score):
   origins = {'-r':'RTGA','-g':'GAN'}
   if os.getcwd().split('\\')[2] == 'lucas':
@@ -90,7 +90,7 @@ def create_unit(element, element_shape, simmetry):
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
 
-  if simmetry[1:] == '3':
+  if simmetry[1:2] == '3':
     centers_element,_ = create_hex_grid(nx=element_shape[1], ny=element_shape[0])
     element_size, element_origin = get_size_origin(centers_element)
     
