@@ -8,10 +8,6 @@ import sys
 from sklearn.metrics import precision_score
 from sklearn.model_selection import permutation_test_score
 
-class Viewer(object):
-  def __init__(self):
-    pass
-
 def get_score_filename(origin, dimension, simmetry, score):
   origins = {'-r':'RTGA','-g':'GAN'}
   if os.getcwd().split('\\')[2] == 'lucas':

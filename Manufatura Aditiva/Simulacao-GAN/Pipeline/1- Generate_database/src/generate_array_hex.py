@@ -391,18 +391,19 @@ class GeneratorHex(object):
         idxs_br_ = idxs_br[np.where(idxs_br[:,0] == i)]
         #  the bottom r-l connection must be satisfied to validate the unit
         try:
-          if (element[idxs_bl_1[0,0],idxs_bl_1[0,1]] == 1 or element[idxs_bl_2[0,0],idxs_bl_2[0,1]] == 1 or element[idxs_bl_2[1,0],idxs_bl_2[1,1]] == 1) and element[idxs_br_[-1,0],idxs_br_[-1,1]] == 1:
+          if ((element[idxs_bl_1[0,0],idxs_bl_1[0,1]] == 1 or element[idxs_bl_2[0,0],idxs_bl_2[0,1]] == 1 or element[idxs_bl_2[1,0],idxs_bl_2[1,1]] == 1) and element[idxs_br_[1,0],idxs_br_[1,1]] == 1) or (element[idxs_bl_1[1,0],idxs_bl_1[1,1]] == 1 and element[idxs_br_[1,0],idxs_br_[1,1]] == 1):
             connections_bot += 1
             passed_bot = True
         except:
           pass
 
       for i in range(element.shape[0]//2,element.shape[0]-1):
-        idxs_tl_ = idxs_tl[np.where(idxs_tl[:,0] == i)]
+        idxs_tl_1 = idxs_tl[np.where(idxs_tl[:,0] == i+1)]
+        idxs_tl_2 = idxs_tl[np.where(idxs_tl[:,0] == i)]
         idxs_tr_ = idxs_tr[np.where(idxs_tr[:,0] == i)]
         # the top r-l connection must be satisfied to validate the element
         try:
-          if element[idxs_tl_[0,0],idxs_tl_[0,1]] == 1 and element[idxs_tr_[-1,0],idxs_tr_[-1,1]] == 1:
+          if ((element[idxs_tl_1[0,0],idxs_tl_1[0,1]] == 1 or element[idxs_tl_1[1,0],idxs_tl_1[1,1]] == 1  or element[idxs_tl_2[0,0],idxs_tl_2[0,1]] == 1) and element[idxs_tr_[1,0],idxs_tr_[1,1]] == 1) or (element[idxs_tl_2[0,0],idxs_tl_2[0,1]] == 1 and element[idxs_tr_[0,0],idxs_tr_[0,1]] == 1):
             connections_top += 1
             passed_top = True
         except: 
@@ -470,11 +471,11 @@ class GeneratorHex(object):
         center_unit = centers_unit[idx] - unit_origin
         center_arrange = center_unit  - centers_offset + arrange_origin
 
-        for k in range(rows):
-          for l in range(cols):
+        for k in range(2):
+          for l in range(2):
             disp = np.array([
-              l*unit_size[0]+(k%2)*unit_size[0]/2-0.5*pixel_size*np.sqrt(3),
-              k*3*unit_size[1]/4 + (-1)**(l%2==0)*0.75*pixel_size
+              l*(unit_size[0]+pixel_size*np.sqrt(3))+(k%2)*(unit_size[0]/2-0.25*pixel_size*np.sqrt(3)),
+              k*(0.75*unit_size[1]+0.75*pixel_size) + ((-1)**(l%2==0))*0.75*pixel_size
               ])
             center = center_arrange + disp 
             i_, j_ = self.center2idx(arrange.shape[1], centers_arrange, center)
@@ -501,10 +502,10 @@ for i in range(size):
     passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
     passed = True
 
-  gen.show_img(element,(6*np.sqrt(3),6))
+  # gen.show_img(element,(6*np.sqrt(3),6))
 
   unit, centers_unit= gen.create_unit(element, centers_element)
-  gen.show_img(unit,(6*np.sqrt(3),6))
+  # gen.show_img(unit,(6*np.sqrt(3),6))
 
   arrange = gen.create_arrange(element, unit, units, centers_unit)
   gen.show_img(arrange,(6*np.sqrt(3),6))

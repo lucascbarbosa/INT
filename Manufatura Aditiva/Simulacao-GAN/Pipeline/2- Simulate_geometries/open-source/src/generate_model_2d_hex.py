@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 warnings.filterwarnings('ignore')
+import trimesh
 
 def idx2coord(simmetry,i,j):
     if simmetry == 'p3':
@@ -86,12 +87,13 @@ def generate_mesh(simmetry, filename):
         for i in range(units_per_col+1):
             for j in range(units_per_row+1):
                 unit_ = geom.copy(unit[0])
-                if i % 2 == 0:
-                    translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
-                    # translate = [j*(element_size[0]+1.5*pixel_radius*np.sqrt(3))*0.997,i*(1.5*element_size[1]+0.75*pixel_radius),0]
-                else:
-                    translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2-pixel_radius*np.sqrt(3)*0.25)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
-
+                # if i % 2 == 0:
+                #     translate = [j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+                # else:
+                    # translate = [(j*(element_size[0]+1.0*pixel_radius*np.sqrt(3))+element_size[0]/2-pixel_radius*np.sqrt(3)*0.25)*0.996,i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+                
+                translate = [(j*(element_size[0]+pixel_radius*np.sqrt(3))+(i%2)*(element_size[0]/2-pixel_radius*np.sqrt(3)*0.25))*0.996, i*(1.5*element_size[1]+0.75*pixel_radius)+((-1)**(j%2==0))*0.75*pixel_radius*1.0037,0]
+                
                 geom.translate(unit_, translate)
                 units.append(unit_)
 
@@ -139,6 +141,8 @@ def generate_mesh(simmetry, filename):
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
+        mesh = trimesh.load_mesh(mesh)
+        mesh = trimesh.load(filename)
 # //////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
