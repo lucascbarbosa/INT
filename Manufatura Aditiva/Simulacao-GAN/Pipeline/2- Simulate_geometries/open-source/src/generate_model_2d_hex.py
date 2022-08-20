@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 warnings.filterwarnings('ignore')
-import trimesh
+from pymeshfix._meshfix import PyTMesh
+
 
 def idx2coord(simmetry,i,j):
     if simmetry == 'p3':
@@ -141,9 +142,10 @@ def generate_mesh(simmetry, filename):
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
-        mesh = trimesh.load_mesh(mesh)
-        mesh = trimesh.load(filename)
-# //////////////////////////////////////////////////////////////
+        mfix = PyTMesh(False) 
+        mfix.load(filename)
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
 simmetry = sys.argv[2]
