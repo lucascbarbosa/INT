@@ -1,5 +1,6 @@
 import meshio
 import pygmsh
+import trimesh
 import numpy as np
 import os
 import sys
@@ -8,7 +9,6 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 warnings.filterwarnings('ignore')
-from pymeshfix._meshfix import PyTMesh
 
 
 def idx2coord(simmetry,i,j):
@@ -21,6 +21,17 @@ def idx2coord(simmetry,i,j):
             loc_y = np.round((i+2/3)*pixel_radius*1.5 - element_size[1], 6)
 
     return loc_x,loc_y
+
+def fill_holes(mesh, filename):
+    esh = meshio.read(filename, file_format='vtk')
+    verts = mesh.points
+    faces = np.array(mesh.cells)[1,1]
+    mesh = trimesh.Trimesh(vertices=verts, faces=faces)
+    trimesh.repair.fill_holes(mesh)
+    points = mesh.vertices
+    cells = [("triangle",np.array(mesh.faces))]
+    mesh = meshio.Mesh(points, cells)
+    mesh.write(filename)
 
 def generate_mesh(simmetry, filename):
     
@@ -101,40 +112,40 @@ def generate_mesh(simmetry, filename):
         geom.remove(unit[0],recursive=True)
         arrange = geom.boolean_union(units)
 
-        # geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
+        geom.translate(arrange[0],[-(units_per_row+0.5)*element_size[1]*np.sqrt(3)/2,-units_per_col*element_size[1]*3/4,0])
         
-        # geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
+        geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
-        # filter_out = geom.add_disk([0.0, 0.0], arrange_size*np.sqrt(2)*1.5/2, mesh_size=5e-4)
+        filter_out = geom.add_disk([0.0, 0.0], arrange_size*np.sqrt(2)*1.5/2, mesh_size=5e-4)
 
-        # filter_in = geom.add_polygon(
-        #     [
-        #         [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
-        #         [arrange_size/2-1e-4, -arrange_size/2+1e-4],
-        #         [arrange_size/2-1e-4, arrange_size/2-1e-4],
-        #         [-arrange_size/2+1e-4, arrange_size/2-1e-4],
-        #     ],
-        #     mesh_size=5e-4,
-        # )
+        filter_in = geom.add_polygon(
+            [
+                [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, -arrange_size/2+1e-4],
+                [arrange_size/2-1e-4, arrange_size/2-1e-4],
+                [-arrange_size/2+1e-4, arrange_size/2-1e-4],
+            ],
+            mesh_size=5e-4,
+        )
 
-        # filter_boolean = geom.boolean_difference(filter_out,filter_in)
+        filter_boolean = geom.boolean_difference(filter_out,filter_in)
 
-        # arrange = geom.boolean_difference(arrange, filter_boolean)
+        arrange = geom.boolean_difference(arrange, filter_boolean)
 
-        # handle_top = geom.add_polygon(
-        #     [
-        #         [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
-        #         [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
-        #         [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
-        #         [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
-        #     ],
-        #     mesh_size=5e-4,
-        # )
+        handle_top = geom.add_polygon(
+            [
+                [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
+                [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
+                [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
+            ],
+            mesh_size=5e-4,
+        )
         
-        # handle_bot = geom.copy(handle_top)
-        # geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
+        handle_bot = geom.copy(handle_top)
+        geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
 
-        # geom.boolean_union([arrange,handle_bot,handle_top])
+        geom.boolean_union([arrange,handle_bot,handle_top])
         
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z: pixel_radius*1.003
@@ -142,9 +153,7 @@ def generate_mesh(simmetry, filename):
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
-        mfix = PyTMesh(False) 
-        mfix.load(filename)
-
+        fill_holes(mesh, filename)
 # ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 origin = sys.argv[1]
@@ -158,6 +167,7 @@ theta = int(sys.argv[6])
 # origin = '-r'
 # simmetry = 'p3'
 # units = 9
+# size = 16
 # idx = 1
 # theta = 0
 
