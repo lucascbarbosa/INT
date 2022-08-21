@@ -188,43 +188,51 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
     centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
     arr = element.ravel()
     colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
+    # colors_edge = [(0,0,0) for i in range(arr.shape[0])]
+
+    fig,ax = plt.subplots(1,3)
+    fig.set_size_inches((16,5))
+
+    ax[0] = plot_single_lattice_custom_colors(
       centers_element[:, 0], 
       centers_element[:, 1], 
       face_color=colors_face,
       edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
-      rotate_deg=0
+      rotate_deg=0, 
+      h_fig=fig,
+      h_ax=ax[0]
     )
 
     centers_unit,_ = create_hex_grid(nx=unit.shape[1], ny=unit.shape[0])
     arr = unit.ravel()
     colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
+    ax[1] = plot_single_lattice_custom_colors(
       centers_unit[:, 0], 
       centers_unit[:, 1], 
       face_color=colors_face,
       edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
-      rotate_deg=0
+      rotate_deg=0, 
+      h_fig=fig,
+      h_ax=ax[1]
     )
 
     centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
     arr = arrange.ravel()
     colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]
-    colors_edge = [(0,0,0) for i in range(arr.shape[0])]
-    plot_single_lattice_custom_colors(
+    ax[2] = plot_single_lattice_custom_colors(
       centers_arrange[:, 0], 
       centers_arrange[:, 1], 
       face_color=colors_face,
       edge_color=colors_face,
       min_diam=1.,
       plotting_gap=0,
-      rotate_deg=0
+      rotate_deg=0, 
+      h_fig=fig,
+      h_ax=ax[2]
     )
 
   plt.show()
@@ -232,17 +240,17 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
 
 # ////////////////////////////////////////
 
-# dimension = sys.argv[1] 
-# origin = sys.argv[2]
-# simmetry = sys.argv[3]
-# units = int(sys.argv[4])
-# idx = int(sys.argv[5])
+dimension = sys.argv[1] 
+origin = sys.argv[2]
+simmetry = sys.argv[3]
+units = int(sys.argv[4])
+idx = int(sys.argv[5])
 
-dimension = 2 
-origin = "-r"
-simmetry = "p3"
-units = 9
-idx = 11
+# dimension = 2 
+# origin = "-r"
+# simmetry = "p3"
+# units = 9
+# idx = 11
 
 try:
   score = sys.argv[6]
