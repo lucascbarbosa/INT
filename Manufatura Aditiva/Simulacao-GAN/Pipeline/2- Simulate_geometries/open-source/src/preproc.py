@@ -9,19 +9,20 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
 
     if dimension == 2:
             
-
         if not os.path.isdir(vtk_dir+array_dir):
-            print('fooooooooooooooooooo')
             os.mkdir(vtk_dir+array_dir)
 
         if simmetry[1] in ['3','6']:
             command_vtk = "python src/generate_model_2d_hex.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
         elif simmetry[1] == '4':
             command_vtk = "python src/generate_model_2d_quad.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
-
         os.system(command_vtk)
+
         vtk_filenames = os.listdir(vtk_dir + array_dir)
-        print(vtk_filenames)
+        for i in range(len(vtk_filenames)):
+            if vtk_filenames[i].split('_')[-1][:2] == str(angle):
+                idx_file = i
+        
         vtk_filename = vtk_filenames[idx_file]
         vtk_filename = vtk_dir + array_dir + vtk_filename
         command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)

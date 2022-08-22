@@ -178,14 +178,13 @@ model.component('comp1').geom('geom1').feature('uni3').set('intbnd', false);
 model.component('comp1').geom('geom1').feature('uni3').set('keep', false);
 model.component('comp1').geom('geom1').run;
 
-% points = mphgetcoords(model,'geom1','domain',1);
-% points = points(1,:);
-% num_points = length(points);
-% model.component('comp1').geom('geom1').create('fil1', 'Fillet');
-% model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni3',[1:num_points]);
-% model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
-% model.component('comp1').geom('geom1').run('fil1');
-model.component('comp1').geom('geom1').run;
+points = mphgetcoords(model,'geom1','domain',1);
+points = points(1,:);
+num_points = length(points);
+model.component('comp1').geom('geom1').create('fil1', 'Fillet');
+model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni3',[1:num_points]);
+model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
+model.component('comp1').geom('geom1').run('fil1');
 
 model.component('comp1').material.create('mat1', 'Common');
 model.component('comp1').material('mat1').propertyGroup.create('Enu', 'Young''s modulus and Poisson''s ratio');
