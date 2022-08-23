@@ -16,7 +16,7 @@ function array = get_array(idx)
 
     for i = (1:size)
         for j = (1:size)
-            array(i,j) = str2double(data{(i-1)*size+j});
+            array(i,j) = str2double(data{(i-1)*size+j+1});
         end
     end
 

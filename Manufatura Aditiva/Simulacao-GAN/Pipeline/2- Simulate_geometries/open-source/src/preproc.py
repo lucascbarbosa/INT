@@ -52,5 +52,4 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
     #         command_convert = """python "src/convert_mesh.py" -d 3 "%s" "%s" """ %(vtk_filename,vtk_filename)
     #         os.system(command_convert)
     #         os.remove(stl_filename)
-            
     return vtk_filename

@@ -208,16 +208,15 @@ for idx in range(idx,idx+1):
             pass
         
         array = np.array(f.readlines()).astype(float)
-        
         size = array[0]
         array = array[1:]
-        
         element_size = [unit_radius*np.sqrt(3), unit_radius] # m
         pixel_radius = np.round(float(element_size[1]/(((size-1)*0.75+1)*2)),6)
         array = array.reshape((int(size),int(array.shape[0]/size)))
         element_size = [np.round(pixel_radius*np.sqrt(3)*(array.shape[1]+0.5),4), np.round(1.5*pixel_radius*(array.shape[0]-1)+2*pixel_radius,4)] # m
         # print(f'arrange_size={arrange_size},\nunit_radius={unit_radius},\nelement_size={np.round(element_size,4)},\npixel_radius={pixel_radius}')
-        filename = vtks_dir+array_dir+'/'+array_dir+"_theta_%d.vtk"%theta
+        array_filename = '_'.join(array_filename.split('_')[1:][:-4])
+        filename = vtks_dir+array_dir+'/'+array_filename+"_theta_%d.vtk"%theta
         generate_mesh(simmetry, filename)
         # end_time = time.time()
 

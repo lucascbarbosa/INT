@@ -59,7 +59,10 @@ toprint = False
 
 def create_unit(element, element_shape, simmetry):
   if simmetry[1:] == '4':
+    print('foo')
+    element_size = element_shape[0]
     unit_size = 2*element_size
+    print(element_size)
     # fold_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
     for i in range(element_size):
@@ -70,6 +73,7 @@ def create_unit(element, element_shape, simmetry):
         # (1,7)->(7,14)->(14,8)->(8,1)
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
+    return unit
   
   if simmetry[1:] in ['4g','4m']:
     unit_element_size = 2*element_size
@@ -85,6 +89,7 @@ def create_unit(element, element_shape, simmetry):
         # (1,2)-> (1,13) -> (14,13) -> (14,2)
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
+    return unit
 
   if simmetry[1:2] == '3':
     centers_element,_ = create_hex_grid(nx=element_shape[1], ny=element_shape[0])
@@ -122,50 +127,62 @@ def create_unit(element, element_shape, simmetry):
           if unit[i2,j2] == 0:
             unit[i2,j2] = element[i,j]
 
-  return unit, centers_unit
+    return unit, centers_unit
 
 
-def create_arrange(element, unit, units, centers_unit):
-  rows = int(np.sqrt(units))
-  cols = int(np.sqrt(units))
+def create_arrange(unit, units, centers_unit=None):
+  if simmetry[1:2] == '3':
+    rows = int(np.sqrt(units))
+    cols = int(np.sqrt(units))
+    
+    arrange = np.zeros((int((1+(rows-1)*3/4)*unit.shape[0]),int((cols+0.5)*unit.shape[1])))
+    centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
+    arrange_size, arrange_origin =  get_size_origin(centers_arrange)
+
+    h,w = unit.shape
+    unit_size, unit_origin =  get_size_origin(centers_unit)
+    centers_offset = [((2*cols-1)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
+    pixel_size = (centers_unit[1,0]-centers_unit[0,0])/np.sqrt(3)
+
+    for i in range(h):
+      for j in range(w):
+        idx = i*unit.shape[1] + j
+        center_unit = centers_unit[idx] - unit_origin
+        center_arrange = center_unit  - centers_offset + arrange_origin
+
+        for k in range(rows):
+          for l in range(cols):
+            disp = np.array([
+              l*unit_size[0]+(k%2)*unit_size[0]/2-0.5*pixel_size*np.sqrt(3),
+              k*3*unit_size[1]/4 + (-1)**(l%2==0)*0.75*pixel_size
+              ])
+            center = center_arrange + disp 
+            i_, j_ = center2idx(arrange.shape[1], centers_arrange, center)
+
+            if unit[i,j]:
+              try:
+                arrange[i_,j_] = unit[i,j]
+              except:
+                pass
   
-  arrange = np.zeros((int((1+(rows-1)*3/4)*unit.shape[0]),int((cols+0.5)*unit.shape[1])))
-  centers_arrange,_ = create_hex_grid(nx=arrange.shape[1], ny=arrange.shape[0])
-  arrange_size, arrange_origin =  get_size_origin(centers_arrange)
-
-  h,w = unit.shape
-  unit_size, unit_origin =  get_size_origin(centers_unit)
-  centers_offset = [((2*cols-1)/4)*unit_size[0], ((rows-1)*3/8)*unit_size[1]]
-  pixel_size = (centers_unit[1,0]-centers_unit[0,0])/np.sqrt(3)
-
-  for i in range(h):
-    for j in range(w):
-      idx = i*unit.shape[1] + j
-      center_unit = centers_unit[idx] - unit_origin
-      center_arrange = center_unit  - centers_offset + arrange_origin
-
-      for k in range(rows):
-        for l in range(cols):
-          disp = np.array([
-            l*unit_size[0]+(k%2)*unit_size[0]/2-0.5*pixel_size*np.sqrt(3),
-            k*3*unit_size[1]/4 + (-1)**(l%2==0)*0.75*pixel_size
-            ])
-          center = center_arrange + disp 
-          i_, j_ = center2idx(arrange.shape[1], centers_arrange, center)
-
-          if unit[i,j]:
-            try:
-              arrange[i_,j_] = unit[i,j]
-            except:
-              pass
-  
+  if simmetry[1:2] == '4':
+    cols = rows = int(np.sqrt(units))
+    unit_size = unit.shape[0]
+    arrange = np.ones((cols*unit_size,cols*unit_size))
+    h,w = unit.shape
+    for i in range(h):
+      for j in range(w):
+        for k in range(rows):
+          for l in range(cols):
+            arrange[i+k*unit_size,j+l*unit_size] = unit[i,j]
+    
   return arrange
 
 
 def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_value):
   if simmetry[:2] in ['p4']:
 
-    unit = create_unit(element, element.shape[1], simmetry)
+    unit = create_unit(element, element.shape, simmetry)
     arrange = create_arrange(unit, units, unit_size)
 
     fig,ax = plt.subplots(1,3)
@@ -289,12 +306,14 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
   element = array[1:]
   element_shape = [int(array[0]),int(element.shape[0]/array[0])]
   element = element.reshape(element_shape)
-  if simmetry[:2] == 'p4':
+  if simmetry[1:2] == '4':
     unit_size = 2*element_shape
-  if simmetry[:2] == 'p3':
-    unit_size = [element_shape[0],2*element_shape[1]]
+    unit = create_unit(element, element_shape, simmetry)
+    arrange = create_arrange(unit, units)
 
-  unit,centers_unit = create_unit(element, element_shape, simmetry)
-  arrange = create_arrange(element,  unit, units, centers_unit)
+  if simmetry[:2] == '3':
+    unit_size = [element_shape[0],2*element_shape[1]]
+    unit,centers_unit = create_unit(element, element_shape, simmetry)
+    arrange = create_arrange(unit, units, centers_unit)
 
 plot_geom(origins[origin], dimension, simmetry, element, unit, arrange, score, score_value) 

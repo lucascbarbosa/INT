@@ -149,7 +149,6 @@ arrange_size = 48e-3 # m
 unit_size = float(arrange_size/units_per_row) # m
 element_size = float(unit_size/elements_per_row) # m
 pixel_size = float(element_size/size)
-mag = int(log(len(arrays_filename),10)+3)
 
 array_filename = arrays_filename[idx+1]
 
@@ -160,6 +159,9 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     except:
         pass
     array = np.array(f.readlines()).astype(float)
+    size = array[0]
+    array = array[1:]
     array = array.reshape((int(size),int(size)))
-    filename = vtks_dir+array_dir+'/'+array_filename[mag:-4]+"_theta_%d.vtk"%theta
+    array_filename = '_'.join(array_filename.split('_')[1:])[:-4]
+    filename = vtks_dir+array_dir+'/'+array_filename+"_theta_%d.vtk"%theta
     generate_mesh(simmetry, filename)
