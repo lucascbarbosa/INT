@@ -180,7 +180,7 @@ def create_arrange(unit, units, centers_unit=None):
 
 
 def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_value):
-  if simmetry[:2] in ['p4']:
+  if simmetry[1:2] == '4':
 
     unit = create_unit(element, element.shape, simmetry)
     arrange = create_arrange(unit, units, unit_size)
@@ -201,7 +201,7 @@ def plot_geom(origin, dimension, simmetry, element, unit, arrange, score, score_
 
     ax[2].imshow(arrange,cmap='Greys');
     # ax[2].axis('off')
-  if simmetry[:2] in ['p3','p6']:
+  if simmetry[1:2] in ['3','6']:
     centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
     arr = element.ravel()
     colors_face = [np.ones((1,3))*(1-arr[i]) for i in range(arr.shape[0])]

@@ -246,7 +246,7 @@ class GeneratorQuad(object):
     return element
 
   def create_unit(self,element):
-    if self.simmetry[:2] in ['p4']:
+    if self.simmetry[1:2] == '4':
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
       unit = np.ones((2*self.size,2*self.size))*(-1)
@@ -259,7 +259,7 @@ class GeneratorQuad(object):
           for (k,l) in list(zip(i_,j_)):
             unit[k,l]  = el
     
-    if self.simmetry in ['p4g','p4m']:
+    if self.simmetry[1:] in ['4g','4m']:
       self.unit_size = 2*self.size
       # fold_size = np.random.choice(4,1)[0]
       unit = np.ones((2*self.size,2*self.size))*(-1)

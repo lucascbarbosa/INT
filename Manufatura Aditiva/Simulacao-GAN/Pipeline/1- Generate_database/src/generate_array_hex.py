@@ -125,7 +125,7 @@ class GeneratorHex(object):
 
   def create_element(self):
 
-    if self.simmetry == 'p3':
+    if self.simmetry[1:] == '3':
       
       self.element_shape = np.array([
         self.size, 
@@ -216,7 +216,7 @@ class GeneratorHex(object):
             if to_add < 1:
               break
     
-    if self.simmetry == 'p3m1':
+    if self.simmetry[1:] == '3m1':
 
       self.element_shape = np.array([
         self.size, 
