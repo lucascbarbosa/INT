@@ -79,8 +79,8 @@ simmetry = sys.argv[1]
 units = int(sys.argv[2]) #9
 size = int(sys.argv[3]) #16
 desired_porosity = float(sys.argv[4]) 
-num_seeds = int(sys.argv[5]) 
-tol = float(sys.argv[6]) #0.02
+tol = float(sys.argv[5]) #0.02
+num_seeds = int(sys.argv[6]) 
 samples = int(sys.argv[7]) #10'000
 
 if os.getcwd().split('\\')[2] == 'lucas':

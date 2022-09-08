@@ -126,7 +126,6 @@ def create_unit(element, element_shape, simmetry):
           i2,j2 = center2idx(unit.shape[1], centers_unit, center_unit2)
           if unit[i2,j2] == 0:
             unit[i2,j2] = element[i,j]
-
     return unit, centers_unit
 
 
@@ -311,7 +310,7 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     unit = create_unit(element, element_shape, simmetry)
     arrange = create_arrange(unit, units)
 
-  if simmetry[:2] == '3':
+  if simmetry[1:2] == '3':
     unit_size = [element_shape[0],2*element_shape[1]]
     unit,centers_unit = create_unit(element, element_shape, simmetry)
     arrange = create_arrange(unit, units, centers_unit)
