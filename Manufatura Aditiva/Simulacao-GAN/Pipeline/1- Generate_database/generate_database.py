@@ -8,10 +8,11 @@ import os
 import matplotlib.pyplot as plt
 from time import time
 
-def plot_geom(element, unit, arrange, simmetry):
+def plot_geom(element, unit, arrange, simmetry, porosity):
   if simmetry[:2] in ['p4']:
     fig,ax = plt.subplots(1,3)
     fig.set_size_inches((16,5))
+    fig.suptitle('Simmetry: %s Porosity: %.2f'%(simmetry, porosity),fontsize=16)
     ax[0].imshow(element,cmap='Greys');
     # ax[0].axis('off')
 
@@ -20,6 +21,7 @@ def plot_geom(element, unit, arrange, simmetry):
 
     ax[2].imshow(arrange,cmap='Greys');
     # ax[2].axis('off')
+
   
   if simmetry[:2] in ['p3','p6']:
     centers_element,_ = create_hex_grid(nx=element.shape[1], ny=element.shape[0])
@@ -134,7 +136,7 @@ if simmetry[:2] in ['p3','p6']:
       if plot:
         unit, centers_unit= gen.create_unit(element, centers_element)
         arrange = gen.create_arrange(element, unit, units, centers_unit)
-        plot_geom(element, unit, arrange, simmetry)
+        plot_geom(element, unit, arrange, simmetry, porosity)
       if save_array:
         gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity), ' ') 
       correct_samples += 1
@@ -158,7 +160,7 @@ if simmetry[:2] in ['p4']:
       porosities.append(porosity)
       if plot:
         arrange = gen.create_arrange(unit)
-        plot_geom(element, unit, arrange, simmetry)
+        plot_geom(element, unit, arrange, simmetry, porosity)
       if save_array:
         gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
       correct_samples += 1

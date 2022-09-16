@@ -67,17 +67,22 @@ class GeneratorQuad(object):
         element[seed_x,seed_y] = 0.
 
       self.set_pixels(element.shape[0]*element.shape[1])
-      
+      contour_element = np.zeros(element.shape)
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
+          contour_element[contour_coords] = 1
+          print(contour_element)
           size = contour.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
           new_voids_coords = contour_coords[new_voids_coords_idxs]
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
-
+      
+      print(element)
+      print(contour_element)
+      print('\n\n\n\n\n')
       to_remove = self.remove_isolated(element,1.0)
 
       try:
@@ -90,7 +95,7 @@ class GeneratorQuad(object):
       while to_remove > 1:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
-          contour_coords = np.around(contour.astype(np.double)).astype(int)
+          contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
           contour_coords = np.unique(contour_coords, axis=0)
           size = contour_coords.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size), replace=False)
