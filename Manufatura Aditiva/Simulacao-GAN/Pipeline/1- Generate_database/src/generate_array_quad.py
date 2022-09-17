@@ -2,7 +2,7 @@ import numpy as np
 from skimage import measure
 from skimage.measure import find_contours
 from math import sqrt
-
+import matplotlib.pyplot as plt
 class GeneratorQuad(object):
   def __init__(self,units,simmmetry,size,porosity,num_seeds):
     self.units = units
@@ -27,6 +27,28 @@ class GeneratorQuad(object):
 
     return voids/(geom.shape[0]**2)
 
+  def check_singularity(self, element, simmetry):
+    passed = True
+    # check singularities inside element
+    for i in range(element.shape[0]-1):
+      for j in range(element.shape[1]-1):
+        # print(element[i:i+2,j:j+2])
+        diag1 = list(element[i:i+2,j:j+2].diagonal())
+        diag2 = list(np.fliplr(element[i:i+2,j:j+2]).diagonal()== [1,1])
+        print((diag1==[1,1] and diag2==[0,0]) or (diag1 == [0,0] and diag2 == [1,1]))
+        if (diag1 == [1,1] and diag2 == [0,0]) or (diag1 == [0,0] and diag2 == [1,1]):
+          passed = False      
+          print('foo1')
+
+    # check singularities in element boundary
+    # if simmetry[1:] == '4':
+    #   for j in range(element.shape[1]-1):
+    #     if (element[0,j] == 0 and element[element.shape[0]-2-j,element.shape[1]-1] == 0) or (element[0,j+1] == 0 and element[element.shape[0]-1-j,element.shape[1]-1] == 0):
+    #       passed = False
+    #       print('foo2')
+
+    # check singularities in unit boundary
+  
   def remove_isolated(self,arr,isolated):
 
     coords = []
@@ -57,32 +79,29 @@ class GeneratorQuad(object):
 
   def create_element(self):
 
+    element = np.ones((self.size,self.size))
+    seeds_i = []
+    seeds_j = []
+    for i in range(self.num_seeds):
+      seed_i = np.random.randint(0, self.size)
+      seed_j = np.random.randint(0, self.size)
+      if (seed_i+1, seed_j+1) not in list(zip(seeds_i,seeds_j)) or (seed_i-1, seed_j+1) in list(zip(seeds_i,seeds_j)) or (seed_i+1, seed_j-1) in list(zip(seeds_i,seeds_j)) or (seed_i-1, seed_j-1) in list(zip(seeds_i,seeds_j)):
+        seeds_i.append(seed_i)
+        seeds_j.append(seed_j)
+        element[seed_i,seed_j] = 0.
+    self.set_pixels(element.shape[0]*element.shape[1])
+
     if self.simmetry == 'p4':
-      
-      element = np.ones((self.size,self.size))
-      seeds_x = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
-      seeds_y = np.random.choice(np.arange(1,self.size-1),self.num_seeds)
-
-      for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
-        element[seed_x,seed_y] = 0.
-
-      self.set_pixels(element.shape[0]*element.shape[1])
-      contour_element = np.zeros(element.shape)
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
           contour_coords = np.around(contour.astype(np.double)).astype(np.uint8)
-          contour_element[contour_coords] = 1
-          print(contour_element)
           size = contour.shape[0]
           new_voids_coords_idxs = np.random.choice(size,int(self.porosity*size))
           new_voids_coords = contour_coords[new_voids_coords_idxs]
           for new_void_coords in new_voids_coords:
             element[new_void_coords[0],new_void_coords[1]] = 0.
       
-      print(element)
-      print(contour_element)
-      print('\n\n\n\n\n')
       to_remove = self.remove_isolated(element,1.0)
 
       try:
@@ -123,16 +142,6 @@ class GeneratorQuad(object):
               break
 
     if self.simmetry == 'p4m':
-      element = np.ones((self.size,self.size))
-      seeds_x = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
-      seeds_y = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
-
-      for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
-        element[seed_x,seed_y] = 0.
-        element[self.size-seed_y-1,self.size-seed_x-1] = 0.
-
-      self.set_pixels(element.shape[0]*element.shape[1])
-
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
@@ -184,18 +193,8 @@ class GeneratorQuad(object):
             to_add -= 2
             if to_add < 1:
               break
-    
+
     if self.simmetry == 'p4g':
-      element = np.ones((self.size,self.size))
-      seeds_x = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
-      seeds_y = np.random.choice(np.arange(1,self.size-1),int(self.num_seeds/2))
-
-      for seed_x,seed_y in list(zip(seeds_x,seeds_y)):
-        element[seed_x,seed_y] = 0.
-        element[seed_y,seed_x] = 0.
-
-      self.set_pixels(element.shape[0]*element.shape[1])
-
       while np.where(element==0)[0].shape[0] < self.num_void_pixels:
         contours = np.array(find_contours(element, level=0.9, fully_connected='high', positive_orientation='low'),dtype=object)
         for _, contour in enumerate(contours):
@@ -248,6 +247,7 @@ class GeneratorQuad(object):
             if to_add < 1:
               break
 
+    self.check_singularity(element, self.simmetry)
     return element
 
   def create_unit(self,element):
