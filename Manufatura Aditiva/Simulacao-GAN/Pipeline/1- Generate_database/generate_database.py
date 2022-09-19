@@ -153,17 +153,20 @@ if simmetry[:2] in ['p4']:
   correct_samples = 0
   while correct_samples < samples:
     element = gen.create_element()
+    passed_element = gen.check_singularity(element, simmetry)
     unit = gen.create_unit(element)
-    passed, element = gen.check_unit(unit,desired_porosity,tol)
+    passed_unit, element = gen.check_unit(unit,desired_porosity,tol)
     porosity = np.float32(gen.get_porosity(element)).round(4)
-    if passed:
-      porosities.append(porosity)
-      if plot:
-        arrange = gen.create_arrange(unit)
-        plot_geom(element, unit, arrange, simmetry, porosity)
-      if save_array:
-        gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
-      correct_samples += 1
+    
+    if passed_element:
+      if passed_unit:
+        porosities.append(porosity)
+        if plot:
+          arrange = gen.create_arrange(unit)
+          plot_geom(element, unit, arrange, simmetry, porosity)
+        if save_array:
+          gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
+        correct_samples += 1
 
   if plot_hist:
     plt.hist(porosities, bins=10)

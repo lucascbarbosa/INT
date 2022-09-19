@@ -28,27 +28,40 @@ class GeneratorQuad(object):
     return voids/(geom.shape[0]**2)
 
   def check_singularity(self, element, simmetry):
-    passed = True
+    passed1 = True
+    passed2 = True
+    passed3 = True
+    passed4 = True
+
     # check singularities inside element
     for i in range(element.shape[0]-1):
       for j in range(element.shape[1]-1):
         # print(element[i:i+2,j:j+2])
         diag1 = list(element[i:i+2,j:j+2].diagonal())
-        diag2 = list(np.fliplr(element[i:i+2,j:j+2]).diagonal()== [1,1])
-        print((diag1==[1,1] and diag2==[0,0]) or (diag1 == [0,0] and diag2 == [1,1]))
+        diag2 = list(np.fliplr(element[i:i+2,j:j+2]).diagonal())
         if (diag1 == [1,1] and diag2 == [0,0]) or (diag1 == [0,0] and diag2 == [1,1]):
-          passed = False      
-          print('foo1')
+          passed1 = False      
 
-    # check singularities in element boundary
-    # if simmetry[1:] == '4':
-    #   for j in range(element.shape[1]-1):
-    #     if (element[0,j] == 0 and element[element.shape[0]-2-j,element.shape[1]-1] == 0) or (element[0,j+1] == 0 and element[element.shape[0]-1-j,element.shape[1]-1] == 0):
-    #       passed = False
-    #       print('foo2')
+    # check singularities in element boundary and singularities in unit boundary
+    if simmetry[1:] == '4':
+      for j in range(element.shape[1]-1):
+        arr = np.array([[element[element.shape[0]-j-1,element.shape[1]-1],element[element.shape[0]-j-2,element.shape[1]-1]],[element[0,j],element[0,j+1]]])
+        diag1 = list(arr.diagonal())
+        diag2 = list(np.fliplr(arr).diagonal())
+        if (diag1 == [1,1] and diag2 == [0,0]) or (diag1 == [0,0] and diag2 == [1,1]):
+          passed2 = False
+        
+        arr = np.array([[element[element.shape[0]-1,j],element[element.shape[0]-1,j+1]],[element[j,0],element[j+1,0]]])
+        diag1 = list(arr.diagonal())
+        diag2 = list(np.fliplr(arr).diagonal())
+        if (diag1 == [1,1] and diag2 == [0,0]) or (diag1 == [0,0] and diag2 == [1,1]):
+          passed3 = False
 
-    # check singularities in unit boundary
-  
+        if [element[0,0],element[element.shape[0]-1,element.shape[1]-1]] == [1, 0] or [element[0,0],element[element.shape[0]-1,element.shape[1]-1]] == [0, 1]:
+          passed4 = False
+
+    return passed1 and passed2 and passed3 and passed4
+      
   def remove_isolated(self,arr,isolated):
 
     coords = []
