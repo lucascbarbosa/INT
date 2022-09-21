@@ -12,23 +12,25 @@ model = ModelUtil.create('Model');
 model.modelPath(['C:\Users\lucas\Documents\Github\INT\Manufatura Aditiva\Simula' native2unicode(hex2dec({'00' 'e7'}), 'unicode')  native2unicode(hex2dec({'00' 'e3'}), 'unicode') 'o-GAN\COMSOL-Matlab']);
 
 load = 100.0;
-young = 100.0;
-poisson = 0.3;
-p = 4500;
+young = 0.95;
+poisson = 0.35;
+p = 0.7;
+yield = 25;
 arrange_size = 0.048;
 unit_size = arrange_size/6;
-thickness = 0.0025;
+thickness = 2.25;
 resolution = length(array);
 void_size = arrange_size/(6*resolution);
 
 model.param.set('load', [num2str(load,'%d') '' '[N]'], 'prescribed load');
 model.param.set('young', [num2str(young,'%.2f') '' '[GPa]'], 'young''s modulus');
-model.param.set('p', [num2str(p,'%d') '' '[Kg/m^3]'], 'density');
+model.param.set('p', [num2str(p,'%d') '' '[g/cm^3]'], 'density');
+model.param.set('yield', [num2str(yield,'%.2f') '' '[MPa]'], 'yield tensile strength');
 model.param.set('poisson', num2str(poisson,'%.2f'), 'poisson''s modulus');
 model.param.set('void_size', [num2str(void_size,'%.5f') '' '[m]'], 'void size');
 model.param.set('unit_size', [num2str(unit_size,'%.4f') '' '[m]'], 'unit size');
 model.param.set('arrange_size', [num2str(arrange_size,'%.4f') '' '[m]'], 'arrange size');
-model.param.set('thickness', [num2str(thickness,'%.5f') '' '[m]'], 'specimen thickness');
+model.param.set('thickness', [num2str(thickness,'%.5f') '' '[mm]'], 'specimen thickness');
 model.param.set('theta', [num2str(theta,'%d') '' '[deg]']);
 
 model.component.create('comp1', true);
@@ -178,24 +180,15 @@ model.component('comp1').geom('geom1').feature('uni3').set('intbnd', false);
 model.component('comp1').geom('geom1').feature('uni3').set('keep', false);
 model.component('comp1').geom('geom1').run;
 
-points = mphgetcoords(model,'geom1','domain',1);
-points = points(1,:);
-num_points = length(points);
-model.component('comp1').geom('geom1').create('fil1', 'Fillet');
-model.component('comp1').geom('geom1').feature('fil1').selection('point').set('uni3',[1:num_points]);
-model.component('comp1').geom('geom1').feature('fil1').set('radius', 'void_size/5');
-model.component('comp1').geom('geom1').run('fil1');
-
 model.component('comp1').material.create('mat1', 'Common');
 model.component('comp1').material('mat1').propertyGroup.create('Enu', 'Young''s modulus and Poisson''s ratio');
-model.component('comp1').material('mat1').label('Structural steel');
+model.component('comp1').material('mat1').label('Acrylic plastic');
 model.component('comp1').material('mat1').propertyGroup('def').set('density', 'p');
 model.component('comp1').material('mat1').propertyGroup('def').descr('density_symmetry', '');
 model.component('comp1').material('mat1').propertyGroup('Enu').set('youngsmodulus', 'young');
 model.component('comp1').material('mat1').propertyGroup('Enu').descr('youngsmodulus_symmetry', '');
 model.component('comp1').material('mat1').propertyGroup('Enu').set('poissonsratio', 'poisson');
 model.component('comp1').material('mat1').propertyGroup('Enu').descr('poissonsratio_symmetry', '');
-
 
 model.component('comp1').physics.create('solid', 'SolidMechanics', 'geom1');
 
@@ -208,10 +201,11 @@ model.component('comp1').physics('solid').feature('disp2').setIndex('Direction',
 model.component('comp1').physics('solid').create('bndl1', 'BoundaryLoad', 1);
 model.component('comp1').physics('solid').feature('bndl1').label('Top Load');
 model.component('comp1').physics('solid').feature('bndl1').selection.set([5]);
-model.component('comp1').physics('solid').feature('bndl1').set('FperArea', [0 load 0]);
+model.component('comp1').physics('solid').feature('bndl1').set('LoadType', 'TotalForce');
+model.component('comp1').physics('solid').feature('bndl1').set('Ftot', {'0' 'load' '0'});
 
 model.component('comp1').physics('solid').prop('Type2D').set('Type2D', 'PlaneStress');
-model.component('comp1').physics('solid').prop('d').set('d', '1e-5');
+model.component('comp1').physics('solid').prop('d').set('d', 'thickness');
 
 model.component('comp1').mesh('mesh1').create('ftri1', 'FreeTri');
 model.component('comp1').mesh('mesh1').feature('ftri1').selection.geom('geom1');
@@ -277,7 +271,7 @@ model.result('pgsurf').feature('con1').label('Plastic strain');
 model.result('pgsurf').set('legendpos', 'rightdouble');
 model.result('pgsurf').label('Displacement Y (solid)');
 model.result('pgsurf').feature('surf1').feature('def').set('scaleactive', true);
-model.result('pgsurf').feature('surf1').feature('def').set('scale', 0);
+model.result('pgsurf').feature('surf1').feature('def').set('scale', 1);
 model.result('pgsurf').run;
 
 model.sol('sol1').runAll;
