@@ -1,6 +1,6 @@
-function array = get_array(idx)
+function array = get_array(simmetry, idx)
     
-    arrays_dir = 'E:\Lucas GAN\Dados\1- Arranged_geometries\RTGA\p4\';
+    arrays_dir = strcat('E:\Lucas GAN\Dados\1- Arranged_geometries\RTGA\',simmetry,'\');
 
     datadirs = dir(arrays_dir);
     dircell = struct2cell(datadirs)';   

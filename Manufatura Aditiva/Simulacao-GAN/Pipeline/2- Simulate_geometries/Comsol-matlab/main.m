@@ -24,8 +24,8 @@ function [Es,approved] = main(dimension,simmetry,start_geometry,end_geometry,sav
             mkdir(idx_dir);
         end
         
-        array = get_array(fid);
-    
+        array = get_array(simmetry, fid);
+        
         for theta = 0:dtheta:theta_max
             model_filename = idx_dir+model_name(2)+"_"+model_name(3)+"_theta_"+int2str(theta)+".mph";
             disp(theta);

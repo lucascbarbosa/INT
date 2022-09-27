@@ -59,23 +59,22 @@ toprint = False
 
 def create_unit(element, element_shape, simmetry):
   if simmetry[1:] == '4':
-    print('foo')
     element_size = element_shape[0]
     unit_size = 2*element_size
-    print(element_size)
     # fold_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
     for i in range(element_size):
       for j in range(element_size):
         el = element[i,j]
-        j_ = [j,element_size-1-i,2*element_size-1-j,i+element_size]
-        i_ = [i+element_size,j,element_size-1-i,2*element_size-1-j]
+        j_ = [j,element_size-1-i,unit_size-1-j,i+element_size]
+        i_ = [i+element_size,j,element_size-1-i,unit_size-1-j]
         # (1,7)->(7,14)->(14,8)->(8,1)
         for (k,l) in list(zip(i_,j_)):
           unit[k,l]  = el
     return unit
   
   if simmetry[1:] in ['4g','4m']:
+    element_size = element_shape[0]
     unit_element_size = 2*element_size
     # fold_element_size = np.random.choice(4,1)[0]
     unit = np.ones((2*element_size,2*element_size))*(-1)
@@ -83,8 +82,7 @@ def create_unit(element, element_shape, simmetry):
     for i in range(h):
       for j in range(w):
         el = element[i,j]
-        
-        j_ = [j,2*element_size-1-j,2*element_size-1-j,j]
+        j_ = [j,unit_element_size-1-j,unit_element_size-1-j,j]
         i_ = [i+element_size,i+element_size,element_size-1-i,element_size-1-i]
         # (1,2)-> (1,13) -> (14,13) -> (14,2)
         for (k,l) in list(zip(i_,j_)):
