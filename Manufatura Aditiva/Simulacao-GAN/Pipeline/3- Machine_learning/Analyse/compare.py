@@ -3,9 +3,10 @@ import os
 import numpy as np
 import sys
 
-prop_ = str(sys.argv[1])
+origin = sys.argv[1]
+prop_ = sys.argv[1]
 dimension = int(sys.argv[2])
-simmetry = str(sys.argv[3])
+simmetry = sys.argv[3]
 
 
 if os.getcwd().split('\\')[2] == 'lucas':
