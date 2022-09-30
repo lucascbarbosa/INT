@@ -23,6 +23,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
             array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' %(simmetry,score)
             property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry,score)
             score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
+    
     elif origin == "-r":
         if os.getcwd().split('\\')[2] == 'lucas':
             array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
@@ -32,6 +33,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
             array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
             property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
             score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
+    
     elif origin == "-m":
         if os.getcwd().split('\\')[2] == 'lucas':
             array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
@@ -117,9 +119,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
             data = np.append(data,data_point,axis=0)
 
         data = data.reshape((len(hss),len(geometry)+2))
-    
     np.savetxt(score_filename,data, delimiter=',')
-
 
 if __name__ == '__main__':
     dimension = sys.argv[1]
