@@ -330,7 +330,7 @@ class GeneratorQuad(object):
         # check if there is connectivity top-bottom
         connections_tb = 0
         for j in range(unit.shape[1]):
-          if (unit[0,j] == 1 and unit[i,-1] == 1):
+          if (unit[0,j] == 1 and unit[-1,j] == 1):
             connections_tb += 1
 
         if connections_rl == 0 or connections_tb == 0:
