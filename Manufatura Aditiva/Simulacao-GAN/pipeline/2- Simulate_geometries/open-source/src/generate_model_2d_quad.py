@@ -117,18 +117,19 @@ def generate_mesh(simmetry, filename):
 
 origin = sys.argv[1]
 simmetry = sys.argv[2]
-units = int(sys.argv[3])
-size = int(sys.argv[4])
-idx = int(sys.argv[5])-1
-theta = int(sys.argv[6])
+model_name = sys.argv[3]
+units = int(sys.argv[4])
+size = int(sys.argv[5])
+idx = int(sys.argv[6])-1
+theta = int(sys.argv[7])
 
 if origin == "-g":
-    score = sys.argv[7]
+    score = sys.argv[8]
     if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
         vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     else:
-        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
         vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     
 else:

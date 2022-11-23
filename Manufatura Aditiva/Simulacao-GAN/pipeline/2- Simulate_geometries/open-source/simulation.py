@@ -9,10 +9,10 @@ import time
 from multiprocessing import Process, freeze_support, Array
 import sys
 
-def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin):
+def simulation(dimension, simmetry, model_name, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin):
 
     vtk_filename = preproc(
-        vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension)
+        model_name, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -66,6 +66,7 @@ if __name__ == '__main__':
         score = str(sys.argv[6])
 
     size = end-start+1
+
     if origin == "-r":
         if os.getcwd().split('\\')[2] == 'lucas':
             max_processes = 2
@@ -105,7 +106,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
+                    dimension, simmetry, None, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -131,16 +132,18 @@ if __name__ == '__main__':
             geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
             vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
             young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
+            models_dir = 'E:/Lucas GAN/Dados/5- GAN_models/%sD/%s/%s/'%(dimension,simmetry,score)
             log_dir = 'E:/Lucas GAN/Dados/6- Simulation_logs/GAN/%sD/%s/' % (dimension, simmetry)
         else:
             max_processes = 14
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
             vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
             young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
+            models_dir = 'D:/Lucas GAN/Dados/5- GAN_models/%sD/%s/%s/'%(dimension,simmetry,score)
             log_dir = 'D:/Lucas GAN/Dados/6- Simulation_logs/GAN/%sD/%s/' % (dimension, simmetry)
-
+        
+        models_filename = os.listdir(models_dir)
         arrays_dir = ['%05d/' % (i+1) for i in range(start, end+1)]
-
         geometries_filename = os.listdir(geometries_dir)
         rounds = int(2*size/max_processes)
 
@@ -166,7 +169,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
+                    dimension, simmetry, vtk_dir, model_name, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -174,12 +177,12 @@ if __name__ == '__main__':
             for process in processes:
                 process.join()
 
-            for i in range(0, len(Es[:]), 2):
-                Es_geometry = Es[i:i+2]
-                for j in range(len(Es_geometry)):
-                    Es_geometry[j] = str(Es_geometry[j])+'e+9'
-                filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-                np.savetxt(young_dir+filename, Es_geometry,delimiter='\n', fmt='%s')
+        #     for i in range(0, len(Es[:]), 2):
+        #         Es_geometry = Es[i:i+2]
+        #         for j in range(len(Es_geometry)):
+        #             Es_geometry[j] = str(Es_geometry[j])+'e+9'
+        #         filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
+        #         np.savetxt(young_dir+filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))
