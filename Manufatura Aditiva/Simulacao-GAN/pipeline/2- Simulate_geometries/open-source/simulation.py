@@ -9,10 +9,10 @@ import time
 from multiprocessing import Process, freeze_support, Array
 import sys
 
-def simulation(dimension, simmetry, model_name, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin):
+def simulation(dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin, score):
 
     vtk_filename = preproc(
-        model_name, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension)
+        model_filename, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension, score)
 
     # Titanium
     YOUNG = 100e9  # GPa
@@ -48,8 +48,20 @@ def simulation(dimension, simmetry, model_name, vtk_dir, array_dir, log_dir, idx
     Es[idx] = float(E/1e9)
 
     sim.log(log_dir, log_filename, sim_time, geom, cells, verts, dofs)
-    # print('\nFor %s: E = %fe9 and u =%.4fe-9' %(stl_filename, float(E/1e9), disp/1e-9))
+    
+    print('\nFor %s: E = %fe9 and u =%.4fe-9' %(vtk_filename, float(E/1e9), disp/1e-9))
 
+def get_idx_model(geometries_dir, models_filename, idx_array):
+    count = 0
+    for i in range(len(models_filename)):
+        model_filename = models_filename[i]
+        geometries_model = len(os.listdir(geometries_dir+model_filename[:-3]+'/'))
+        if count+ geometries_model < idx_array:
+            count += geometries_model
+        else:
+            break
+
+    return i, idx_array - count
 
 if __name__ == '__main__':
 
@@ -106,7 +118,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, None, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
+                    dimension, simmetry, None, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, score,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -143,11 +155,10 @@ if __name__ == '__main__':
             log_dir = 'D:/Lucas GAN/Dados/6- Simulation_logs/GAN/%sD/%s/' % (dimension, simmetry)
         
         models_filename = os.listdir(models_dir)
-        arrays_dir = ['%05d/' % (i+1) for i in range(start, end+1)]
         geometries_filename = os.listdir(geometries_dir)
         rounds = int(2*size/max_processes)
 
-        if size % max_processes != 0:
+        if 2*size % max_processes != 0:
             rounds += 1
 
         start_time = time.time()
@@ -163,13 +174,17 @@ if __name__ == '__main__':
 
                 idx_array = int(process_count/2)
                 idx_file = process_count % 2
+                idx_model,idx_model_array = get_idx_model(geometries_dir, models_filename,idx_array)
+                
                 try:
-                    array_dir = arrays_dir[idx_array]
+                    model_filename = models_filename[idx_model]
+                    model_filename = model_filename[:-3]
+                    array_dir = '%05d/' % (idx_model_array+1)
                 except:
                     break
-
+                
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, vtk_dir, model_name, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin,))
+                    dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, score,))
                 processes.append(process)
                 process.start()
                 process_count += 1

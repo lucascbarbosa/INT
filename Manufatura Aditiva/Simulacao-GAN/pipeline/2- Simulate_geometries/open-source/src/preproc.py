@@ -2,31 +2,52 @@ import os
 # from src.stl2vtk_2d import stl2vtk_2d
 # from src.stl2vtk_3d import stl2vtk_3d
 
-def preproc(model_name, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension):
+def preproc(model_name, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension, score):
     angle = [0,45][idx_file]
     units = 9
     size = 16
-
     if dimension == 2:
+        if origin == '-r':
+            if not os.path.isdir(vtk_dir+array_dir):
+                os.mkdir(vtk_dir+array_dir)
+
+            if simmetry[1] in ['3','6']:
+                command_vtk = "python src/generate_model_2d_hex.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
+            elif simmetry[1] == '4':
+                command_vtk = """python src/generate_model_2d_quad.py %s %s "%s" %i %i %i %i %s"""%(origin,simmetry,None,units,size,idx_array,angle,score)
+            os.system(command_vtk)
+
+            vtk_filenames = os.listdir(vtk_dir + array_dir)
+            for i in range(len(vtk_filenames)):
+                if vtk_filenames[i].split('_')[-1][:2] == str(angle):
+                    idx_file = i
             
-        if not os.path.isdir(vtk_dir+array_dir):
-            os.mkdir(vtk_dir+array_dir)
+            vtk_filename = vtk_filenames[idx_file]
+            vtk_filename = vtk_dir + array_dir + vtk_filename
+            command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
+            os.system(command_convert)
 
-        if simmetry[1] in ['3','6']:
-            command_vtk = "python src/generate_model_2d_hex.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
-        elif simmetry[1] == '4':
-            command_vtk = "python src/generate_model_2d_quad.py %s %s '%s' %i %i %i %i"%(origin,simmetry,model_name,units,size,idx_array,angle)
-        os.system(command_vtk)
+        if origin == '-g':
+            if not os.path.isdir(vtk_dir + model_name + '/'):
+                os.mkdir(vtk_dir + model_name + '/')
+            if not os.path.isdir(vtk_dir + model_name + '/' + array_dir):
+                os.mkdir(vtk_dir + model_name + '/' + array_dir)
+            
+            if simmetry[1] in ['3','6']:
+                command_vtk = "python src/generate_model_2d_hex.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
+            elif simmetry[1] == '4':
+                command_vtk = """python src/generate_model_2d_quad.py %s %s "%s" %i %i %i %i %s"""%(origin,simmetry,model_name,units,size,idx_array,angle,score)
+            os.system(command_vtk)
 
-        vtk_filenames = os.listdir(vtk_dir + array_dir)
-        for i in range(len(vtk_filenames)):
-            if vtk_filenames[i].split('_')[-1][:2] == str(angle):
-                idx_file = i
-        
-        vtk_filename = vtk_filenames[idx_file]
-        vtk_filename = vtk_dir + array_dir + vtk_filename
-        command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
-        os.system(command_convert)
+            vtk_filenames = os.listdir(vtk_dir + model_name + '/' + array_dir)
+            for i in range(len(vtk_filenames)):
+                if vtk_filenames[i].split('_')[-1][:2] == str(angle):
+                    idx_file = i
+            
+            vtk_filename = vtk_filenames[idx_file]
+            vtk_filename = vtk_dir + model_name + '/' + array_dir + vtk_filename
+            command_convert = """python "src/convert_mesh.py" -2 "%s" "%s" """ %(vtk_filename,vtk_filename)
+            os.system(command_convert)
 
     # if dimension == 3:
     #     try:

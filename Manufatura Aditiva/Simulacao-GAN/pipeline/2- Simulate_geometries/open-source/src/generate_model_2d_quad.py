@@ -33,6 +33,7 @@ def idx2coord(simmetry,i,j,k,l):
     return loc_x,loc_y
 
 def generate_mesh(simmetry, filename):
+
     with pygmsh.occ.Geometry()  as geom:
         unit = geom.add_polygon(
             [
@@ -110,6 +111,7 @@ def generate_mesh(simmetry, filename):
 
         mesh = geom.generate_mesh()
         mesh.write(filename)
+        # print('\n\n\n\n\n\n',filename,'\n\n\n\n\n\n\n')
         # end = time.time()
 
         # print(f'Elapsed time: {end-start} s')
@@ -120,17 +122,17 @@ simmetry = sys.argv[2]
 model_name = sys.argv[3]
 units = int(sys.argv[4])
 size = int(sys.argv[5])
-idx = int(sys.argv[6])-1
+idx = int(sys.argv[6])
 theta = int(sys.argv[7])
 
 if origin == "-g":
     score = sys.argv[8]
     if os.getcwd().split('\\')[2] == 'lucas':
         arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
-        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/%s/" % (simmetry, score, model_name)
     else:
         arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
-        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
+        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/%s/" % (simmetry, score, model_name)
     
 else:
     if os.getcwd().split('\\')[2] == 'lucas':
@@ -151,17 +153,18 @@ unit_size = float(arrange_size/units_per_row) # m
 element_size = float(unit_size/elements_per_row) # m
 pixel_size = float(element_size/size)
 
-array_filename = arrays_filename[idx+1]
+array_filename = arrays_filename[idx]
 
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array_dir = array_filename.split('_')[0]
-    try:
-        os.mkdir(vtks_dir+array_dir)
-    except:
-        pass
+    # try:
+    #     os.mkdir(vtks_dir+array_dir)
+    # except:
+    #     pass
     array = np.array(f.readlines()).astype(float)
-    size = array[0]
-    array = array[1:]
+    size = 16
+    # size = array[0]
+    # array = array[1:]
     array = array.reshape((int(size),int(size)))
     array_filename = '_'.join(array_filename.split('_')[1:])[:-4]
     filename = vtks_dir+array_dir+'/'+array_filename+"_theta_%d.vtk"%theta
