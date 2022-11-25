@@ -198,8 +198,9 @@ if __name__ == '__main__':
                 Es_geometry = Es[i:i+2]
                 for j in range(len(Es_geometry)):
                     Es_geometry[j] = str(Es_geometry[j])+'e+9'
+                geometries_filename = os.listdir(geometries_dir+model_filename+'/')
                 filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-                np.savetxt(young_dir+filename, Es_geometry,delimiter='\n', fmt='%s')
+                np.savetxt(young_dir+model_filename+filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))
