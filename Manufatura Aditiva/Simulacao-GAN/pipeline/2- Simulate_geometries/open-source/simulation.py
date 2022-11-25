@@ -59,7 +59,7 @@ def get_idx_model(geometries_dir, models_filename, idx_array):
     for i in range(len(models_filename)):
         model_filename = models_filename[i]
         geometries_model = len(os.listdir(geometries_dir+model_filename[:-3]+'/'))
-        if count+ geometries_model < idx_array:
+        if count+ geometries_model <= idx_array:
             count += geometries_model
         else:
             break
@@ -185,6 +185,7 @@ if __name__ == '__main__':
                     array_dir = '%05d/' % (idx_model_array+1)
                 except:
                     break
+
                 process = Process(target=simulation, args=(
                     dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir, idx_model_array, idx_file, Es, p, origin, score,))
                 processes.append(process)
@@ -198,9 +199,11 @@ if __name__ == '__main__':
                 Es_geometry = Es[i:i+2]
                 for j in range(len(Es_geometry)):
                     Es_geometry[j] = str(Es_geometry[j])+'e+9'
-                geometries_filename = os.listdir(geometries_dir+model_filename+'/')
-                filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-                np.savetxt(young_dir+model_filename+filename, Es_geometry,delimiter='\n', fmt='%s')
+                geometries_filename = os.listdir(geometries_dir + model_filename + '/')
+                if not os.path.isdir(young_dir + model_filename + '/'):
+                    os.mkdir(young_dir + model_filename + '/')
+                filename = geometries_filename[idx_model_array]
+                np.savetxt(young_dir + model_filename + '/' + filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))
