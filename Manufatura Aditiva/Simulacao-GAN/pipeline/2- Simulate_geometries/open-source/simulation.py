@@ -11,10 +11,11 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
-def simulation(dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin, score):
+def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, idx, origin, score):
 
     vtk_filename = preproc(
-        model_filename, vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension, score)
+        vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension, score
+        )
 
     # Titanium
     YOUNG = 0.95e9  # GPa
@@ -23,7 +24,7 @@ def simulation(dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir,
 
     ORDER = 1
     THICKNESS = 2.5e-3 # m
-    ARRANGE_SIZE = 0.048 # m
+    ARRANGE_SIZE = 48e-3 # m
     STRESS = -100.0/(THICKNESS*ARRANGE_SIZE) # N/m²
 
     if dimension == 2:
@@ -50,9 +51,9 @@ def simulation(dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir,
     sim_time = np.round(end_sim - start_sim,2)
     Es[idx] = float(E/1e9)
 
-    sim.log(log_dir, model_filename, array_dir, log_filename, sim_time, geom, cells, verts, dofs)
+    sim.log(log_dir, array_dir, log_filename, sim_time, geom, cells, verts, dofs)
     
-    print('\nFor %s: E = %fe9 and u =%.4fe-9' %(vtk_filename, float(E/1e9), disp/1e-9))
+    print('\nFor %s: E = %fe9 and u =%.4fe-3' %(vtk_filename, float(E/1e9), disp/1e-3))
 
 def get_idx_model(geometries_dir, models_filename, idx_array):
     count = 0
@@ -121,7 +122,7 @@ if __name__ == '__main__':
                     break
 
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, None, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, score,))
+                    dimension, simmetry, vtk_dir, array_dir, log_dir, start+idx_array, idx_file, Es, p, origin, score,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -177,17 +178,14 @@ if __name__ == '__main__':
 
                 idx_array = int((process_count + start)/2)
                 idx_file = process_count % 2
-                idx_model,idx_model_array = get_idx_model(geometries_dir, models_filename,idx_array)
                 
                 try:
-                    model_filename = models_filename[idx_model]
-                    model_filename = model_filename[:-3]
-                    array_dir = '%05d/' % (idx_model_array+1)
+                    array_dir = '%05d/' % (idx_array+1)
                 except:
                     break
-
+                
                 process = Process(target=simulation, args=(
-                    dimension, simmetry, model_filename, vtk_dir, array_dir, log_dir, idx_model_array, idx_file, Es, p, origin, score,))
+                    dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_file, Es, p, origin, score,))
                 processes.append(process)
                 process.start()
                 process_count += 1
@@ -199,11 +197,9 @@ if __name__ == '__main__':
                 Es_geometry = Es[i:i+2]
                 for j in range(len(Es_geometry)):
                     Es_geometry[j] = str(Es_geometry[j])+'e+9'
-                geometries_filename = os.listdir(geometries_dir + model_filename + '/')
-                if not os.path.isdir(young_dir + model_filename + '/'):
-                    os.mkdir(young_dir + model_filename + '/')
-                filename = geometries_filename[idx_model_array]
-                np.savetxt(young_dir + model_filename + '/' + filename, Es_geometry,delimiter='\n', fmt='%s')
+                geometries_filename = os.listdir(geometries_dir)
+                filename = geometries_filename[r+start]
+                np.savetxt(young_dir + filename, Es_geometry,delimiter='\n', fmt='%s')
 
         end_time = time.time()
         print('Elapsed time = %.2f' % (end_time-start_time))

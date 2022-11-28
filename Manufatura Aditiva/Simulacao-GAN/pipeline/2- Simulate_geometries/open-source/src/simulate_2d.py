@@ -25,14 +25,12 @@ class Simulate2D(object):
     def quiet_log(self):
         output.set_output(quiet=True, combined= False)
 
-    def log(self, log_dir, model_filename, array_dir, log_filename, time, geom, cells, verts, dofs):
-        if not os.path.isdir(log_dir + model_filename + '/'):
-            os.mkdir(log_dir + model_filename + '/')
-        if not os.path.isdir(log_dir + model_filename + '/' + array_dir):
-            os.mkdir(log_dir + model_filename + '/' + array_dir)
+    def log(self, log_dir, array_dir, log_filename, time, geom, cells, verts, dofs):
+        if not os.path.isdir(log_dir + array_dir):
+            os.mkdir(log_dir + array_dir)
 
         log = f'cells ({geom}): {cells}\nverts: {verts}\nDOFS: {dofs}\ntime: {time}'
-        with open(log_dir + model_filename + '/' + array_dir + log_filename,'w') as f:
+        with open(log_dir + array_dir + log_filename,'w') as f:
             f.write(log)
         
     def get_stress(self, out, pb, state, solid, extend=False):

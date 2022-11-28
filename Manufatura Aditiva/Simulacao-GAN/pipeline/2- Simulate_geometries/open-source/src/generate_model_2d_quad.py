@@ -118,20 +118,19 @@ def generate_mesh(simmetry, filename):
 
 origin = sys.argv[1]
 simmetry = sys.argv[2]
-model_name = sys.argv[3]
-units = int(sys.argv[4])
-size = int(sys.argv[5])
-idx = int(sys.argv[6])
-theta = int(sys.argv[7])
+units = int(sys.argv[3])
+size = int(sys.argv[4])
+idx = int(sys.argv[5])
+theta = int(sys.argv[6])
 
 if origin == "-g":
-    score = sys.argv[8]
+    score = sys.argv[7]
     if os.getcwd().split('\\')[2] == 'lucas':
-        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
-        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/%s/" % (simmetry, score, model_name)
+        arrays_dir = "E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        vtks_dir = "E:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     else:
-        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/%s/" % (simmetry, score, model_name)
-        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/%s/" % (simmetry, score, model_name)
+        arrays_dir = "D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/" % (simmetry, score)
+        vtks_dir = "D:/Lucas GAN/Dados/2- Geometry_models/GAN/2D/%s/%s/" % (simmetry, score)
     
 else:
     if os.getcwd().split('\\')[2] == 'lucas':
@@ -153,14 +152,8 @@ element_size = float(unit_size/elements_per_row) # m
 pixel_size = float(element_size/size)
 
 array_filename = arrays_filename[idx]
-
 with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array_dir = array_filename.split('_')[0]
-    # try:
-    #     os.mkdir(vtks_dir+array_dir)
-    # except:
-    #     pass
-    
     array = np.array(f.readlines()).astype(float)
     # size = array[0]
     # array = array[1:]
