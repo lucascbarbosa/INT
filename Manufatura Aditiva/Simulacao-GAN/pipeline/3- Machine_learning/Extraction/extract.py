@@ -71,6 +71,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
             geometry = np.loadtxt(os.path.join(array_dir,simulation),delimiter='\n').astype(int)
             size = geometry[0]
             geometry = geometry[1:]
+            # size = 16
             geometry = geometry.reshape((size,size)).ravel()
             geometries.append(geometry)
             idxs.append(int(simulation.split('_')[0]))
