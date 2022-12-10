@@ -157,7 +157,6 @@ with open(os.path.join(arrays_dir,array_filename),'r') as f:
     array = np.array(f.readlines()).astype(float)
     size = array[0]
     array = array[1:]
-    # size = 16
     array = array.reshape((int(size),int(size)))
     array_filename = '_'.join(array_filename.split('_')[1:])[:-4]
     filename = vtks_dir+array_dir+'/'+array_filename+"_theta_%d.vtk"%theta

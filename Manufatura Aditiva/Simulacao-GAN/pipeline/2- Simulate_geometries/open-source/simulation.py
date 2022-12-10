@@ -55,6 +55,10 @@ def simulation(dimension, simmetry, vtk_dir, array_dir, log_dir, idx_array, idx_
     
     print('\nFor %s: E = %fe9 and u =%.4fe-3' %(vtk_filename, float(E/1e9), disp/1e-3))
 
+def log(idx_geom, total_geoms):
+    os.system('cls')
+    print('Simulating %d/%d')
+
 def get_idx_model(geometries_dir, models_filename, idx_array):
     count = 0
     for i in range(len(models_filename)):

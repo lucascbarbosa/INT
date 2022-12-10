@@ -30,7 +30,6 @@ def preproc(vtk_dir, array_dir, idx_array, idx_file, origin, simmetry, dimension
         if origin == '-g':
             if not os.path.isdir(vtk_dir + array_dir):
                 os.mkdir(vtk_dir + array_dir)
-                
             if simmetry[1] in ['3','6']:
                 command_vtk = "python src/generate_model_2d_hex.py %s %s %i %i %i %i"%(origin,simmetry,units,size,idx_array,angle)
             elif simmetry[1] == '4':
