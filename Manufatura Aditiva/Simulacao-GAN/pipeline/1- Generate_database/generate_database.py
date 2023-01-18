@@ -76,101 +76,103 @@ def plot_geom(element, unit, arrange, simmetry, porosity):
     
   plt.show()
 
-# Input hyperparameters
-simmetry = sys.argv[1] 
-units = int(sys.argv[2]) #9
-size = int(sys.argv[3]) #16
-desired_porosity = float(sys.argv[4]) 
-tol = float(sys.argv[5]) #0.02
-num_seeds = int(sys.argv[6]) 
-samples = int(sys.argv[7]) #10'000
+if __name__ == "__main__":
 
-if os.getcwd().split('\\')[2] == 'lucas':
+  # Input hyperparameters
+  simmetry = sys.argv[1] 
+  units = int(sys.argv[2]) #9
+  size = int(sys.argv[3]) #16
+  desired_porosity = float(sys.argv[4]) 
+  tol = float(sys.argv[5]) #0.02
+  num_seeds = int(sys.argv[6]) 
+  samples = int(sys.argv[7]) #10'000
 
-  # Dirs paths
-  arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
-else:
-  arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
+  if os.getcwd().split('\\')[2] == 'lucas':
 
-plot = False # -p
-save_array = False # -s
-plot_hist = False # -h
+    # Dirs paths
+    arrays_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
+  else:
+    arrays_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/'
 
-try:
-  data = sys.argv[8]
-  if data == '-p': plot = True
-  elif data == '-s': save_array = True
-  elif data == '-h': plot_hist = True
-except:
-  pass
+  plot = False # -p
+  save_array = False # -s
+  plot_hist = False # -h
 
-try:
-  data = sys.argv[9]
-  if data == '-p': plot = True
-  elif data == '-s': save_array = True
-  elif data == '-h': plot_hist = True
-except:
-  pass
+  try:
+    data = sys.argv[8]
+    if data == '-p': plot = True
+    elif data == '-s': save_array = True
+    elif data == '-h': plot_hist = True
+  except:
+    pass
 
-try:
-  data = sys.argv[10]
-  if data == '-p': plot = True
-  elif data == '-s': save_array = True
-  elif data == '-h': plot_hist = True
-except:
-  pass
+  try:
+    data = sys.argv[9]
+    if data == '-p': plot = True
+    elif data == '-s': save_array = True
+    elif data == '-h': plot_hist = True
+  except:
+    pass
 
-start_time = time()
+  try:
+    data = sys.argv[10]
+    if data == '-p': plot = True
+    elif data == '-s': save_array = True
+    elif data == '-h': plot_hist = True
+  except:
+    pass
 
-if simmetry[:2] in ['p3','p6']:
-  gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
-  start = len(os.listdir(arrays_dir+simmetry))
-  porosities = []
-  correct_samples = 0
-  while correct_samples < samples:
-    element, centers_element = gen.create_element()
-    passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
-    porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
-    if passed:
-      porosities.append(porosity)
-      if plot:
-        unit, centers_unit= gen.create_unit(element, centers_element)
-        arrange = gen.create_arrange(element, unit, units, centers_unit)
-        plot_geom(element, unit, arrange, simmetry, porosity)
-      if save_array:
-        gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity), ' ') 
-      correct_samples += 1
+  start_time = time()
 
-  if plot_hist:
-    plt.hist(porosities, bins=10)
-    plt.show()
-
-if simmetry[:2] in ['p4']:
-  gen = GeneratorQuad(units, simmetry, size, desired_porosity, num_seeds)
-  start = len(os.listdir(arrays_dir+simmetry))
-  porosities = []
-
-  correct_samples = 0
-  while correct_samples < samples:
-    element = gen.create_element()
-    passed_element = gen.check_singularity(element, simmetry)
-    unit = gen.create_unit(element)
-    passed_unit, element = gen.check_unit(unit,desired_porosity,tol)
-    porosity = np.float32(gen.get_porosity(element)).round(4)
-    
-    if passed_element:
-      if passed_unit:
+  if simmetry[:2] in ['p3','p6']:
+    gen = GeneratorHex(units, simmetry, size, desired_porosity, num_seeds)
+    start = len(os.listdir(arrays_dir+simmetry))
+    porosities = []
+    correct_samples = 0
+    while correct_samples < samples:
+      element, centers_element = gen.create_element()
+      passed = gen.check_element(element, centers_element, desired_porosity, min_connections=1)
+      porosity = np.float32(gen.get_porosity(element,gen.element_total_pixels)).round(4)
+      if passed:
         porosities.append(porosity)
         if plot:
-          arrange = gen.create_arrange(unit)
+          unit, centers_unit= gen.create_unit(element, centers_element)
+          arrange = gen.create_arrange(element, unit, units, centers_unit)
           plot_geom(element, unit, arrange, simmetry, porosity)
         if save_array:
-          gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
+          gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity), ' ') 
         correct_samples += 1
 
-  if plot_hist:
-    plt.hist(porosities, bins=10)
-    plt.show()
+    if plot_hist:
+      plt.hist(porosities, bins=10)
+      plt.show()
 
-end_time = time()
-print('TET: %f'%(end_time-start_time))
+  if simmetry[:2] in ['p4']:
+    gen = GeneratorQuad(units, simmetry, size, desired_porosity, num_seeds)
+    start = len(os.listdir(arrays_dir+simmetry))
+    porosities = []
+
+    correct_samples = 0
+    while correct_samples < samples:
+      element = gen.create_element()
+      passed_element = gen.check_singularity(element, simmetry)
+      unit = gen.create_unit(element)
+      passed_unit, element = gen.check_unit(unit,desired_porosity,tol)
+      porosity = np.float32(gen.get_porosity(element)).round(4)
+      
+      if passed_element:
+        if passed_unit:
+          porosities.append(porosity)
+          if plot:
+            arrange = gen.create_arrange(unit)
+            plot_geom(element, unit, arrange, simmetry, porosity)
+          if save_array:
+            gen.save_array(size, element, arrays_dir+simmetry+'/%05d_porosity_%.4f.txt'%(correct_samples+start+1, porosity),' ') 
+          correct_samples += 1
+
+    if plot_hist:
+      plt.hist(porosities, bins=10)
+      plt.show()
+
+  end_time = time()
+  print('TET: %f'%(end_time-start_time))
