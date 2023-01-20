@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 warnings.filterwarnings('ignore')
+pygmsh.helpers.gmsh.option.setNumber('General.Terminal', 0)
 
 def idx2coord(simmetry,i,j,k,l):
     if simmetry == 'p4':
@@ -56,9 +57,8 @@ def generate_mesh(simmetry, filename):
                             void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
                             void_pixels.append(void_pixel)
 
-        units = []
-                
         unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
+        units = []
         units.append(unit[0])
         
         for i in range(units_per_row+2):
@@ -103,12 +103,15 @@ def generate_mesh(simmetry, filename):
         handle_bot = geom.copy(handle_top)
         geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
 
-        geom.boolean_union([arrange,handle_bot,handle_top])
+        arrange = geom.boolean_union([arrange,handle_bot,handle_top])
         
-        geom.set_mesh_size_callback(
-            lambda dim, tag, x, y, z: pixel_size
-        )
+        for obj in arrange[1:]:
+            geom.remove(obj,True)
 
+        geom.set_mesh_size_callback(
+            lambda dim, tag, x, y, z, lc: pixel_size
+        )
+        
         mesh = geom.generate_mesh()
         mesh.write(filename)
         # end = time.time()
@@ -122,6 +125,13 @@ units = int(sys.argv[3])
 size = int(sys.argv[4])
 idx = int(sys.argv[5])
 theta = int(sys.argv[6])
+
+# origin = "-r"
+# simmetry = "p4m"
+# units = 9
+# size = 16 
+# idx = 0
+# theta = 0
 
 if origin == "-g":
     score = sys.argv[7]
