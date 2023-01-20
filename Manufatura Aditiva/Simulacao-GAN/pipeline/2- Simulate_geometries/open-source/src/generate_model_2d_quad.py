@@ -54,61 +54,62 @@ def generate_mesh(simmetry, filename):
                         if array[i,j] == 0:
                             loc_x, loc_y = idx2coord(simmetry,i,j,k,l)
                             void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
-                            void_pixels.append(void_pixel)
-
+                            if void_pixel.dim_tag in [(2,2),(2,3),(2,95),(2,232),(2,369),(2,506)]:
+                                void_pixels.append(void_pixel)
+                            
         void_pixels = geom.boolean_union(void_pixels)
         unit = geom.boolean_difference(unit, void_pixels)
 
-        units = []
-        units.append(unit[0])
+        # units = []
+        # units.append(unit[0])
         
-        for i in range(units_per_row+2):
-            for j in range(units_per_row+2):
-                if [i,j] != [int(units_per_row/2),int(units_per_row/2)]:
-                    unit_ = geom.copy(unit[0])
-                    geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
-                    units.append(unit_)
+        # for i in range(units_per_row+2):
+        #     for j in range(units_per_row+2):
+        #         if [i,j] != [int(units_per_row/2),int(units_per_row/2)]:
+        #             unit_ = geom.copy(unit[0])
+        #             geom.translate(unit_,[(j-1)*unit_size*0.998,(1-i)*unit_size*0.998,0])
+        #             units.append(unit_)
 
-        arrange = geom.boolean_union(units)
+        # arrange = geom.boolean_union(units)
 
-        geom.translate(arrange[0],[-unit_size,unit_size,0])
+        # geom.translate(arrange[0],[-unit_size,unit_size,0])
         
-        geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
+        # geom.rotate(arrange[0],[0.,0.,0.],np.deg2rad(theta),[0.,0.,1.])
 
-        filter_out = geom.add_disk([0.0, 0.0], 0.06, mesh_size=5e-4)
+        # filter_out = geom.add_disk([0.0, 0.0], 0.06, mesh_size=5e-4)
 
-        filter_in = geom.add_polygon(
-            [
-                [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
-                [arrange_size/2-1e-4, -arrange_size/2+1e-4],
-                [arrange_size/2-1e-4, arrange_size/2-1e-4],
-                [-arrange_size/2+1e-4, arrange_size/2-1e-4],
-            ],
-            mesh_size=5e-4,
-        )
+        # filter_in = geom.add_polygon(
+        #     [
+        #         [-arrange_size/2+1e-4, -arrange_size/2+1e-4],
+        #         [arrange_size/2-1e-4, -arrange_size/2+1e-4],
+        #         [arrange_size/2-1e-4, arrange_size/2-1e-4],
+        #         [-arrange_size/2+1e-4, arrange_size/2-1e-4],
+        #     ],
+        #     mesh_size=5e-4,
+        # )
 
-        filter_boolean = geom.boolean_difference(filter_out,filter_in)
+        # filter_boolean = geom.boolean_difference(filter_out,filter_in)
 
-        arrange = geom.boolean_difference(arrange, filter_boolean)
+        # arrange = geom.boolean_difference(arrange, filter_boolean)
 
-        handle_top = geom.add_polygon(
-            [
-                [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
-                [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
-                [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
-                [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
-            ],
-            mesh_size=5e-4,
-        )
+        # handle_top = geom.add_polygon(
+        #     [
+        #         [-arrange_size/2.+1.1e-4, arrange_size/2.-1.1e-4],
+        #         [arrange_size/2.-1.1e-4, arrange_size/2.-1.1e-4],
+        #         [arrange_size/2.-1.1e-4, 3*arrange_size/4.],
+        #         [-arrange_size/2.+1.1e-4, 3*arrange_size/4.],
+        #     ],
+        #     mesh_size=5e-4,
+        # )
         
-        handle_bot = geom.copy(handle_top)
-        geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
+        # handle_bot = geom.copy(handle_top)
+        # geom.translate(handle_bot,[0,-5*arrange_size*0.998/4,0])
 
-        arrange = geom.boolean_union([arrange,handle_bot,handle_top])
+        # arrange = geom.boolean_union([arrange,handle_bot,handle_top])
         
-        # remove isolated phases
-        for obj in arrange[1:]:
-            geom.remove(obj,True)
+        # # remove isolated phases
+        # for obj in arrange[1:]:
+        #     geom.remove(obj,True)
 
         geom.set_mesh_size_callback(
             lambda dim, tag, x, y, z, lc: pixel_size
