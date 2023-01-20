@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import time
 import warnings
 warnings.filterwarnings('ignore')
-pygmsh.helpers.gmsh.option.setNumber('General.Terminal', 0)
 
 def idx2coord(simmetry,i,j,k,l):
     if simmetry == 'p4':
@@ -53,11 +52,13 @@ def generate_mesh(simmetry, filename):
                 for i in range(len(array)): #row of pixel
                     for j in range(len(array)): #column of pixel
                         if array[i,j] == 0:
-                            loc_x,loc_y = idx2coord(simmetry,i,j,k,l)
+                            loc_x, loc_y = idx2coord(simmetry,i,j,k,l)
                             void_pixel = geom.add_polygon([[loc_x-pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y-pixel_size/2.],[loc_x+pixel_size/2.,loc_y+pixel_size/2.],[loc_x-pixel_size/2.,loc_y+pixel_size/2.]],mesh_size=5e-4)
                             void_pixels.append(void_pixel)
 
-        unit = geom.boolean_difference(unit, geom.boolean_union(void_pixels))
+        void_pixels = geom.boolean_union(void_pixels)
+        unit = geom.boolean_difference(unit, void_pixels)
+
         units = []
         units.append(unit[0])
         
@@ -105,6 +106,7 @@ def generate_mesh(simmetry, filename):
 
         arrange = geom.boolean_union([arrange,handle_bot,handle_top])
         
+        # remove isolated phases
         for obj in arrange[1:]:
             geom.remove(obj,True)
 
