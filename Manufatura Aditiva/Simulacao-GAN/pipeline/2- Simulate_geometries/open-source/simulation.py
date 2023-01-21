@@ -158,7 +158,6 @@ if __name__ == '__main__':
                 Es_geometry[j] = str(Es_geometry[j])+'e+9'
 
             filename = geometries_filename[int(i/2)+start+r*int(max_processes/2)]
-            print(filename)
             np.savetxt(young_dir+'/'+filename, Es_geometry, delimiter='\n', fmt='%s')
 
     end_time = time.time()
