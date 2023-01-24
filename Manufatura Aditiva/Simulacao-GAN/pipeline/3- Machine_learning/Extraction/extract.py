@@ -30,9 +30,9 @@ def create_df(dimension,property,origin,score,simmetry,E):
             property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
             score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
-            array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
-            property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
-            score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
+            array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
+            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/RTGA/%sD/%s/' %(property,dimension,simmetry)
+            score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/RTGA/%sD/%s/%s.csv' %(dimension,simmetry,score)
     
     elif origin == "-m":
         if os.getcwd().split('\\')[2] == 'lucas':
@@ -40,9 +40,9 @@ def create_df(dimension,property,origin,score,simmetry,E):
             property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/MATLAB/%sD/%s/' %(property,dimension,simmetry)
             score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/MATLAB/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
-            array_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
-            property_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/%s/MATLAB/%sD/%s/' %(property,dimension,simmetry)
-            score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/MATLAB/%sD/%s/%s.csv' %(dimension,simmetry,score)
+            array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/RTGA/%s/' %(simmetry)
+            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/MATLAB/%sD/%s/' %(property,dimension,simmetry)
+            score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/MATLAB/%sD/%s/%s.csv' %(dimension,simmetry,score)
     
     
     Es = np.array([])
@@ -84,6 +84,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
     porosities = np.array(porosities).reshape(len(porosities),1)
     if origin == '-g':
         models = np.array(models).reshape(len(models),1)
+    
     geometries = np.array(geometries).astype(int)
     idxs = np.array(idxs).reshape(len(idxs),1)
 
@@ -98,7 +99,8 @@ def create_df(dimension,property,origin,score,simmetry,E):
         isos = np.array(isos).reshape(len(isos),1)
         for i in range(len(isos)):
             idx = idxs[i]
-            model = models[i]
+            if origin == "-g":
+                model = models[i]
             geometry = geometries[i]
             iso = isos[i]
             if origin == '-r':
