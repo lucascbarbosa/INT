@@ -102,14 +102,14 @@ if __name__ == '__main__':
             geometries_dir = 'E:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
             vtk_dir = 'E:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
             young_dir = 'E:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
-            models_dir = 'E:/Lucas GAN/Dados/5- GAN_models/%sD/%s/%s/'%(dimension,simmetry,score)
+            models_dir = 'E:/Lucas GAN/Dados/5- Models/GAN/%sD/%s/%s/'%(dimension,simmetry,score)
             log_dir = 'E:/Lucas GAN/Dados/6- Simulation_logs/GAN/%sD/%s/' % (dimension, simmetry)
         else:
             max_processes = 18
             geometries_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' % (simmetry, score)
             vtk_dir = 'D:/Lucas GAN/Dados/2- Geometry_models/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
             young_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/young/GAN/%sD/%s/%s/' % (dimension, simmetry, score)
-            models_dir = 'D:/Lucas GAN/Dados/5- GAN_models/%sD/%s/%s/'%(dimension,simmetry,score)
+            models_dir = 'D:/Lucas GAN/Dados/5- Models/GAN/%sD/%s/%s/'%(dimension,simmetry,score)
             log_dir = 'D:/Lucas GAN/Dados/6- Simulation_logs/GAN/%sD/%s/' % (dimension, simmetry)
         models_filename = os.listdir(models_dir)
 

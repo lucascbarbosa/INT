@@ -21,7 +21,7 @@ def create_df(dimension,property,origin,score,simmetry,E):
             score_filename = 'E:/Lucas GAN/Dados/4- Mechanical_scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
         else:
             array_dir = 'D:/Lucas GAN/Dados/1- Arranged_geometries/GAN/%s/%s/' %(simmetry,score)
-            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/' %(property,dimension,simmetry,score)
+            property_dir = 'D:/Lucas GAN/Dados/3- Mechanical_properties/%s/GAN/%sD/%s/%s/' %(property,dimension,simmetry,score)
             score_filename = 'D:/Lucas GAN/Dados/4- Mechanical_scores/GAN/%sD/%s/%s.csv' %(dimension,simmetry,score)
     
     elif origin == "-r":
