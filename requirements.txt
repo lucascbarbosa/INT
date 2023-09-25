@@ -22,7 +22,7 @@ future @ file:///D:/bld/future_1610147365175/work
 geocoder==1.38.1
 geographiclib==1.50
 geopy==2.1.0
-gevent==21.1.2
+gevent==23.9.1
 geventhttpclient==1.4.4
 greenlet==1.1.0
 h5py @ file:///D:/bld/h5py_1604753857493/work
